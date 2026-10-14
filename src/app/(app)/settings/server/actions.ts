@@ -20,6 +20,7 @@ import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { cloudTarget, removeCloudCopy } from "@/lib/backup-copies";
+import { onedriveScopes } from "@/lib/cloud/onedrive";
 import { CLOUD_PROVIDERS, cleanFolder, COPY_KINDS, MAX_EMAIL_MB, type BackupCopies, type CloudProvider } from "@/lib/backup-copies-settings";
 
 const PAGE = "/settings/server";
@@ -224,6 +225,8 @@ function copiesFromForm(form: FormData, current: BackupCopies): { copies: Backup
   const c = current.cloud;
   const odClientId = get("odClientId");
   const gdClientId = get("gdClientId");
+  const odKeep =
+    odClientId === c.onedrive.clientId && (get("odTenant") || "common") === c.onedrive.tenant && onedriveScopes(get("odSiteUrl")) === onedriveScopes(c.onedrive.siteUrl);
   const copies: BackupCopies = {
     email: { enabled: emailEnabled, to: to.emails.slice(0, 5), kinds: kinds("emailKinds"), encryptedOnly: form.get("emailEncryptedOnly") === "on", maxMb: Math.round(maxMb) },
     cloud: {
@@ -236,9 +239,10 @@ function copiesFromForm(form: FormData, current: BackupCopies): { copies: Backup
         clientId: odClientId,
         clientSecretEnc: keep("odClientSecret", c.onedrive.clientSecretEnc),
         siteUrl: get("odSiteUrl"),
-        // A different app registration invalidates the stored sign-in.
-        refreshTokenEnc: odClientId === c.onedrive.clientId ? c.onedrive.refreshTokenEnc : null,
-        account: odClientId === c.onedrive.clientId ? c.onedrive.account : null,
+        // A different app registration, or switching between OneDrive and a SharePoint site (which needs
+        // another permission), invalidates the stored sign-in.
+        refreshTokenEnc: odKeep ? c.onedrive.refreshTokenEnc : null,
+        account: odKeep ? c.onedrive.account : null,
       },
       gdrive: {
         clientId: gdClientId,

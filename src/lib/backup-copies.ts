@@ -44,9 +44,8 @@ export function cloudTarget(c: BackupCopies["cloud"]): CloudTarget | null {
   if (c.provider === "webdav") return webdavTarget({ url: c.webdav.url, user: c.webdav.user, password: decrypt(c.webdav.passwordEnc), folder: c.folder });
   if (c.provider === "onedrive") {
     return onedriveTarget({
-      app: { tenant: c.onedrive.tenant, clientId: c.onedrive.clientId, clientSecret: decrypt(c.onedrive.clientSecretEnc) ?? "" },
+      app: { tenant: c.onedrive.tenant, clientId: c.onedrive.clientId, clientSecret: decrypt(c.onedrive.clientSecretEnc) ?? "", siteUrl: c.onedrive.siteUrl },
       refreshToken: decrypt(c.onedrive.refreshTokenEnc)!,
-      siteUrl: c.onedrive.siteUrl,
       folder: c.folder,
       onRefresh: async (token) => {
         const s = (await getServerSettings()).backupCopies;

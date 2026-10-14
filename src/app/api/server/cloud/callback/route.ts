@@ -30,7 +30,12 @@ export async function GET(req: Request) {
   const redirectUri = await cloudRedirectUri();
   try {
     if (provider === "onedrive") {
-      const app = { tenant: s.cloud.onedrive.tenant, clientId: s.cloud.onedrive.clientId, clientSecret: s.cloud.onedrive.clientSecretEnc ? decryptField(s.cloud.onedrive.clientSecretEnc) : "" };
+      const app = {
+        tenant: s.cloud.onedrive.tenant,
+        clientId: s.cloud.onedrive.clientId,
+        clientSecret: s.cloud.onedrive.clientSecretEnc ? decryptField(s.cloud.onedrive.clientSecretEnc) : "",
+        siteUrl: s.cloud.onedrive.siteUrl,
+      };
       const r = await onedriveConnect(app, code, redirectUri);
       if (!r.refreshToken) return back("noRefresh");
       await updateServerSettings({ backupCopies: { ...s, cloud: { ...s.cloud, provider: "onedrive", onedrive: { ...s.cloud.onedrive, refreshTokenEnc: encryptField(r.refreshToken), account: r.account } } } });

@@ -64,10 +64,16 @@ describe("backup copy settings", () => {
 
 describe("OneDrive", () => {
   it("builds the sign-in link with offline access", () => {
-    const u = new URL(onedriveAuthorizeUrl({ tenant: "common", clientId: "cid" }, "https://app.test/cb", "st"));
+    const u = new URL(onedriveAuthorizeUrl({ tenant: "common", clientId: "cid", siteUrl: "" }, "https://app.test/cb", "st"));
     expect(u.origin + u.pathname).toBe("https://login.microsoftonline.com/common/oauth2/v2.0/authorize");
     expect(u.searchParams.get("scope")).toContain("offline_access");
     expect(u.searchParams.get("redirect_uri")).toBe("https://app.test/cb");
+  });
+
+  it("only asks for SharePoint access with a site (personal accounts reject it)", () => {
+    const scope = (siteUrl: string) => new URL(onedriveAuthorizeUrl({ tenant: "consumers", clientId: "c", siteUrl }, "https://app.test/cb", "st")).searchParams.get("scope");
+    expect(scope("")).toBe("offline_access User.Read Files.ReadWrite.All");
+    expect(scope("https://acme.sharepoint.com/sites/IT")).toContain("Sites.ReadWrite.All");
   });
 
   it("refreshes the token, uploads in 10 MiB parts with ranges, and stores a rotated refresh token", async () => {
@@ -80,7 +86,7 @@ describe("OneDrive", () => {
       return json({}, 404);
     });
     const onRefresh = vi.fn(async () => {});
-    await onedriveTarget({ app: { tenant: "common", clientId: "cid", clientSecret: "sec" }, refreshToken: "RT1", siteUrl: "", folder: "Backups/Main", onRefresh }).upload(f, "b.tar.gz", size);
+    await onedriveTarget({ app: { tenant: "common", clientId: "cid", clientSecret: "sec", siteUrl: "" }, refreshToken: "RT1", folder: "Backups/Main", onRefresh }).upload(f, "b.tar.gz", size);
     expect(onRefresh).toHaveBeenCalledWith("RT2");
     const session = calls.find((c) => c.url.endsWith(":/createUploadSession"))!;
     expect(session.url).toBe("https://graph.microsoft.com/v1.0/me/drive/root:/Backups/Main/b.tar.gz:/createUploadSession");
@@ -97,7 +103,7 @@ describe("OneDrive", () => {
       if (c.url.includes("/children")) return json({ value: [{ name: "a.tar.gz" }] });
       return json({}, 404);
     });
-    const names = await onedriveTarget({ app: { tenant: "t", clientId: "c", clientSecret: "s" }, refreshToken: "R", siteUrl: "https://acme.sharepoint.com/sites/IT/", folder: "B", onRefresh: async () => {} }).list();
+    const names = await onedriveTarget({ app: { tenant: "t", clientId: "c", clientSecret: "s", siteUrl: "https://acme.sharepoint.com/sites/IT/" }, refreshToken: "R", folder: "B", onRefresh: async () => {} }).list();
     expect(names).toEqual(["a.tar.gz"]);
     expect(calls.at(-1)!.url).toContain("/sites/site-1/drive/root:/B:/children");
   });

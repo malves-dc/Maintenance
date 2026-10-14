@@ -4,10 +4,11 @@ import { check, encodePath, readChunk, type CloudTarget } from "./target";
 // Microsoft Entra ID). Large files go up in 10 MiB parts through an upload session.
 
 const GRAPH = "https://graph.microsoft.com/v1.0";
-export const ONEDRIVE_SCOPES = "offline_access User.Read Files.ReadWrite.All Sites.ReadWrite.All";
+/** SharePoint sites need Sites.ReadWrite.All, which personal Microsoft accounts reject: only ask for it with a site. */
+export const onedriveScopes = (siteUrl: string) => `offline_access User.Read Files.ReadWrite.All${siteUrl ? " Sites.ReadWrite.All" : ""}`;
 const CHUNK = 32 * 327_680; // 10 MiB, a multiple of 320 KiB as Graph requires
 
-export type OneDriveApp = { tenant: string; clientId: string; clientSecret: string };
+export type OneDriveApp = { tenant: string; clientId: string; clientSecret: string; siteUrl: string };
 
 const authority = (tenant: string) => `https://login.microsoftonline.com/${encodeURIComponent(tenant || "common")}/oauth2/v2.0`;
 
@@ -17,7 +18,7 @@ export function onedriveAuthorizeUrl(app: Omit<OneDriveApp, "clientSecret">, red
     response_type: "code",
     redirect_uri: redirectUri,
     response_mode: "query",
-    scope: ONEDRIVE_SCOPES,
+    scope: onedriveScopes(app.siteUrl),
     state,
     prompt: "select_account",
   });
@@ -28,7 +29,7 @@ async function token(app: OneDriveApp, params: Record<string, string>) {
   const res = await fetch(`${authority(app.tenant)}/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: app.clientId, client_secret: app.clientSecret, scope: ONEDRIVE_SCOPES, ...params }),
+    body: new URLSearchParams({ client_id: app.clientId, client_secret: app.clientSecret, scope: onedriveScopes(app.siteUrl), ...params }),
   });
   return (await (await check(res, "Microsoft sign-in")).json()) as { access_token: string; refresh_token?: string };
 }
@@ -48,7 +49,6 @@ export async function onedriveConnect(app: OneDriveApp, code: string, redirectUr
 export function onedriveTarget(o: {
   app: OneDriveApp;
   refreshToken: string;
-  siteUrl: string;
   folder: string;
   onRefresh: (token: string) => Promise<void>;
 }): CloudTarget {
@@ -59,8 +59,8 @@ export function onedriveTarget(o: {
     const t = await token(o.app, { grant_type: "refresh_token", refresh_token: o.refreshToken });
     if (t.refresh_token && t.refresh_token !== o.refreshToken) await o.onRefresh(t.refresh_token);
     let drive = `${GRAPH}/me/drive`;
-    if (o.siteUrl) {
-      const u = new URL(o.siteUrl);
+    if (o.app.siteUrl) {
+      const u = new URL(o.app.siteUrl);
       const res = await fetch(`${GRAPH}/sites/${u.hostname}:${u.pathname.replace(/\/$/, "")}`, { headers: { Authorization: `Bearer ${t.access_token}` } });
       const site = (await (await check(res, "SharePoint site")).json()) as { id: string };
       drive = `${GRAPH}/sites/${site.id}/drive`;
