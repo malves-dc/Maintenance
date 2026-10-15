@@ -6,7 +6,7 @@ import { FieldError } from "@/components/action-form";
 import { Field, Select } from "@/components/ui";
 
 type VillaOption = { id: string; name: string };
-export type ClientOption = { id: string; name: string; owned: VillaOption[]; managed: (VillaOption & { owner: string })[] };
+export type ClientOption = { id: string; name: string; owned: VillaOption[]; managed: (VillaOption & { owner: string | null })[] };
 
 /** Client, then only that client's villas (owned, and those it manages for other owners). */
 export function ClientVillaFields({ clients, clientId: initialClient, villaId: initialVilla }: { clients: ClientOption[]; clientId: string; villaId: string }) {
@@ -54,7 +54,7 @@ export function ClientVillaFields({ clients, clientId: initialClient, villaId: i
             <optgroup label={t("contracts.managedVillas")}>
               {client.managed.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.name} ({v.owner})
+                  {v.owner ? `${v.name} (${v.owner})` : v.name}
                 </option>
               ))}
             </optgroup>

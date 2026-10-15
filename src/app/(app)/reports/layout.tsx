@@ -14,7 +14,7 @@ export default async function ReportsLayout({ children }: { children: React.Reac
   const t = await getTranslations();
   const [clients, villas] = await Promise.all([
     ctx.db.client.findMany({ where: { archivedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    ctx.db.villa.findMany({ where: { archivedAt: null }, select: { id: true, name: true, clientId: true }, orderBy: { name: "asc" } }),
+    ctx.db.villa.findMany({ where: { archivedAt: null }, select: { id: true, name: true, clientId: true, managerId: true }, orderBy: { name: "asc" } }),
   ]);
   return (
     <>

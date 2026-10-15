@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { getContext } from "@/lib/context";
 import { csvResponse, toCsv } from "@/lib/csv";
+import { villaClient } from "@/lib/villa-client";
 
 /** Active asset register as CSV. Credentials are never exported. */
 export async function GET() {
@@ -10,7 +11,7 @@ export async function GET() {
   const assets = await ctx.db.asset.findMany({
     where: { archivedAt: null },
     include: {
-      villa: { select: { name: true, client: { select: { name: true } } } },
+      villa: { select: { name: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
       area: { select: { name: true } },
       parent: { select: { name: true } },
       vendor: { select: { name: true } },
@@ -25,7 +26,7 @@ export async function GET() {
     t("assets.purchaseCost"), t("assets.vendor"),
   ];
   const rows = assets.map((a) => [
-    a.name, a.code, a.villa.client.name, a.villa.name, a.area?.name, a.parent?.name, t(`systems.${a.system}`),
+    a.name, a.code, villaClient(a.villa)?.name, a.villa.name, a.area?.name, a.parent?.name, t(`systems.${a.system}`),
     a.category, a.manufacturer, a.model, a.serialNumber, a.macAddress, a.ipAddress,
     a.vlan, a.firmware, t(`assetStatus.${a.status}`), t(`criticality.${a.criticality}`), day(a.installDate), day(a.warrantyExpiry),
     a.purchaseCost != null ? Number(a.purchaseCost) : null, a.vendor?.name,

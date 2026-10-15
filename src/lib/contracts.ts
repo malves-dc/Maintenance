@@ -2,6 +2,7 @@ import "server-only";
 import type { TenantDb } from "@/lib/db/tenant";
 import { pickContract } from "@/lib/sla";
 import type { SystemType } from "@/generated/prisma/enums";
+import { villaClientIds as villaClients } from "@/lib/villa-client";
 
 // Work orders are linked to the service contract that covers them automatically (villa, client,
 // dates, systems), so SLA reporting needs no manual tagging.
@@ -17,8 +18,6 @@ export async function contractFor(db: TenantDb, villaId: string | null, system: 
   const contracts = await db.serviceContract.findMany({ where: { clientId: { in: clientIds } }, select: contractFields });
   return pickContract(contracts, { villaId, clientIds, system, at })?.id ?? null;
 }
-
-const villaClients = (v: { clientId: string; managerId: string | null }) => (v.managerId ? [v.clientId, v.managerId] : [v.clientId]);
 
 /**
  * Re-evaluates which contract each work order at a client's villas (owned or managed) falls under.

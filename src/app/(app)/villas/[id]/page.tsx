@@ -13,6 +13,7 @@ import { setVillaArchivedAction } from "../actions";
 import { AreasManager } from "./areas";
 import { RecentWorkOrders } from "@/components/recent-work-orders";
 import type { SystemType } from "@/generated/prisma/enums";
+import { villaClient } from "@/lib/villa-client";
 
 export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
   const { id } = await params;
@@ -24,7 +25,7 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
     where: { id },
     include: {
       client: { include: { contacts: { orderBy: { isPrimary: "desc" }, take: 3 } } },
-      manager: { select: { id: true, name: true } },
+      manager: { include: { contacts: { orderBy: { isPrimary: "desc" }, take: 3 } } },
       areas: { include: { _count: { select: { assets: { where: { archivedAt: null } } } } } },
       assets: {
         where: { archivedAt: null },
@@ -34,6 +35,7 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
     },
   });
   if (!villa) notFound();
+  const contacts = villaClient(villa)?.contacts ?? [];
 
   const areas = flattenTree(villa.areas).map((a) => ({
     id: a.id,
@@ -158,18 +160,26 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
 
         <div className="space-y-6">
           <Card className="space-y-3 p-5 text-sm">
-            <div>
-              <div className="text-xs text-muted">{t("villas.owner")}</div>
-              <Link href={`/clients/${villa.client.id}`} className="font-medium hover:text-brand">
-                {villa.client.name}
-              </Link>
-            </div>
+            {villa.client && (
+              <div>
+                <div className="text-xs text-muted">{t("villas.owner")}</div>
+                <Link href={`/clients/${villa.client.id}`} className="font-medium hover:text-brand">
+                  {villa.client.name}
+                </Link>
+              </div>
+            )}
             {villa.manager && (
               <div>
                 <div className="text-xs text-muted">{t("villas.manager")}</div>
                 <Link href={`/clients/${villa.manager.id}`} className="font-medium hover:text-brand">
                   {villa.manager.name}
                 </Link>
+              </div>
+            )}
+            {villa.client && villa.manager && (
+              <div>
+                <div className="text-xs text-muted">{t("villas.billTo")}</div>
+                <div>{villaClient(villa)!.name}</div>
               </div>
             )}
             {mapsQuery && (
@@ -187,10 +197,10 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
                 </a>
               </div>
             )}
-            {villa.client.contacts.length > 0 && (
+            {contacts.length > 0 && (
               <div>
                 <div className="text-xs text-muted">{t("clients.contacts")}</div>
-                {villa.client.contacts.map((c) => (
+                {contacts.map((c) => (
                   <div key={c.id}>
                     {c.name}
                     {c.role && <span className="text-muted"> · {c.role}</span>}

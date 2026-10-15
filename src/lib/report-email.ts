@@ -8,6 +8,7 @@ import { appOrigin } from "@/lib/qr";
 import { audit } from "@/lib/audit";
 import { renderServiceReport } from "@/lib/service-report";
 import { isLocale } from "@/i18n/config";
+import { villaClient } from "@/lib/villa-client";
 import { mergeRecipients, parseCompanyRecipients, type Recipient } from "@/lib/report-recipients";
 import en from "../../messages/en.json";
 import pt from "../../messages/pt.json";
@@ -16,6 +17,13 @@ import pt from "../../messages/pt.json";
 // for who is offered by default.
 
 const BUILT_IN = new Set<string>(Object.values(Role));
+
+const recipientFields = {
+  name: true,
+  email: true,
+  reportEmails: true,
+  contacts: { where: { receivesReports: true }, select: { name: true, email: true } },
+} as const;
 
 /** The work order and its default recipients: the client, its report contacts and addresses, then the company's list. */
 export async function reportRecipients(ctx: Pick<AppContext, "db" | "organization">, workOrderId: string) {
@@ -26,17 +34,12 @@ export async function reportRecipients(ctx: Pick<AppContext, "db" | "organizatio
       number: true,
       reportSentAt: true,
       reportSentTo: true,
-      villa: {
-        select: {
-          client: {
-            select: { name: true, email: true, reportEmails: true, contacts: { where: { receivesReports: true }, select: { name: true, email: true } } },
-          },
-        },
-      },
+      villa: { select: { client: { select: recipientFields }, manager: { select: recipientFields }, billTo: true } },
     },
   });
   if (!wo) return null;
-  const client = wo.villa?.client;
+  // No owner: the report goes to the managing company.
+  const client = wo.villa && villaClient(wo.villa);
   const company = parseCompanyRecipients(ctx.organization.reportRecipients);
   const roles = company.roles.filter((r) => BUILT_IN.has(r) && r !== "REQUESTER") as Role[];
   const jobRoleIds = company.roles.filter((r) => r.startsWith("job:")).map((r) => r.slice(4));

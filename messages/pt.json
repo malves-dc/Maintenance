@@ -236,7 +236,8 @@
     "badHoliday": "Indique uma data por linha, no formato AAAA-MM-DD.",
     "categoryTaken": "Já existe uma categoria com este nome.",
     "badEmails": "Um ou mais endereços não são endereços de e-mail válidos.",
-    "badFrom": "Indique um endereço, ou um nome e endereço: Empresa '<'nome@empresa.pt'>'."
+    "badFrom": "Indique um endereço, ou um nome e endereço: Empresa '<'nome@empresa.pt'>'.",
+    "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -261,7 +262,7 @@
     "description": "Todas as propriedades que mantém, com as suas divisões e sistemas instalados.",
     "new": "Nova moradia",
     "empty": "Ainda não há moradias.",
-    "needClient": "Crie primeiro um cliente; cada moradia pertence a um cliente.",
+    "needClient": "Crie primeiro um cliente; cada moradia pertence a um proprietário, a uma gestão da propriedade, ou a ambos.",
     "allClients": "Todos os clientes",
     "client": "Cliente",
     "owner": "Proprietário",
@@ -280,12 +281,17 @@
     "openMaps": "Abrir no Maps",
     "secrets": "Códigos de acesso",
     "manager": "Gestão da propriedade / empresa",
-    "managerHint": "Opcional. Os utilizadores do portal deste cliente também veem esta moradia e podem pedir trabalhos. Os utilizadores do portal do proprietário só veem as moradias do próprio proprietário.",
+    "managerHint": "Os utilizadores do portal deste cliente também veem esta moradia e podem pedir trabalhos. Os utilizadores do portal do proprietário só veem as moradias do próprio proprietário. Escolha um proprietário, uma gestão, ou ambos.",
     "noManager": "Nenhuma",
     "managedBy": "Gerida por {name}",
     "managedVillas": "Moradias geridas",
     "managedVillasHint": "Moradias de outros proprietários que este cliente gere. Os utilizadores do portal deste cliente podem pedir trabalhos nelas.",
-    "ownedBy": "Proprietário: {name}"
+    "ownedBy": "Proprietário: {name}",
+    "ownerHint": "Deixe vazio se a moradia for só acompanhada por uma gestão da propriedade.",
+    "noOwner": "Nenhum",
+    "billTo": "Faturar a",
+    "billToHint": "A quem se fatura o trabalho e se enviam os relatórios de serviço, quando a moradia tem proprietário e gestão.",
+    "billed": "faturada"
   },
   "areas": {
     "title": "Pisos e divisões",

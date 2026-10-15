@@ -110,7 +110,7 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
                         {v.code && <span className="ml-2 font-mono text-xs text-muted">{v.code}</span>}
                         <span className="block text-xs text-muted">{[v.city, v.country].filter(Boolean).join(", ")}</span>
                       </span>
-                      <span className="text-right text-sm text-muted">{t("villas.ownedBy", { name: v.client.name })}</span>
+                      {v.client && <span className="text-right text-sm text-muted">{t("villas.ownedBy", { name: v.client.name })}</span>}
                     </Link>
                   </li>
                 ))}

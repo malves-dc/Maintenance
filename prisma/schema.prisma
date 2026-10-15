@@ -57,6 +57,12 @@ enum AreaKind {
   TECH_ROOM
 }
 
+/// Who a villa's work is billed and reported to, when it has both an owner and a manager.
+enum BillTo {
+  OWNER
+  MANAGER
+}
+
 enum ClientType {
   PRIVATE_OWNER
   COMPANY
@@ -426,10 +432,12 @@ model ClientContact {
 model Villa {
   id             String    @id @default(cuid())
   organizationId String
-  // The owner (billing client). A property manager / managing company can be added as manager:
-  // portal users of either client can see the villa and request work on it.
-  clientId       String
+  // The owner and/or the property manager / managing company: at least one is set (a check constraint
+  // enforces it). Portal users of either client can see the villa and request work on it;
+  // work is billed and reported to the one billTo names (see villaClient()).
+  clientId       String?
   managerId      String?
+  billTo         BillTo    @default(OWNER)
   name           String
   code           String? // short internal ref, e.g. "VQL-07"
   address        String?
@@ -446,7 +454,7 @@ model Villa {
   updatedAt      DateTime  @updatedAt
 
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  client       Client            @relation("VillaOwner", fields: [clientId], references: [id])
+  client       Client?           @relation("VillaOwner", fields: [clientId], references: [id], onDelete: Restrict)
   manager      Client?           @relation("VillaManager", fields: [managerId], references: [id], onDelete: SetNull)
   areas        Area[]
   assets       Asset[]

@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { getContext } from "@/lib/context";
 import { pageOf, PAGE_SIZE, searchWhere, sp } from "@/lib/list";
 import { titled } from "@/lib/metadata";
+import { villaClient } from "@/lib/villa-client";
 
 export const generateMetadata = titled("nav.villas");
 
@@ -32,7 +33,7 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
       where,
       include: {
         client: { select: { id: true, name: true } },
-        manager: { select: { name: true } },
+        manager: { select: { id: true, name: true } },
         _count: {
           select: {
             assets: { where: { archivedAt: null } },
@@ -106,10 +107,17 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
                     {v.code && <span className="ml-2 font-mono text-xs text-muted">{v.code}</span>}
                   </td>
                   <td>
-                    <Link href={`/clients/${v.client.id}`} className="text-muted hover:text-brand">
-                      {v.client.name}
-                    </Link>
-                    {v.manager && <span className="block text-xs text-muted">{t("villas.managedBy", { name: v.manager.name })}</span>}
+                    {(v.client ?? v.manager) && (
+                      <Link href={`/clients/${(v.client ?? v.manager)!.id}`} className="text-muted hover:text-brand">
+                        {(v.client ?? v.manager)!.name}
+                      </Link>
+                    )}
+                    {v.client && v.manager && (
+                      <span className="block text-xs text-muted">
+                        {t("villas.managedBy", { name: v.manager.name })}
+                        {villaClient(v) === v.manager && ` · ${t("villas.billed")}`}
+                      </span>
+                    )}
                   </td>
                   <td className="text-muted">{v.city ?? "—"}</td>
                   <td className="text-right tabular-nums">{v._count.assets}</td>

@@ -236,7 +236,8 @@
     "badHoliday": "Use one date per line, as YYYY-MM-DD.",
     "categoryTaken": "There's already a category with this name.",
     "badEmails": "One or more addresses aren't valid e-mail addresses.",
-    "badFrom": "Use an address, or a name and address: Company '<'name@company.com'>'."
+    "badFrom": "Use an address, or a name and address: Company '<'name@company.com'>'.",
+    "ownerOrManager": "Choose an owner, a property manager, or both."
   },
   "clients": {
     "description": "Villa owners, family offices and property managers you work for.",
@@ -261,7 +262,7 @@
     "description": "Every property you maintain, with its rooms and installed systems.",
     "new": "New villa",
     "empty": "No villas yet.",
-    "needClient": "Create a client first; each villa belongs to a client.",
+    "needClient": "Create a client first; each villa belongs to an owner, a property manager, or both.",
     "allClients": "All clients",
     "client": "Client",
     "owner": "Owner",
@@ -280,12 +281,17 @@
     "openMaps": "Open in Maps",
     "secrets": "Access codes",
     "manager": "Property manager / company",
-    "managerHint": "Optional. Its portal users can also see this villa and request work here. The owner's portal users only ever see the owner's own villas.",
+    "managerHint": "Its portal users can also see this villa and request work here. The owner's portal users only ever see the owner's own villas. Choose an owner, a manager, or both.",
     "noManager": "None",
     "managedBy": "Managed by {name}",
     "managedVillas": "Villas managed",
     "managedVillasHint": "Villas of other owners that this client manages. Its portal users can request work on them.",
-    "ownedBy": "Owner: {name}"
+    "ownedBy": "Owner: {name}",
+    "ownerHint": "Leave empty if the villa is only looked after by a property manager.",
+    "noOwner": "None",
+    "billTo": "Bill to",
+    "billToHint": "Who the work is billed and the service reports sent to, when the villa has both an owner and a property manager.",
+    "billed": "billed"
   },
   "areas": {
     "title": "Floors & rooms",

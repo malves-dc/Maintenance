@@ -10,6 +10,7 @@ import { INTL_LOCALE, type Locale } from "@/i18n/config";
 import { ServiceReport, type ReportData } from "@/app/(app)/work-orders/[id]/report/report-pdf";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
+import { villaClient } from "@/lib/villa-client";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
 // e-mailing (lib/report-email.ts). `where` scopes the work order (tenant + portal rules are the caller's);
@@ -30,7 +31,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   const wo = await ctx.db.workOrder.findFirst({
     where,
     include: {
-      villa: { select: { name: true, address: true, city: true, client: { select: { name: true } } } },
+      villa: { select: { name: true, address: true, city: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { name: true, manufacturer: true, model: true, serialNumber: true } },
       assignees: { select: { user: { select: { name: true } } } },
@@ -81,7 +82,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     : null;
 
   const info: [string, string | null | undefined][] = [
-    [t("villas.client"), wo.villa?.client.name],
+    [t("villas.client"), wo.villa && villaClient(wo.villa)?.name],
     [t("assets.villa"), wo.villa && [wo.villa.name, wo.villa.city].filter(Boolean).join(", ")],
     [t("assets.area"), wo.area?.name],
     [t("wo.asset"), asset],

@@ -9,6 +9,7 @@ import { urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaAccess } from "@/lib/portal-scope";
 import type { Prisma } from "@/generated/prisma/client";
 import type { Priority, SystemType, WorkOrderType } from "@/generated/prisma/enums";
+import { villaClient } from "@/lib/villa-client";
 
 // Report data. Conventions (shown on the pages):
 //  - counts, costs and SLA use work orders *opened* in the period;
@@ -183,7 +184,7 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
         number: true,
         title: true,
         system: true,
-        villa: { select: { id: true, name: true, client: { select: { id: true, name: true } } } },
+        villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
         ...costSelect,
       },
     }),
@@ -239,7 +240,7 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
     totals,
     rows,
     byVilla: group((r) => r.villa && { id: r.villa.id, name: r.villa.name }),
-    byClient: group((r) => r.villa && { id: r.villa.client.id, name: r.villa.client.name }).map((g) => ({ ...g, fees: fees.get(g.id) ?? 0 })),
+    byClient: group((r) => (r.villa && villaClient(r.villa)) || null).map((g) => ({ ...g, fees: fees.get(g.id) ?? 0 })),
     bySystem: group((r) => ({ id: r.system ?? "NONE", name: r.system ?? "NONE" })),
   };
 }

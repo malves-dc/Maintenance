@@ -6,13 +6,15 @@ import { z } from "zod";
 import { requirePermission } from "@/lib/context";
 import { assertOwned } from "@/lib/db/tenant";
 import { enumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
-import { AreaKind } from "@/generated/prisma/enums";
+import { AreaKind, BillTo } from "@/generated/prisma/enums";
 import { relinkClientWorkOrders } from "@/lib/contracts";
+import { normalizeBillTo } from "@/lib/villa-client";
 
 const villaSchema = z
   .object({
-    clientId: str(40),
+    clientId: optId(),
     managerId: optId(),
+    billTo: enumOf(BillTo).catch("OWNER"),
     name: str(150),
     code: optStr(30),
     address: optStr(300),
@@ -22,13 +24,14 @@ const villaSchema = z
     longitude: optNumber().refine((v) => v === null || Math.abs(v) <= 180),
     accessNotes: optStr(5000),
   })
-  .refine((v) => v.managerId !== v.clientId, { path: ["managerId"], message: "managerIsOwner" });
+  .refine((v) => v.clientId || v.managerId, { path: ["clientId"], message: "ownerOrManager" })
+  .refine((v) => !v.clientId || v.managerId !== v.clientId, { path: ["managerId"], message: "managerIsOwner" });
 
 export async function saveVillaAction(id: string | null, _: FormResult, form: FormData): Promise<FormResult> {
   const ctx = await requirePermission("clients.manage");
   const parsed = parseForm(villaSchema, form);
   if (parsed.error) return parsed.error;
-  const { data } = parsed;
+  const data = { ...parsed.data, billTo: normalizeBillTo(parsed.data) };
   await assertOwned(ctx.db, "client", [data.clientId, data.managerId]);
 
   let villaId = id;

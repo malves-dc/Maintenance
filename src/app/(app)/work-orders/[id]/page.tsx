@@ -18,6 +18,7 @@ import { CommentBox, CostsPanel, Gallery, SignOff, TimeTracker, WorkOrderActions
 import { PartsPanel } from "./parts-panel";
 import { SendReportPanel } from "./send-report";
 import { reportRecipients } from "@/lib/report-email";
+import { villaClient } from "@/lib/villa-client";
 
 export default async function WorkOrderPage({ params }: PageProps<"/work-orders/[id]">) {
   const { id } = await params;
@@ -29,7 +30,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const wo = await ctx.db.workOrder.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } } } },
+      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { id: true, name: true, status: true } },
       team: { select: { name: true, color: true } },
@@ -104,7 +105,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
 
   const details: [string, React.ReactNode][] = [
     [t("assets.villa"), wo.villa && <Link href={`/villas/${wo.villa.id}`} className="hover:text-brand">{wo.villa.name}</Link>],
-    [t("villas.client"), wo.villa && <Link href={`/clients/${wo.villa.client.id}`} className="hover:text-brand">{wo.villa.client.name}</Link>],
+    [t("villas.client"), wo.villa && villaClient(wo.villa) && <Link href={`/clients/${villaClient(wo.villa)!.id}`} className="hover:text-brand">{villaClient(wo.villa)!.name}</Link>],
     [t("assets.area"), wo.area?.name],
     [t("wo.asset"), wo.asset && <Link href={`/assets/${wo.asset.id}`} className="hover:text-brand">{wo.asset.name}</Link>],
     [t("wo.type"), t(`woType.${wo.type}`)],

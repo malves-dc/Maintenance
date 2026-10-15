@@ -19,7 +19,7 @@ const TABS = [
 type Option = { id: string; name: string };
 
 /** One filter row above everything it scopes, then the tabs (which keep the filters). */
-export function ReportNav({ clients, villas, systems, showCosts }: { clients: Option[]; villas: (Option & { clientId: string })[]; systems: string[]; showCosts: boolean }) {
+export function ReportNav({ clients, villas, systems, showCosts }: { clients: Option[]; villas: (Option & { clientId: string | null; managerId: string | null })[]; systems: string[]; showCosts: boolean }) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
@@ -64,7 +64,7 @@ export function ReportNav({ clients, villas, systems, showCosts }: { clients: Op
         <Select aria-label={t("assets.villa")} value={params.get("villaId") ?? ""} onChange={(e) => set({ villaId: e.target.value })}>
           <option value="">{t("assets.allVillas")}</option>
           {villas
-            .filter((v) => !clientId || v.clientId === clientId)
+            .filter((v) => !clientId || v.clientId === clientId || v.managerId === clientId)
             .map((v) => (
               <option key={v.id} value={v.id}>
                 {v.name}

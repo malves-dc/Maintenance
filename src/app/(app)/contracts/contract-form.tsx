@@ -26,7 +26,7 @@ export async function ContractForm({ ctx, contract, defaults }: { ctx: AppContex
     id: c.id,
     name: c.name,
     owned: c.villas,
-    managed: c.managedVillas.map((v) => ({ id: v.id, name: v.name, owner: v.client.name })),
+    managed: c.managedVillas.map((v) => ({ id: v.id, name: v.name, owner: v.client?.name ?? null })),
   }));
 
   return (

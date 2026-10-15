@@ -14,6 +14,7 @@ import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
 import { approveRequestAction, declineRequestAction } from "../actions";
 import { ApproveFields } from "./approve-fields";
+import { villaClient } from "@/lib/villa-client";
 
 export default async function RequestPage({ params }: PageProps<"/requests/[id]">) {
   const { id } = await params;
@@ -25,7 +26,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   const r = await ctx.db.request.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } } } },
+      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { id: true, name: true, status: true } },
       requester: { select: { name: true, email: true, phone: true } },
@@ -184,7 +185,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
                 <Link href={`/villas/${r.villa.id}`} className="hover:text-brand">
                   {r.villa.name}
                 </Link>
-                <div className="text-xs text-muted">{r.villa.client.name}</div>
+                <div className="text-xs text-muted">{villaClient(r.villa)?.name}</div>
               </div>
             )}
             {r.area && (

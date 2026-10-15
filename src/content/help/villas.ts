@@ -21,8 +21,8 @@ Every property you maintain: who owns and manages it, how to get there and in, h
 A villa always belongs to a client, so [create the client](/help/clients) first.
 
 1. Click **New villa** (or **New villa** on the client page, which fills in the owner).
-2. Choose the **Owner**.
-3. If a property management company looks after the villa for the owner, choose it in **Property manager / company**. Otherwise leave **None**. The manager can't be the owner itself.
+2. Choose the **Owner** and/or the **Property manager / company**: a villa can have only an owner, only a managing company, or both, but at least one. The manager can't be the owner itself.
+3. When the villa has both, choose in **Bill to** who the work is billed to: the owner or the manager. With only one of them, that one is billed.
 4. Fill in the **Name** and a short **Code**, such as VQL-07. The code is printed on the QR labels, so keep it short.
 5. Add the **Address**, **City**, **Country** and, for exact navigation, the **Latitude** and **Longitude**.
 6. Use **Access notes** for parking, working hours, pets and similar practical details.
@@ -32,10 +32,11 @@ A villa always belongs to a client, so [create the client](/help/clients) first.
 
 ## Owner and property manager
 
-The **Owner** is the client the villa belongs to. The **Property manager / company** is optional: a client (usually of the type **Property manager**) that looks after the villa for the owner. This matters in two places:
+The **Owner** is the client the villa belongs to. The **Property manager / company** is a client (usually of the type **Property manager**) that looks after the villa. A villa has one of them or both. This matters in three places:
 
 - **Client portal**: the owner's portal users see only the owner's own villas; the manager's portal users see every villa it manages, and can request work there.
 - **Service contracts**: a contract of either the owner or the manager can cover the villa. Changing the owner or the manager re-checks which contract the villa's work orders fall under. See [Service contracts](/help/contracts).
+- **Billing**: the client in **Bill to** is the one shown as client on the work orders, the service reports and the cost reports, and the service reports are e-mailed to it.
 
 ## The villa page
 
@@ -104,8 +105,8 @@ Todas as propriedades que mantém: quem é o dono e quem a gere, como lá chegar
 Uma moradia pertence sempre a um cliente, por isso [crie primeiro o cliente](/help/clients).
 
 1. Clique em **Nova moradia** (ou em **Nova moradia** na página do cliente, que preenche o proprietário).
-2. Escolha o **Proprietário**.
-3. Se uma empresa de gestão de propriedades cuida da moradia pelo proprietário, escolha-a em **Gestão da propriedade / empresa**. Caso contrário, deixe **Nenhuma**. O gestor não pode ser o próprio proprietário.
+2. Escolha o **Proprietário** e/ou a **Gestão da propriedade / empresa**: uma moradia pode ter só proprietário, só uma empresa de gestão, ou ambos, mas pelo menos um. O gestor não pode ser o próprio proprietário.
+3. Quando a moradia tem ambos, escolha em **Faturar a** a quem se fatura o trabalho: ao proprietário ou à gestão. Com só um deles, fatura-se a esse.
 4. Preencha o **Nome** e um **Código** curto, como VQL-07. O código é impresso nas etiquetas QR, por isso mantenha-o curto.
 5. Acrescente a **Morada**, **Localidade**, **País** e, para uma navegação exata, a **Latitude** e a **Longitude**.
 6. Use as **Notas de acesso** para estacionamento, horários, animais e outros detalhes práticos.
@@ -115,10 +116,11 @@ Uma moradia pertence sempre a um cliente, por isso [crie primeiro o cliente](/he
 
 ## Proprietário e gestor da propriedade
 
-O **Proprietário** é o cliente a quem a moradia pertence. A **Gestão da propriedade / empresa** é opcional: um cliente (normalmente do tipo **Gestor de propriedades**) que cuida da moradia pelo proprietário. Isto conta em dois sítios:
+O **Proprietário** é o cliente a quem a moradia pertence. A **Gestão da propriedade / empresa** é um cliente (normalmente do tipo **Gestor de propriedades**) que cuida da moradia. Uma moradia tem um deles ou ambos. Isto conta em três sítios:
 
 - **Portal do cliente**: os utilizadores do portal do proprietário só veem as moradias do próprio proprietário; os utilizadores do portal do gestor veem todas as moradias que ele gere e podem pedir trabalhos nelas.
 - **Contratos de manutenção**: um contrato do proprietário ou do gestor pode abranger a moradia. Mudar o proprietário ou o gestor volta a verificar a que contrato pertencem as ordens de trabalho da moradia. Veja [Contratos de manutenção](/help/contracts).
+- **Faturação**: o cliente em **Faturar a** é o que aparece como cliente nas ordens de trabalho, nos relatórios de serviço e nos relatórios de custos, e é a ele que se enviam os relatórios de serviço por e-mail.
 
 ## A página da moradia
 

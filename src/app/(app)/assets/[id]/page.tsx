@@ -15,6 +15,7 @@ import { StatusControl } from "./status-control";
 import { RecentWorkOrders } from "@/components/recent-work-orders";
 import { MetersPanel } from "../../meters/meters-panel";
 import { CompatibleParts } from "../../parts/compatible-parts";
+import { villaClient } from "@/lib/villa-client";
 
 const WARRANTY_SOON_DAYS = 60;
 
@@ -28,7 +29,7 @@ export default async function AssetPage({ params }: PageProps<"/assets/[id]">) {
   const asset = await ctx.db.asset.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } } } },
+      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       parent: { select: { id: true, name: true } },
       vendor: { select: { id: true, name: true } },
@@ -79,10 +80,14 @@ export default async function AssetPage({ params }: PageProps<"/assets/[id]">) {
     <>
       <BackLink href={`/villas/${asset.villa.id}`} label={asset.villa.name} />
       <nav className="mb-1 flex flex-wrap items-center gap-1 text-xs text-muted">
-        <Link href={`/clients/${asset.villa.client.id}`} className="hover:text-foreground">
-          {asset.villa.client.name}
-        </Link>
-        <ChevronRight className="size-3" />
+        {villaClient(asset.villa) && (
+          <>
+            <Link href={`/clients/${villaClient(asset.villa)!.id}`} className="hover:text-foreground">
+              {villaClient(asset.villa)!.name}
+            </Link>
+            <ChevronRight className="size-3" />
+          </>
+        )}
         <Link href={`/villas/${asset.villa.id}`} className="hover:text-foreground">
           {asset.villa.name}
         </Link>
