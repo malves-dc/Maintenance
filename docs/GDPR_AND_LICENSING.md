@@ -95,7 +95,7 @@ of employee data) is relevant to time tracking. Nothing in the app is covered by
   - **CC-BY-4.0**: `caniuse-lite` (browser data used at build time). ✅ Attribution only.
   - **png-js** (no licence field in its package): MIT upstream. ✅
   - Committed agent-skill docs (`prisma/skills`): MIT. ✅
-  - Docker image: Debian base (mixed, incl. GPL tools, distributed as separate programs) and the PostgreSQL
+  - Docker image: Alpine base (mixed, incl. GPL tools such as BusyBox, distributed as separate programs) and the PostgreSQL
     client (PostgreSQL licence). ✅ Standard practice; mention them in a third-party notice.
   - **Nothing prevents a BSL licence.**
 
@@ -128,7 +128,7 @@ which matches the phase-10 SaaS plan.
 
 1. Add `LICENSE` with the BSL 1.1 text and the parameters above. Set `"license": "BUSL-1.1"` in
    `package.json`, add a README section, and add an `org.opencontainers.image.licenses` label to the image.
-2. Add `THIRD_PARTY_NOTICES.md` (LGPL libvips, MPL web-push, CC-BY caniuse-lite, Debian/PostgreSQL in the image).
+2. Add `THIRD_PARTY_NOTICES.md` (LGPL libvips, MPL web-push, CC-BY caniuse-lite, Alpine/PostgreSQL in the image).
 3. Bump the Change Date in `LICENSE` at every release (add it to the release checklist in HANDOFF).
 4. If others will contribute: require a **Contributor License Agreement**, so you can keep selling commercial
    licences and relicensing.
