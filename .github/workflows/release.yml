@@ -93,8 +93,8 @@ jobs:
           provenance: mode=min
           annotations: |
             index:io.villaops.release-notes=${{ steps.notes.outputs.b64 }}
-          # Fresh node base image and Debian security updates on every release (the base stage's
-          # `apt-get upgrade` would otherwise come from the cache); the other stages still use it.
+          # Fresh node base image and Alpine security updates on every release (the base stage's
+          # `apk upgrade` would otherwise come from the cache); the other stages still use it.
           pull: true
           no-cache-filters: base
           cache-from: type=gha

@@ -1,6 +1,6 @@
 import "server-only";
 import { spawn, spawnSync } from "node:child_process";
-import { chmod, cp, mkdir, mkdtemp, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, cp, mkdir, mkdtemp, readdir, readFile, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/db/client";
 import { clearAllObjects, uploadRoot } from "@/lib/storage";
@@ -142,8 +142,9 @@ async function doBackup(kind: BackupKind) {
     await writeFile(path.join(stage, "secrets.env"), formatEnv(secrets), { mode: 0o600 });
     const uploads = uploadRoot();
     await mkdir(uploads, { recursive: true });
-    // Upload files go in under uploads/ ("./x" → "uploads/x").
-    await run("tar", ["-czf", part, "--transform", "s,^\\.,uploads,", "-C", stage, "manifest.json", "database.dump", "secrets.env", "-C", uploads, "."]);
+    // Upload files go in under uploads/, through a symlink that -h follows (busybox tar has no --transform).
+    await symlink(uploads, path.join(stage, "uploads"));
+    await run("tar", ["-czhf", part, "-C", stage, "manifest.json", "database.dump", "secrets.env", "uploads"]);
     await chmod(part, 0o600); // holds the encryption keys
     const password = backupPassword();
     if (password) {
@@ -202,7 +203,7 @@ async function withPlainArchive<T>(file: string, fn: (plain: string) => Promise<
 async function extract(file: string) {
   const stage = await mkdtemp(path.join(backupDir(), ".restore-"));
   try {
-    await withPlainArchive(file, (plain) => run("tar", ["-xzf", plain, "-C", stage, "--no-same-owner", "--no-same-permissions"]));
+    await withPlainArchive(file, (plain) => run("tar", ["-xzof", plain, "-C", stage, "--no-same-permissions"]));
     const manifest = JSON.parse(await readFile(path.join(stage, "manifest.json"), "utf8")) as Manifest;
     if (manifest.app !== "maintenance" || manifest.format !== FORMAT || !Array.isArray(manifest.migrations)) throw new BackupError("invalidBackup");
     return { stage, manifest };

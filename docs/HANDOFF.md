@@ -100,7 +100,7 @@ restart `next dev` after adding a file. `npx playwright install --with-deps chro
   be committed or printed**: the repo is public. The ZimaOS server has its own copy in the compose env.
 
 ### Docker & releases
-- `next.config.ts` has `output: "standalone"`. `Dockerfile` (node:24-trixie-slim, multi-stage; `apt-get upgrade` in the
+- `next.config.ts` has `output: "standalone"`. `Dockerfile` (node:24-alpine3.24, multi-stage, Debian until 0.4.14; `apk upgrade` in the
   base stage, which the release workflow rebuilds without cache; npm/npx/corepack/yarn removed from the runtime image;
   `ffmpeg`/`ffprobe` built from the ffmpeg.org source in an `ffmpeg` stage with only libx264 + libdav1d, pinned by
   `FFMPEG_VERSION`/`FFMPEG_SHA256`, which Docker Scout does not track; the weekly `ffmpeg-check.yml` workflow fails
@@ -132,7 +132,8 @@ restart `next dev` after adding a file. `npx playwright install --with-deps chro
 - Server-wide settings (`src/lib/server-settings.ts`): JSON in `DATA_DIR/server-settings.json` (dev `./.data`),
   so they survive factory reset and restore. `getAppName()` replaces the old `common.appName` message.
 - Backups (`src/lib/backups.ts`, rules in `backup-schedule.ts`): tar.gz of `manifest.json` + `database.dump`
-  (pg_dump custom) + `secrets.env` + `uploads/`, files `0600` in `BACKUP_DIR` (`/backups`). Restore: extract,
+  (pg_dump custom) + `secrets.env` + `uploads/`, files `0600` in `BACKUP_DIR` (`/backups`). The `tar` options
+  must work in both busybox (the image) and GNU tar (dev machines): `uploads/` goes in through a symlink + `-h`. Restore: extract,
   refuse if the backup has migrations this build doesn't know, take a `pre-restore` backup, `DROP SCHEMA public
   CASCADE` + `pg_restore` (rolls back to the safety copy on failure), replace uploads, merge keys into
   `DATA_DIR/secrets.env`, then `process.exit(0)` so Docker restarts it and the entrypoint re-runs migrations.
@@ -441,9 +442,9 @@ markers), Message, VerificationToken (password reset).
 - `nodemailer` is on 10.x for its security fixes, but `next-auth`/`@auth/core` still declare an optional peer of
   `^7 || ^8`. `overrides` in `package.json` points them at ours (we don't use their email provider). Drop it once
   `@auth/core` accepts 10.
-- Docker Scout also lists Debian CVEs with no fixed version (zlib, tar, many "low" glibc/systemd/krb5…). Nothing to
-  change: the release build runs `apt-get upgrade` without cache, so a Debian fix lands on the next release. `tar` is
-  needed by backups (`lib/backups.ts`).
+- The image moved from Debian to Alpine to drop the system CVEs Docker Scout listed with no fix (zlib, tar and 36
+  "low" ones in glibc, systemd, krb5…). Alpine fixes reach the next release through `apk upgrade` in the uncached
+  release build.
 - Audit log (Settings → Audit log, permission `audit.view`): see "Audit log, van restock, scanning" in §8.
 - Playwright e2e smoke tests in `e2e/` (`npm run test:e2e`; against a running server with `E2E_BASE_URL=http://localhost:3000`); CI job `e2e` builds and runs them on a seeded Postgres.
 - `next-auth` is a v5 beta.
