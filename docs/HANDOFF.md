@@ -61,11 +61,16 @@ are mostly UI and logic plus small additive migrations.
 
 ## 3. Environment (Windows 11)
 
-**Docker-only machines (2026-10-14):** a PC without Node can develop entirely in containers: a compose stack
-with `postgres:17-alpine` and `node:24-bookworm-slim` (repo bind-mounted at `/app`, named volumes for
-`node_modules` and `.next`, `WATCHPACK_POLLING=true`, port 3000), `.env` pointing at `db:5432`, and every
-`npm`/`npx` command run with `docker compose exec`. Turbopack misses **new** files over the Windows bind mount:
-restart `next dev` after adding a file. `npx playwright install --with-deps chromium` works in that container.
+**Docker-only machines:** a PC without Node develops in containers with `docker-compose.dev.yml`
+(`docker compose -f docker-compose.dev.yml up -d --build`): Postgres 17 (host port 5433) and the Dockerfile's `dev`
+stage, which has the production image's tools (ffmpeg, PostgreSQL 18 client, busybox tar on Alpine/musl), so
+video uploads and backups work in development too. The repo is bind-mounted at `/app` (named volumes for
+`node_modules` and `.next`); `.env` points at `db:5432`. On start it runs `npm ci` (first time), `prisma migrate
+deploy` and `next dev` on port 3000. Run every `npm`/`npx` command with `docker compose -f docker-compose.dev.yml
+exec node …`. The file watcher misses edits over the Windows bind mount: run `restart-dev` in the container
+(`docker/restart-dev.sh`, logs in `/tmp/dev.log`) before checking a change. Playwright has no Alpine/musl build, so
+e2e tests run in CI (job `e2e`), not in this container. Switching from a glibc `node_modules` volume (the old
+Debian dev container) needs that volume removed first.
 
 
 - **Node 24** was installed after the Claude app started, so the app's inherited PATH lacks it.
