@@ -126,7 +126,8 @@
     "audit": "Registo de auditoria",
     "search": "Pesquisa",
     "onCall": "Prevenção",
-    "clientUsers": "Clientes"
+    "clientUsers": "Clientes",
+    "technical": "Técnico"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -236,7 +237,8 @@
     "categoryTaken": "Já existe uma categoria com este nome.",
     "badEmails": "Um ou mais endereços não são endereços de e-mail válidos.",
     "badFrom": "Indique um endereço, ou um nome e endereço: Empresa '<'nome@empresa.pt'>'.",
-    "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos."
+    "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos.",
+    "invalid_host": "Nome de anfitrião ou endereço IP inválido."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -2103,7 +2105,8 @@
         "update": "Alterou as definições da empresa",
         "logo": "Alterou o logótipo da empresa",
         "roleRates": "Alterou os preços das funções",
-        "permissions": "Alterou as permissões das funções"
+        "permissions": "Alterou as permissões das funções",
+        "technical": "Alterou as definições técnicas"
       },
       "villa": {
         "secrets": {
@@ -2425,5 +2428,66 @@
     "nextDay": "até ao dia seguinte",
     "allDay": "24 horas",
     "holidays": "Feriados da empresa (do horário de funcionamento): todo o dia"
+  },
+  "connectivity": {
+    "title": "Ligação à internet",
+    "column": "Internet",
+    "type": "Acesso remoto",
+    "typeHint": "Como o servidor chega à moradia para verificar se a internet está a funcionar, com a frequência definida em Definições → Técnico.",
+    "none": "Não monitorizada",
+    "DYNDNS": "DynDNS",
+    "VPN": "VPN",
+    "dyndnsHost": "Nome DynDNS",
+    "dyndnsHostHint": "O nome de DNS dinâmico da moradia, p. ex. villa7.dyndns.org ou um nome no-ip / DuckDNS.",
+    "vpnName": "VPN",
+    "vpnNameHint": "Que VPN dá acesso a esta moradia, para a equipa. O servidor desta aplicação tem de estar ligado a ela.",
+    "vpnNamePlaceholder": "p. ex. WireGuard – escritório",
+    "vpnHost": "Endereço na VPN",
+    "vpnHostHint": "Endereço IP (ou nome na VPN) do router ou de outro equipamento sempre ligado na moradia.",
+    "port": "Porta (opcional)",
+    "portHint": "Vazio = ping. Indique uma porta TCP que responda (p. ex. a administração web do router) só se o router não responder a pings da internet.",
+    "online": "Online",
+    "offline": "Offline",
+    "unchecked": "Não verificada",
+    "notMonitored": "Não monitorizada.",
+    "notMonitoredEdit": "Não monitorizada. Edite a moradia para indicar o nome DynDNS ou o endereço na VPN.",
+    "onlineSince": "Online desde",
+    "offlineSince": "Offline desde",
+    "lastCheck": "Última verificação",
+    "latency": "Tempo de resposta",
+    "ms": "{ms, number} ms",
+    "address": "IP resolvido",
+    "checkNow": "Verificar agora",
+    "checking": "A verificar…",
+    "error": {
+      "dnsFailed": "O nome não resolve. Verifique o nome DynDNS e se o router ainda o atualiza.",
+      "timeout": "Sem resposta em 5 segundos. Se o router não responder a pings, indique uma porta.",
+      "unreachable": "Sem rota para o endereço. Numa VPN, verifique se o servidor está ligado a ela.",
+      "blockedAddress": "Esse endereço aponta para o próprio servidor e não é verificado.",
+      "failed": "A ligação falhou.",
+      "portClosed": "A ligação está ativa, mas esta porta está fechada.",
+      "noPing": "O servidor não consegue fazer ping. Indique uma porta para verificar por ligação TCP."
+    },
+    "portPlaceholder": "Ping",
+    "viaPing": "Verificada por ping",
+    "viaTcp": "Verificada por ligação TCP à porta {port}"
+  },
+  "technical": {
+    "description": "Monitorização técnica das moradias que mantém.",
+    "interval": "Verificar cada moradia",
+    "intervalHint": "Com que frequência o servidor verifica se a internet de cada moradia monitorizada está a funcionar (o nome DynDNS ou o endereço na VPN). Aplica-se a todas as moradias da empresa.",
+    "every": {
+      "0": "Desligado (só “Verificar agora”)",
+      "30": "A cada 30 segundos",
+      "300": "A cada 5 minutos",
+      "1800": "A cada 30 minutos",
+      "3600": "A cada hora",
+      "43200": "A cada 12 horas",
+      "86400": "Uma vez por dia"
+    },
+    "monitored": "Moradias monitorizadas",
+    "noneMonitored": "Ainda nenhuma moradia é monitorizada. Edite uma moradia e escolha DynDNS ou VPN em Ligação à internet.",
+    "villas": "Moradias",
+    "seeVillas": "Ver moradias"
   }
 }

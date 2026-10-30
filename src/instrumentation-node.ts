@@ -3,6 +3,30 @@ export async function registerNode() {
   await seedOnFirstStart();
   startScheduler();
   startServerJobs();
+  startConnectivityChecks();
+}
+
+// Villa internet checks (src/lib/connectivity.ts): every 30 s it checks the villas that are due under their
+// company's interval (Settings → Technical). A run still going (slow or dead hosts) makes the next tick skip.
+async function startConnectivityChecks() {
+  const { runConnectivityChecks } = await import("@/lib/connectivity");
+  const { TICK_SEC } = await import("@/lib/connectivity-rules");
+  const g = globalThis as unknown as { __connectivity?: NodeJS.Timeout };
+  if (g.__connectivity) clearInterval(g.__connectivity); // dev hot reload
+  let running = false;
+  const tick = async () => {
+    if (running) return;
+    running = true;
+    try {
+      await runConnectivityChecks();
+    } catch (e) {
+      console.error("[connectivity] check failed", e);
+    } finally {
+      running = false;
+    }
+  };
+  g.__connectivity = setInterval(tick, TICK_SEC * 1000);
+  setTimeout(tick, 45_000);
 }
 
 // Scheduled backups and automatic updates (see src/lib/backups.ts); checked every minute.

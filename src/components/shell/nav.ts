@@ -58,6 +58,7 @@ export const NAV: NavGroup[] = [
     items: [
       { href: "/settings/profile", labelKey: "profile", icon: "UserRound", ready: true },
       { href: "/settings/organization", labelKey: "organization", icon: "Building2", permission: "org.manage", ready: true },
+      { href: "/settings/technical", labelKey: "technical", icon: "Wrench", permission: "org.manage", ready: true },
       { href: "/settings/users", labelKey: "users", icon: "UserCog", permission: "users.manage", ready: true },
       { href: "/settings/client-users", labelKey: "clientUsers", icon: "Contact", permission: "users.manage", ready: true },
       { href: "/settings/roles", labelKey: "roles", icon: "BadgeCheck", permission: "users.manage", ready: true },

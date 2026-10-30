@@ -63,6 +63,12 @@ enum BillTo {
   MANAGER
 }
 
+/// How the server reaches a villa's network to check that its internet connection is up (lib/connectivity.ts).
+enum ConnectivityType {
+  DYNDNS
+  VPN
+}
+
 // Where a technician worked during a time entry: on site (charged a trip, see lib/travel-charge.ts) or remotely.
 enum WorkMode {
   ONSITE
@@ -270,6 +276,8 @@ model Organization {
   travelRadiusKm Int      @default(25)
   travelKmRate   Decimal  @default(0) @db.Decimal(12, 2)
   travelPerTechnician Boolean @default(true)
+  // Settings → Technical: seconds between internet checks of each monitored villa (lib/connectivity.ts); 0 = off.
+  connectivityIntervalSec Int @default(300)
   // Who also gets e-mailed service reports: {"userIds": […], "roles": ["ACCOUNTANT", "job:<id>"], "emails": […]}.
   reportRecipients Json?
   privacyNotice String? // custom privacy notice (plain text) shown at /privacy/<slug>; null = built-in template
@@ -496,6 +504,19 @@ model Villa {
   // AES-GCM encrypted blob: gate/alarm codes, Wi-Fi admin, etc. Every decrypt is audit-logged.
   secretsEnc     String?
   imageUrl       String?
+  // Internet connection check (lib/connectivity.ts): null type = not monitored. The server pings the host (a DynDNS
+  // name or an address behind the VPN; the server must be on that VPN), or opens a TCP connection when a port is set.
+  connectivityType      ConnectivityType?
+  connectivityHost      String?
+  connectivityPort      Int? // null = ping (for routers that drop pings: a TCP port that answers)
+  connectivityVpn       String? // which VPN, for people (e.g. "WireGuard – office"); not used by the check
+  // Last result: online null = never checked; onlineSince = when it last changed between online and offline.
+  online                Boolean?
+  onlineCheckedAt       DateTime?
+  onlineSince           DateTime?
+  onlineLatencyMs       Int?
+  onlineAddress         String? // the IP the host resolved to
+  onlineError           String? // connectivity.error.<code>: why it's offline, or "portClosed" (online, but that port refused)
   archivedAt     DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt

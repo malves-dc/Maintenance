@@ -37,6 +37,7 @@ import {
   Users,
   UsersRound,
   Tags,
+  Wrench,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -73,6 +74,7 @@ const ICONS: Record<string, LucideIcon> = {
   Tags,
   ScrollText,
   Server,
+  Wrench,
 };
 
 type Props = {
