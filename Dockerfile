@@ -45,11 +45,20 @@ RUN curl -fsSL -o ffmpeg.tar.xz "https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VER
       --disable-muxers --enable-muxer=mp4,mov,image2 \
  && make -j"$(nproc)" && make install && strip /opt/ffmpeg/bin/*
 
-# ── Runtime
-FROM base AS runner
+# ── System tools the app runs, shared by the runtime and development images
+FROM base AS system
 # PostgreSQL 18 client tools (pg_dump/pg_restore/psql) for backups; they work with servers up to 18.
 # Backups use busybox tar. x264 / dav1d libraries for the ffmpeg built above.
 RUN apk add --no-cache postgresql18-client x264-libs libdav1d
+COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin/
+
+# ── Development (docker-compose.dev.yml): the runtime's tools plus npm, running `next dev` on the bind-mounted repo
+FROM system AS dev
+COPY docker/restart-dev.sh /usr/local/bin/restart-dev
+RUN chmod +x /usr/local/bin/restart-dev
+
+# ── Runtime
+FROM system AS runner
 # The server runs with plain `node`; drop npm/npx/corepack/yarn so their bundled packages (undici,
 # brace-expansion…) aren't shipped.
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-* \
@@ -69,7 +78,6 @@ ENV NODE_ENV=production \
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
-COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin/
 COPY --from=migrator /migrator/node_modules /migrator/node_modules
 COPY prisma /migrator/prisma
 COPY prisma.config.ts /migrator/
