@@ -229,6 +229,7 @@ restart `next dev` after adding a file. `npx playwright install --with-deps chro
 - **Client sign-off**: signature (`signOff()`) or `WorkOrder.clientAbsent` (`setClientAbsent()`, refused once
   signed), both in `src/lib/wo-ops.ts` and shared by the web panel and offline sync (ops `signoff` /
   `clientAbsent`; an offline signature is a queued photo with `signOffName`). Completing a job **requires** a signature or client absent (`isSignedOff()`, enforced in `changeStatus`); a done job's sign-off can't be removed without reopening it. The PDF prints "Client absent" when set.
+- **Technician's report** ("Relatório", `WorkOrder.workReport`): what was done, written by whoever has `workOrders.execute` (`setWorkReport()` in `wo-ops.ts`; web `saveWorkReportAction`, field-app op `report`). Required to complete (`hasWorkReport()`, `wo.reportRequired` in `changeStatus`); locked once DONE/CANCELLED. Printed in the service report, shown in the portal once the job is done, and searchable.
 - **REQUESTER users are redirected to `/portal`** by `(app)/layout.tsx`. Portal scope
   (`src/lib/portal-scope.ts`, tested):
   - Villas the member's client owns (`clientId`) **or manages** (`Villa.managerId`, a property

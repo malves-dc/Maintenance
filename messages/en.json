@@ -472,7 +472,8 @@
     "clientVisible": "Visible to the client in their portal",
     "clientVisibleHint": "Untick for internal work the client shouldn't see.",
     "alreadySigned": "The client has already signed this work order.",
-    "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent."
+    "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent.",
+    "reportRequired": "Report: describe the work done before marking it done."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -1364,7 +1365,10 @@
       "comment": "Comment",
       "time": "Time",
       "status": "Status",
-      "photo": "Photo"
+      "photo": "Photo",
+      "report": "Report",
+      "signoff": "Sign-off",
+      "clientAbsent": "Client absent"
     },
     "firstLoad": "Connect once to download your work orders; after that they're available offline.",
     "empty": "No open work orders assigned to you.",
@@ -2325,7 +2329,8 @@
       "itemNote": "Note on \"{step}\"",
       "itemAnswer": "Answer to \"{step}\"",
       "timeNote": "Time note",
-      "statusNote": "Note when moved to {status}"
+      "statusNote": "Note when moved to {status}",
+      "workReport": "Report"
     },
     "articles": "{count, plural, one {# knowledge-base article} other {# knowledge-base articles}}",
     "articlesMore": "{count, plural, one {# more article} other {# more articles}}: add more words to narrow the search."
@@ -2425,5 +2430,11 @@
     "nextDay": "until the next day",
     "allDay": "24 hours",
     "holidays": "Company holidays (from business hours): all day"
+  },
+  "workReport": {
+    "title": "Report",
+    "hint": "Describe the work you did. Required before the work order can be marked done; the client sees it in the service report and the portal.",
+    "placeholder": "What was done, what was found, anything still to do…",
+    "empty": "No report yet."
   }
 }

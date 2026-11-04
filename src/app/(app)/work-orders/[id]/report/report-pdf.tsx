@@ -13,6 +13,8 @@ export type ReportData = {
   generatedAt: string;
   info: [string, string][];
   description: string | null;
+  /** The technician's report: what was done. */
+  workReport: string | null;
   checklist: { label: string; heading: boolean; answer: string; note: string | null; image: Buffer | null }[];
   time: { who: string; when: string; duration: string; note: string | null }[];
   totalTime: string;
@@ -57,6 +59,13 @@ export function ServiceReport({ d }: { d: ReportData }) {
           <>
             <Text style={s.h2}>{L.description}</Text>
             <Text>{d.description}</Text>
+          </>
+        )}
+
+        {d.workReport && (
+          <>
+            <Text style={s.h2}>{L.workReport}</Text>
+            <Text>{d.workReport}</Text>
           </>
         )}
 
