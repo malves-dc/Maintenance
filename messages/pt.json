@@ -607,6 +607,8 @@
   "report": {
     "title": "Relatório de serviço",
     "back": "Voltar",
+    "noViewer": "Este navegador não consegue mostrar o relatório aqui. Abra-o na sua aplicação de PDF.",
+    "openPdf": "Abrir PDF",
     "photos": "Fotografias",
     "seePhotos": "Ver fotografias",
     "service": "Serviço",

@@ -607,6 +607,8 @@
   "report": {
     "title": "Service report",
     "back": "Back",
+    "noViewer": "This browser can't show the report here. Open it in your PDF app.",
+    "openPdf": "Open PDF",
     "photos": "Photos",
     "seePhotos": "See photos",
     "service": "Service",
