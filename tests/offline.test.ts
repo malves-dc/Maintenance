@@ -38,6 +38,7 @@ const wo: OfflineWorkOrder = {
   minutesLogged: 30,
   signOff: null,
   clientAbsent: false,
+  workReport: null,
 };
 const snap: Snapshot = { at: "2026-09-28T10:00:00Z", user: { id: "u", name: "Rui" }, workOrders: [wo], assets: [], members: [] };
 const at = "2026-09-28T11:00:00Z";
@@ -62,6 +63,19 @@ describe("client sign-off offline", () => {
     // Once signed, "absent" can't be set (the server refuses it too).
     const signedSnap = { ...snap, workOrders: [{ ...wo, signOff: { name: "Maria", at } }] };
     expect(applyOps(signedSnap, [{ id: "a", kind: "clientAbsent", woId: "w1", absent: true, at }], "Rui")[0].clientAbsent).toBe(false);
+  });
+});
+
+describe("work report offline", () => {
+  it("shows the queued report (trimmed; blank clears it)", () => {
+    const r = applyOps(snap, [{ id: "r", kind: "report", woId: "w1", text: "  Replaced the AP.  ", at }], "Rui")[0];
+    expect(r.workReport).toBe("Replaced the AP.");
+    const cleared = applyOps(snap, [
+      { id: "r", kind: "report", woId: "w1", text: "Replaced the AP.", at },
+      { id: "r2", kind: "report", woId: "w1", text: " ", at },
+    ], "Rui")[0];
+    expect(cleared.workReport).toBeNull();
+    expect(snap.workOrders[0].workReport).toBeNull(); // the snapshot itself is untouched
   });
 });
 

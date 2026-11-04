@@ -108,6 +108,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     labels: {
       reportTitle: t("report.title"),
       description: t("wo.descriptionLabel"),
+      workReport: t("workReport.title"),
       checklist: t("checklist.title"),
       time: t("time.title"),
       total: t("time.total"),
@@ -123,6 +124,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     generatedAt: dt(new Date()),
     info: info.filter((x): x is [string, string] => !!x[1]),
     description: wo.description,
+    workReport: wo.workReport,
     checklist: await Promise.all(
       wo.items.map(async (i) => ({
         label: i.label,

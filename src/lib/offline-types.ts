@@ -36,6 +36,8 @@ export type OfflineWorkOrder = {
   /** Client sign-off: who signed and when (pending = captured on the device, not yet uploaded). */
   signOff: { name: string; at: string; pending?: boolean } | null;
   clientAbsent: boolean;
+  /** The technician's report (what was done), required to complete. Optional: older snapshots lack it. */
+  workReport?: string | null;
 };
 
 export type Snapshot = {
@@ -70,7 +72,8 @@ export type SyncOp =
   | (Base & { kind: "time"; startedAt: string; endedAt: string; note?: string | null; mode?: "ONSITE" | "REMOTE" })
   | (Base & { kind: "status"; status: WorkOrderStatus; note?: string | null })
   | (Base & { kind: "signoff"; name: string; attachmentId: string })
-  | (Base & { kind: "clientAbsent"; absent: boolean });
+  | (Base & { kind: "clientAbsent"; absent: boolean })
+  | (Base & { kind: "report"; text: string });
 
 /**
  * A queued change on the device. Photos and signatures are uploaded first, then become an answer, a client

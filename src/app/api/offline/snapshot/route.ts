@@ -74,6 +74,7 @@ export async function GET() {
       minutesLogged: w.timeEntries.reduce((s, e) => s + (e.minutes ?? 0), 0),
       signOff: w.signatureUrl && w.signedByName && w.signedAt ? { name: w.signedByName, at: w.signedAt.toISOString() } : null,
       clientAbsent: w.clientAbsent,
+      workReport: w.workReport,
     })),
     assets: assets.map((a) => ({ id: a.id, name: a.name, qrToken: a.qrToken, villa: a.villa.name })),
     members: members.map((m) => m.user),

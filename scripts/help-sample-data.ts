@@ -136,6 +136,7 @@ async function main() {
       title: "Wi-Fi drops in the cinema room",
       description: "Client reports the projector and the Apple TV lose Wi-Fi in the evenings.",
       status: "DONE",
+      workReport: "The cinema access point was on a crowded 5 GHz channel. Moved it to channel 100, lowered the 2.4 GHz power and updated its firmware. Streamed for 30 minutes on the projector and the Apple TV with no drops.",
       priority: "HIGH",
       type: "REACTIVE",
       system: "NETWORK",

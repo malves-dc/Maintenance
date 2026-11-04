@@ -45,7 +45,19 @@ export function WorkOrderView({
   const format = useFormatter();
   const [now, setNow] = useState(() => Date.now());
   const [comment, setComment] = useState("");
-  const [blocked, setBlocked] = useState<{ items: string[]; signOff: boolean } | null>(null);
+  const [blocked, setBlocked] = useState<{ items: string[]; report: boolean; signOff: boolean } | null>(null);
+  // The report being typed; queued on blur, and before "Done" so a tap straight from the box counts.
+  const savedReport = wo.workReport ?? "";
+  const [report, setReport] = useState(savedReport);
+  const [shownSaved, setShownSaved] = useState(savedReport);
+  if (shownSaved !== savedReport) {
+    // A newer report arrived (synced, or queued from this box): show it.
+    setShownSaved(savedReport);
+    setReport(savedReport);
+  }
+  const saveReport = async () => {
+    if (report.trim() !== savedReport) await enqueue({ kind: "report", woId: wo.id, text: report.trim() });
+  };
   const [holdNote, setHoldNote] = useState<string | null>(null);
   const [mode, setMode] = useState<"ONSITE" | "REMOTE">("ONSITE");
   const photoInput = useRef<HTMLInputElement>(null);
@@ -73,11 +85,13 @@ export function WorkOrderView({
 
   const setStatus = async (status: WorkOrderStatus, note?: string) => {
     if (status === "DONE") {
+      await saveReport();
       const items = missingRequired(wo).map((i) => i.label);
-      // The server enforces this too: a signature, or "client absent".
+      // The server enforces these too: the technician's report, and a signature or "client absent".
+      const needsReport = !report.trim();
       const signOff = !wo.signOff && !wo.clientAbsent;
-      if (items.length || signOff) {
-        setBlocked({ items, signOff });
+      if (items.length || needsReport || signOff) {
+        setBlocked({ items, report: needsReport, signOff });
         return;
       }
     }
@@ -227,6 +241,7 @@ export function WorkOrderView({
                   </ul>
                 </>
               )}
+              {blocked.report && <p>{t("wo.reportRequired")}</p>}
               {blocked.signOff && <p>{t("wo.signOffRequired")}</p>}
             </div>
           )}
@@ -308,6 +323,29 @@ export function WorkOrderView({
         </div>
         <p className="text-xs text-muted">{t("field.photosHint")}</p>
         {videoError && <p className="mt-1 text-xs text-danger">{t(`files.${videoError}`)}</p>}
+      </section>
+
+      <section className="mt-3 border-y border-border bg-surface px-4 py-3">
+        <h2 className="text-sm font-medium">
+          <label htmlFor="work-report">{t("workReport.title")}</label>
+        </h2>
+        {closed ? (
+          <p className="mt-1 whitespace-pre-wrap text-sm">{savedReport || <span className="text-muted">—</span>}</p>
+        ) : (
+          <>
+            <p className="mb-2 text-xs text-muted">{t("workReport.hint")}</p>
+            <textarea
+              id="work-report"
+              value={report}
+              onChange={(e) => setReport(e.target.value)}
+              onBlur={() => void saveReport()}
+              maxLength={10000}
+              rows={4}
+              placeholder={t("workReport.placeholder")}
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+            />
+          </>
+        )}
       </section>
 
       <section className="mt-3 border-y border-border bg-surface px-4 py-3">

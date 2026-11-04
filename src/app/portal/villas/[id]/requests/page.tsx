@@ -19,6 +19,8 @@ type Row = {
   href: string | null; // the request's own page
   request: RequestStatus | null;
   workOrder: { id: string; status: WorkOrderStatus } | null;
+  /** The technician's report, once the job is done. */
+  report: string | null;
 };
 
 /**
@@ -37,13 +39,13 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
   const [requests, jobs] = await Promise.all([
     ctx.db.request.findMany({
       where: { ...ctx.requestWhere, villaId: villa.id },
-      select: { id: true, number: true, title: true, status: true, createdAt: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true } } },
+      select: { id: true, number: true, title: true, status: true, createdAt: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true, workReport: true } } },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
     }),
     ctx.db.workOrder.findMany({
       where: { ...ctx.workOrderWhere, villaId: villa.id, request: { is: null } },
-      select: { id: true, title: true, type: true, status: true, createdAt: true, completedAt: true },
+      select: { id: true, title: true, type: true, status: true, createdAt: true, completedAt: true, workReport: true },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
     }),
@@ -60,6 +62,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
         href: `/portal/requests/${r.id}`,
         request: r.status,
         workOrder: wo ? { id: wo.id, status: wo.status } : null,
+        report: wo?.status === "DONE" ? wo.workReport : null,
       };
     }),
     ...jobs.map((w) => ({
@@ -70,6 +73,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
       href: null,
       request: null,
       workOrder: { id: w.id, status: w.status },
+      report: w.status === "DONE" ? w.workReport : null,
     })),
   ].sort((a, b) => b.at.getTime() - a.at.getTime());
 
@@ -101,6 +105,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
                   <span className="text-xs text-muted">
                     {r.kind} · {format.dateTime(r.at, { dateStyle: "medium" })}
                   </span>
+                  {r.report && <span className="mt-1 line-clamp-2 whitespace-pre-line text-xs">{r.report}</span>}
                 </span>
               );
               const done = r.workOrder?.status === "DONE";

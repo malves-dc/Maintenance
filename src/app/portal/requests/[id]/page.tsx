@@ -30,6 +30,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           dueDate: true,
           completedAt: true,
           signedByName: true,
+          workReport: true,
           assignees: { select: { user: { select: { name: true } } } },
         },
       },
@@ -63,20 +64,28 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
       </p>
 
       <div className="grid gap-6 md:grid-cols-[1fr_280px]">
-        <Card className="p-5">
-          {r.description && <p className="whitespace-pre-wrap text-sm">{r.description}</p>}
-          {r.attachments.length > 0 && (
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              {r.attachments.map((a) => (
-                <a key={a.id} href={fileUrl(a.id)} target="_blank" rel="noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={fileUrl(a.id)} alt={a.filename} className="aspect-square w-full rounded-md border border-border object-cover" />
-                </a>
-              ))}
-            </div>
+        <div className="min-w-0 space-y-6">
+          <Card className="p-5">
+            {r.description && <p className="whitespace-pre-wrap text-sm">{r.description}</p>}
+            {r.attachments.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {r.attachments.map((a) => (
+                  <a key={a.id} href={fileUrl(a.id)} target="_blank" rel="noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fileUrl(a.id)} alt={a.filename} className="aspect-square w-full rounded-md border border-border object-cover" />
+                  </a>
+                ))}
+              </div>
+            )}
+            {!r.description && r.attachments.length === 0 && <p className="text-sm text-muted">{t("requests.noDescription")}</p>}
+          </Card>
+          {wo?.status === "DONE" && wo.workReport && (
+            <Card className="p-5">
+              <h2 className="mb-2 font-medium">{t("workReport.title")}</h2>
+              <p className="whitespace-pre-wrap text-sm">{wo.workReport}</p>
+            </Card>
           )}
-          {!r.description && r.attachments.length === 0 && <p className="text-sm text-muted">{t("requests.noDescription")}</p>}
-        </Card>
+        </div>
 
         <Card className="p-5">
           <ol className="space-y-4">

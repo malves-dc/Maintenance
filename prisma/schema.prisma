@@ -740,6 +740,8 @@ model WorkOrder {
   signedAt         DateTime?
   // The client wasn't there to sign: no signature needed (set by the technician).
   clientAbsent     Boolean         @default(false)
+  // What the technician did ("Relatório"): required to complete; shown in the service report and the portal.
+  workReport       String?
   reportSentAt     DateTime? // last time the service report was e-mailed
   reportSentTo     String[]        @default([])
   clientVisible    Boolean         @default(true)

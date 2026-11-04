@@ -472,7 +472,8 @@
     "clientVisible": "Visível para o cliente no portal",
     "clientVisibleHint": "Desmarque para trabalho interno que o cliente não deve ver.",
     "alreadySigned": "O cliente já assinou esta ordem de trabalho.",
-    "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente."
+    "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente.",
+    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -1366,7 +1367,10 @@
       "comment": "Comentário",
       "time": "Tempo",
       "status": "Estado",
-      "photo": "Fotografia"
+      "photo": "Fotografia",
+      "report": "Relatório",
+      "signoff": "Assinatura",
+      "clientAbsent": "Cliente ausente"
     },
     "firstLoad": "Ligue-se uma vez para descarregar as suas ordens de trabalho; depois ficam disponíveis sem rede.",
     "empty": "Não tem ordens de trabalho em aberto atribuídas.",
@@ -2327,7 +2331,8 @@
       "itemNote": "Nota em \"{step}\"",
       "itemAnswer": "Resposta a \"{step}\"",
       "timeNote": "Nota de tempo",
-      "statusNote": "Nota ao passar a {status}"
+      "statusNote": "Nota ao passar a {status}",
+      "workReport": "Relatório"
     },
     "articles": "{count, plural, one {# artigo da base de conhecimento} other {# artigos da base de conhecimento}}",
     "articlesMore": "{count, plural, one {Mais # artigo} other {Mais # artigos}}: acrescente palavras para restringir a pesquisa."
@@ -2427,5 +2432,11 @@
     "nextDay": "até ao dia seguinte",
     "allDay": "24 horas",
     "holidays": "Feriados da empresa (do horário de funcionamento): todo o dia"
+  },
+  "workReport": {
+    "title": "Relatório",
+    "hint": "Descreva o trabalho realizado. Obrigatório para marcar a ordem de trabalho como concluída; o cliente vê-o no relatório de serviço e no portal.",
+    "placeholder": "O que foi feito, o que foi encontrado, o que ficou por fazer…",
+    "empty": "Ainda sem relatório."
   }
 }

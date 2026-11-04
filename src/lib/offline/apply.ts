@@ -44,6 +44,9 @@ export function applyOps(snapshot: Snapshot, ops: QueuedOp[], me: string): Offli
       case "clientAbsent":
         if (!wo.signOff) wo.clientAbsent = op.absent;
         break;
+      case "report":
+        wo.workReport = op.text.trim() || null;
+        break;
     }
   }
   return snapshot.workOrders.map((w) => byId.get(w.id)!);
