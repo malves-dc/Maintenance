@@ -2,6 +2,7 @@ import { getContext } from "@/lib/context";
 import { titled } from "@/lib/metadata";
 import { brandStyle } from "@/lib/branding";
 import { BackButton } from "./back-button";
+import { ReportFrame } from "./report-frame";
 
 export const generateMetadata = titled("report.title");
 
@@ -16,7 +17,7 @@ export default async function ReportViewerPage({ params }: PageProps<"/report/[i
   const fallback = ctx.role === "REQUESTER" ? "/portal" : `/work-orders/${id}`;
   return (
     <div className="fixed inset-0 bg-gray-100" style={brandStyle(ctx.organization)}>
-      <iframe src={`/work-orders/${id}/report`} title={id} className="size-full border-0" />
+      <ReportFrame src={`/work-orders/${id}/report`} title={id} />
       <BackButton fallback={fallback} />
     </div>
   );
