@@ -1,6 +1,6 @@
 {
   "name": "villa-cmms",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "private": true,
   "scripts": {
     "predev": "node scripts/copy-ocr.mjs",
