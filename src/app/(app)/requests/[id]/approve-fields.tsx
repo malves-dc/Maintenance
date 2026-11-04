@@ -15,6 +15,7 @@ export function ApproveFields({
   teams,
   people,
   initialAssignees = [],
+  clientWindow,
 }: {
   title: string;
   priority: Priority;
@@ -22,6 +23,8 @@ export function ApproveFields({
   teams: { id: string; name: string; memberIds: string[] }[];
   people: { id: string; name: string }[];
   initialAssignees?: string[];
+  /** The client's availability, already formatted; when set, a confirmed visit is required. */
+  clientWindow?: string | null;
 }) {
   const t = useTranslations();
   const [assignees, setAssignees] = useState<Set<string>>(() => new Set(initialAssignees));
@@ -68,6 +71,14 @@ export function ApproveFields({
             ))}
           </Select>
         </Field>
+      </div>
+      <div className={cn("rounded-md p-3", clientWindow ? "border border-amber-300 bg-amber-50" : "bg-gray-50")}>
+        {clientWindow && <p className="mb-2 text-sm">{t("requests.clientWindow", { window: clientWindow })}</p>}
+        <Field label={clientWindow ? t("requests.confirmVisitRequired") : t("requests.confirmVisit")}>
+          <DateTimeField name="scheduledFor" />
+          <FieldError name="scheduledFor" />
+        </Field>
+        <p className="mt-1 text-xs text-muted">{t("requests.confirmVisitHint")}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label={t("wo.dueDate")}>

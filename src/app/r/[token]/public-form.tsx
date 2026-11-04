@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { FieldError, FieldErrorsProvider } from "@/components/action-form";
+import { AvailabilityFields } from "@/components/availability-fields";
 import { PhotoPicker } from "@/components/photo-picker";
 import { Button, Field, FormError, Input, Textarea } from "@/components/ui";
 import { useActionForm } from "@/lib/use-action-form";
@@ -71,6 +72,7 @@ export function PublicRequestForm({ token, privacyHref }: { token: string; priva
             ))}
           </div>
         </fieldset>
+        <AvailabilityFields />
         <div>
           <div className="mb-1.5 text-sm font-medium">{t("portal.photos")}</div>
           <PhotoPicker onChange={setPhotos} max={3} />

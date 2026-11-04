@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { ChevronRight, FileDown, Plus } from "lucide-react";
+import { CalendarCheck, ChevronRight, FileDown, Plus } from "lucide-react";
 import { Button, Card } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
 import { WorkOrderStatusBadge } from "@/components/badges";
@@ -16,6 +16,7 @@ type Row = {
   title: string;
   at: Date;
   kind: string;
+  visit: Date | null; // confirmed visit of a request whose job is still to be done
   href: string | null; // the request's own page
   request: RequestStatus | null;
   workOrder: { id: string; status: WorkOrderStatus } | null;
@@ -39,7 +40,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
   const [requests, jobs] = await Promise.all([
     ctx.db.request.findMany({
       where: { ...ctx.requestWhere, villaId: villa.id },
-      select: { id: true, number: true, title: true, status: true, createdAt: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true, workReport: true } } },
+      select: { id: true, number: true, title: true, status: true, createdAt: true, scheduledFor: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true, workReport: true } } },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
     }),
@@ -60,6 +61,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
         at: wo?.completedAt ?? r.createdAt,
         kind: t("portal.requestNumber", { number: r.number }),
         href: `/portal/requests/${r.id}`,
+        visit: r.status === "APPROVED" && r.workOrder?.status !== "DONE" && r.workOrder?.status !== "CANCELLED" ? r.scheduledFor : null,
         request: r.status,
         workOrder: wo ? { id: wo.id, status: wo.status } : null,
         report: wo?.status === "DONE" ? wo.workReport : null,
@@ -71,6 +73,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
       at: w.completedAt ?? w.createdAt,
       kind: t(`woType.${w.type}`),
       href: null,
+      visit: null,
       request: null,
       workOrder: { id: w.id, status: w.status },
       report: w.status === "DONE" ? w.workReport : null,
@@ -104,6 +107,12 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
                   <span className="block truncate font-medium">{r.title}</span>
                   <span className="text-xs text-muted">
                     {r.kind} · {format.dateTime(r.at, { dateStyle: "medium" })}
+                    {r.visit && (
+                      <span className="ml-1 inline-flex items-center gap-1 font-medium text-green-700">
+                        · <CalendarCheck className="size-3" />
+                        {t("portal.visitOn", { date: format.dateTime(r.visit, { dateStyle: "medium", timeStyle: "short" }) })}
+                      </span>
+                    )}
                   </span>
                   {r.report && <span className="mt-1 line-clamp-2 whitespace-pre-line text-xs">{r.report}</span>}
                 </span>
