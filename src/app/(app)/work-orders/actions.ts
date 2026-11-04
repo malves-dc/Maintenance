@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getContext, requirePermission, type AppContext } from "@/lib/context";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
 import { deleteObject } from "@/lib/storage";
-import { addComment, answerItem, setClientAbsent, signOff } from "@/lib/wo-ops";
+import { addComment, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
 import { consumePart, InventoryError, returnPart } from "@/lib/inventory";
 import { contractFor } from "@/lib/contracts";
 import {
@@ -380,6 +380,24 @@ export async function returnPartAction(woId: string, workOrderPartId: string) {
   if (!ctx.can("inventory.use")) throw new Error("Forbidden");
   await returnPart(ctx, woId, workOrderPartId);
   revalidatePath(path(woId));
+}
+
+// ── Technician's report
+
+const workReportSchema = z.object({ workReport: optStr(WORK_REPORT_MAX) });
+
+export async function saveWorkReportAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const { ctx } = await executableWorkOrder(woId);
+  const parsed = parseForm(workReportSchema, form);
+  if (parsed.error) return parsed.error;
+  try {
+    await setWorkReport(ctx, woId, parsed.data.workReport);
+  } catch (e) {
+    if (e instanceof WorkOrderError) return { error: `wo.${e.code}` };
+    throw e;
+  }
+  revalidatePath(path(woId));
+  return { ok: true };
 }
 
 // ── Client sign-off

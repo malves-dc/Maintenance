@@ -174,6 +174,10 @@ The **Amounts to bill** panel adds up what the job is charged to the client:
 
 These amounts stay internal: they are never shown to the client or printed on the service report.
 
+## Report
+
+Under **Report**, the technician describes the work done: what was found, what was changed, anything still to do. Click **Save** to keep it. A job can't be marked done without a report, and once it's done or cancelled the report can't be changed (reopen the job first). The client sees it in the service report and in the client portal.
+
 ## Client sign-off
 
 Before a job can be marked done, the client confirms the work:
@@ -186,7 +190,7 @@ If nobody is there to sign, tick **Client absent** instead. The signature can be
 
 ## The service report
 
-**Service report** opens a PDF for the client with the job details, description, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts.
+**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts.
 
 To send it, use the **E-mail the service report** panel:
 
@@ -388,6 +392,10 @@ O painel **Valores a faturar** soma o que é cobrado ao cliente pelo trabalho:
 
 Estes valores são internos: nunca são mostrados ao cliente nem impressos no relatório de serviço.
 
+## Relatório
+
+Em **Relatório**, o técnico descreve o trabalho realizado: o que encontrou, o que mudou e o que ficou por fazer. Clique em **Guardar** para o gravar. Um trabalho não pode ser concluído sem relatório e, depois de concluído ou cancelado, o relatório já não pode ser alterado (reabra o trabalho primeiro). O cliente vê-o no relatório de serviço e no portal do cliente.
+
 ## Aprovação do cliente
 
 Antes de um trabalho poder ser concluído, o cliente confirma o trabalho:
@@ -400,7 +408,7 @@ Se não estiver ninguém para assinar, marque **Cliente ausente**. A assinatura 
 
 ## O relatório de serviço
 
-**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores.
+**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores.
 
 Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 

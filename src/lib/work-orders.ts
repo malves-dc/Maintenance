@@ -16,7 +16,7 @@ import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrde
 export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "IN_PROGRESS", "ON_HOLD"];
 
 export class WorkOrderError extends Error {
-  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired") {
+  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired") {
     super(code);
   }
 }
@@ -191,6 +191,11 @@ export function isSignedOff(wo: { signatureUrl: string | null; clientAbsent: boo
   return !!wo.signatureUrl || wo.clientAbsent;
 }
 
+/** The technician's report (what was done) is filled in: required to complete a job. */
+export function hasWorkReport(wo: { workReport: string | null }) {
+  return !!wo.workReport?.trim();
+}
+
 export function isItemComplete(item: { type: ChecklistItemType; value: string | null }) {
   if (item.type === "HEADING") return true;
   if (item.type === "CHECKBOX") return item.value === "true";
@@ -209,6 +214,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
   if (to === "DONE" && wo.items.some((i) => i.required && !isItemComplete(i))) {
     throw new WorkOrderError("requiredItems");
   }
+  if (to === "DONE" && !hasWorkReport(wo)) throw new WorkOrderError("reportRequired");
   if (to === "DONE" && !isSignedOff(wo)) throw new WorkOrderError("signOffRequired");
 
   const now = new Date();

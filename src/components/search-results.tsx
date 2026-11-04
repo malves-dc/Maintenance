@@ -1,5 +1,5 @@
 import { useFormatter, useTranslations } from "next-intl";
-import { MessageSquare, ListChecks, Clock, ArrowRightLeft, FileText, Inbox, type LucideIcon } from "lucide-react";
+import { MessageSquare, ListChecks, Clock, ArrowRightLeft, FileText, ClipboardCheck, Inbox, type LucideIcon } from "lucide-react";
 import { SystemBadge, WorkOrderStatusBadge } from "@/components/badges";
 import type { HitKind, SearchResult } from "@/lib/search";
 import type { Range } from "@/lib/search-text";
@@ -9,6 +9,7 @@ import type { Range } from "@/lib/search-text";
 
 const KIND_ICON: Record<HitKind, LucideIcon> = {
   description: FileText,
+  workReport: ClipboardCheck,
   request: Inbox,
   comment: MessageSquare,
   itemNote: ListChecks,

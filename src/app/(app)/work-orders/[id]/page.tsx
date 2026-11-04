@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AlertTriangle } from "lucide-react";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader, Textarea } from "@/components/ui";
+import { ActionForm, FieldError } from "@/components/action-form";
+import { saveWorkReportAction } from "../actions";
+import { WORK_REPORT_MAX } from "@/lib/wo-ops";
 import { BackLink } from "@/components/back-link";
 import { CategoryChip, PriorityText, SlaBadge, SystemBadge, WorkOrderStatusBadge } from "@/components/badges";
 import { slaCalendar, slaStates } from "@/lib/sla";
@@ -381,6 +384,21 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             />
           </Card>
           )}
+
+          <Card className="p-5">
+            <h2 className="mb-1 font-medium">
+              <label htmlFor="workReport">{t("workReport.title")}</label>
+            </h2>
+            {canExecute && !closed ? (
+              <ActionForm action={saveWorkReportAction.bind(null, wo.id)} successMessage={t("common.saved")}>
+                <p className="text-sm text-muted">{t("workReport.hint")}</p>
+                <Textarea id="workReport" name="workReport" defaultValue={wo.workReport ?? ""} maxLength={WORK_REPORT_MAX} rows={5} placeholder={t("workReport.placeholder")} />
+                <FieldError name="workReport" />
+              </ActionForm>
+            ) : (
+              <p className="whitespace-pre-wrap text-sm">{wo.workReport || <span className="text-muted">{t("workReport.empty")}</span>}</p>
+            )}
+          </Card>
 
           <Card className="p-5">
             <h2 className="mb-3 font-medium">{t("signoff.title")}</h2>

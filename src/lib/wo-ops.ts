@@ -105,6 +105,17 @@ export async function signOff(ctx: WoCtx, woId: string, signedByName: string, at
   await ctx.db.workOrder.update({ where: { id: woId }, data: { signatureUrl: att.id, signedByName: name, signedAt: at, clientAbsent: false } });
 }
 
+export const WORK_REPORT_MAX = 10_000;
+
+/** The technician's report ("what was done"), required to complete the job. Closed jobs can't change it. */
+export async function setWorkReport(ctx: WoCtx, woId: string, text: string | null) {
+  const report = text === null ? null : z.string().max(WORK_REPORT_MAX).parse(text).trim() || null;
+  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { status: true, workReport: true } });
+  if (!wo) throw new WorkOrderError("invalidRef");
+  if (wo.status === "DONE" || wo.status === "CANCELLED") throw new WorkOrderError("locked");
+  if (report !== wo.workReport) await ctx.db.workOrder.update({ where: { id: woId }, data: { workReport: report } });
+}
+
 /** "Client absent": no client signature is needed. Not possible once the client has signed. */
 export async function setClientAbsent(ctx: WoCtx, woId: string, absent: boolean) {
   const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { signatureUrl: true, status: true } });
