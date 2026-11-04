@@ -19,6 +19,8 @@ import { FieldError } from "@/components/action-form";
 import { canReschedule, slotInWindow } from "@/lib/request-window";
 import { ApproveFields } from "./approve-fields";
 import { villaClient } from "@/lib/villa-client";
+import { openRequestChat } from "@/lib/request-chat";
+import { RequestChat } from "@/components/request-chat";
 
 export default async function RequestPage({ params }: PageProps<"/requests/[id]">) {
   const { id } = await params;
@@ -59,6 +61,8 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
   const outsideWindow = !!r.scheduledFor && !slotInWindow(r.scheduledFor, r);
+
+  const chat = await openRequestChat(ctx, { requestId: r.id });
 
   const [teams, members] = canApprove
     ? await Promise.all([
@@ -173,6 +177,12 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
             <Card className="p-5 text-sm">
               <div className="font-medium">{t("requests.declined")}</div>
               {r.declineReason && <p className="mt-1 text-muted">{r.declineReason}</p>}
+            </Card>
+          )}
+
+          {chat && (
+            <Card className="p-5">
+              <RequestChat initial={chat} />
             </Card>
           )}
 

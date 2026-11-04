@@ -226,6 +226,7 @@ model User {
   posApproved        PurchaseOrder[]      @relation("POApprovedBy")
   conversationSeats  ConversationMember[]
   messages           Message[]
+  requestMessages    RequestMessage[]
   notifications      Notification[]
   auditLogs          AuditLog[]
   attachments        Attachment[]
@@ -295,6 +296,7 @@ model Organization {
   categories     Category[]
   workOrders     WorkOrder[]
   requests       Request[]
+  requestMessages RequestMessage[]
   onCallWeeks    OnCallWeek[]
   pmSchedules    PMSchedule[]
   meters         Meter[]
@@ -930,9 +932,30 @@ model Request {
   onCallUsers  User[]       @relation("RequestOnCall")
   workOrder    WorkOrder?   @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
   attachments  Attachment[]
+  // The chat with the client, kept on the request and shown on the work order it becomes (lib/request-chat.ts).
+  messages     RequestMessage[]
 
   @@unique([organizationId, number])
   @@index([organizationId, status])
+}
+
+// One message in a request's chat. A permanent record: never edited or deleted (the tenant client refuses it and a
+// database trigger blocks UPDATE and any DELETE that is not a cascade from the request or the company).
+model RequestMessage {
+  id             String   @id @default(cuid())
+  organizationId String
+  requestId      String
+  userId         String
+  // Written from the client portal (the requester, an owner or a property manager), else by staff.
+  fromClient     Boolean  @default(false)
+  body           String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  request      Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([requestId, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────── Preventive maintenance & meters

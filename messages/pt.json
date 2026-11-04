@@ -1067,6 +1067,10 @@
     "PO_UPDATE": {
       "title": "A nota de encomenda PO-{number} {status, select, APPROVED {foi aprovada} DRAFT {foi devolvida a rascunho} CANCELLED {foi cancelada} other {foi atualizada}}",
       "body": "{vendor} · {actor}"
+    },
+    "REQUEST_MESSAGE": {
+      "title": "Nova mensagem no pedido R{number}: {title}",
+      "body": "{actor}: {excerpt}"
     }
   },
   "email": {
@@ -1150,7 +1154,8 @@
       "METER_ALERT": "Leituras de contadores fora dos limites",
       "LOW_STOCK": "Peças a esgotar",
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",
-      "PO_UPDATE": "Atualizações das minhas notas de encomenda"
+      "PO_UPDATE": "Atualizações das minhas notas de encomenda",
+      "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido"
     },
     "appearance": "Idioma e aspeto",
     "language": "Idioma"
@@ -1775,6 +1780,10 @@
       "approve": {
         "label": "Aprovar pedidos",
         "hint": "Transformar pedidos em ordens de trabalho, ou recusá-los."
+      },
+      "chat": {
+        "label": "Falar com clientes nos pedidos",
+        "hint": "Ler e escrever na conversa de todos os pedidos. Os técnicos atribuídos ao trabalho podem sempre."
       }
     },
     "pm": {
@@ -2464,5 +2473,18 @@
     "hint": "Descreva o trabalho realizado. Obrigatório para marcar a ordem de trabalho como concluída; o cliente vê-o no relatório de serviço e no portal.",
     "placeholder": "O que foi feito, o que foi encontrado, o que ficou por fazer…",
     "empty": "Ainda sem relatório."
+  },
+  "requestChat": {
+    "title": "Conversa sobre o R{number}",
+    "permanent": "Fica guardada com o pedido. As mensagens não podem ser editadas nem apagadas.",
+    "noMessages": "Ainda não há mensagens. Escreva aqui ao cliente ou à equipa.",
+    "you": "Eu",
+    "client": "Cliente",
+    "placeholder": "Escreva uma mensagem…",
+    "send": "Enviar",
+    "sendFailed": "Não foi possível enviar. Verifique a ligação e tente de novo.",
+    "emptyMessage": "Escreva primeiro uma mensagem.",
+    "tooLong": "A mensagem é demasiado longa.",
+    "forbidden": "Não pode participar nesta conversa."
   }
 }
