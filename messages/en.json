@@ -1067,6 +1067,10 @@
     "PO_UPDATE": {
       "title": "PO-{number} {status, select, APPROVED {was approved} DRAFT {was sent back to draft} CANCELLED {was cancelled} other {was updated}}",
       "body": "{vendor} · {actor}"
+    },
+    "REQUEST_MESSAGE": {
+      "title": "New message on request R{number}: {title}",
+      "body": "{actor}: {excerpt}"
     }
   },
   "email": {
@@ -1150,7 +1154,8 @@
       "METER_ALERT": "Meter readings out of range",
       "LOW_STOCK": "Parts running low",
       "PO_APPROVAL": "Purchase orders waiting for approval",
-      "PO_UPDATE": "Updates on my purchase orders"
+      "PO_UPDATE": "Updates on my purchase orders",
+      "REQUEST_MESSAGE": "New messages in a request's conversation"
     },
     "appearance": "Language and appearance",
     "language": "Language"
@@ -1775,6 +1780,10 @@
       "approve": {
         "label": "Approve requests",
         "hint": "Turn requests into work orders, or decline them."
+      },
+      "chat": {
+        "label": "Talk to clients on requests",
+        "hint": "Read and write in the conversation of every request. Technicians assigned to the job always can."
       }
     },
     "pm": {
@@ -2464,5 +2473,18 @@
     "hint": "Describe the work you did. Required before the work order can be marked done; the client sees it in the service report and the portal.",
     "placeholder": "What was done, what was found, anything still to do…",
     "empty": "No report yet."
+  },
+  "requestChat": {
+    "title": "Conversation about R{number}",
+    "permanent": "Kept with the request. Messages can't be edited or deleted.",
+    "noMessages": "No messages yet. Write to the client or the team here.",
+    "you": "You",
+    "client": "Client",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sendFailed": "Couldn't send. Check your connection and try again.",
+    "emptyMessage": "Write a message first.",
+    "tooLong": "That message is too long.",
+    "forbidden": "You can't take part in this conversation."
   }
 }

@@ -15,6 +15,7 @@ import type { WorkOrderStatus } from "@/generated/prisma/enums";
 import { SignaturePad, type SignaturePadHandle } from "@/components/signature-pad";
 import { ChecklistItemInput } from "./checklist-item";
 import { KnowledgeSection } from "./knowledge-view";
+import { RequestChat } from "@/components/request-chat";
 import type { Timer } from "./field-app";
 
 type Enqueue = (op: NewOp, blob?: Blob) => Promise<void>;
@@ -382,6 +383,7 @@ export function WorkOrderView({
           </Button>
         </div>
       </section>
+      <RequestChat key={wo.id} workOrderId={wo.id} className="mt-3 border-y border-border bg-surface px-4 py-3 text-sm" />
     </main>
   );
 }

@@ -78,12 +78,26 @@ The client is notified the same way as for an approval. A declined request can't
 
 > If two people handle the same request at once, only the first decision counts; the second gets the message that the request has already been handled.
 
+## The conversation with the client
+
+Every request has a **conversation**: the client and your team can write to each other about it, for example to ask for a detail, agree on access or say you're on the way. It's on the request, and it carries on in the [work order](/help/work-orders) the request becomes (also in the field app), so everyone sees the same messages from start to finish.
+
+Who takes part:
+
+- the person who sent the request, and the client portal users of the villa's owner and of its property manager;
+- staff who can **talk to clients on requests** (Super Admin, Administrator and Manager, unless changed in [Roles](/help/roles));
+- the technicians assigned to the work order.
+
+Nobody else sees it, and other clients never do. Each message shows who wrote it and when; staff see a **Client** tag on messages written from the portal. The others are notified of each new message.
+
+> The conversation is a permanent record: messages can't be edited or deleted by anyone, so check before you send.
+
 ## Who can do what
 
 - **Super Admin**, **Administrator** and **Manager**: see, approve and decline requests, and get notified of new ones.
 - **Technician**, **Accountant** and **Viewer**: can see requests but not approve or decline them.
 - **Whoever is on call** that week is also notified of every new request and can approve or decline the ones that arrived during their week, whatever their role. The request shows who was on call. See [On call](/help/on-call).
-- **Clients** send requests and follow them in the client portal.
+- **Clients** send requests and follow them in the client portal. They also see and write in the conversation of their requests.
 `,
   pt: `# Pedidos
 
@@ -160,12 +174,26 @@ O cliente é notificado da mesma forma que numa aprovação. Um pedido recusado 
 
 > Se duas pessoas tratarem o mesmo pedido ao mesmo tempo, só conta a primeira decisão; a segunda recebe a mensagem de que o pedido já foi tratado.
 
+## A conversa com o cliente
+
+Cada pedido tem uma **conversa**: o cliente e a sua equipa podem escrever um ao outro sobre ele, por exemplo para pedir um detalhe, combinar o acesso ou avisar que vão a caminho. Está no pedido e continua na [ordem de trabalho](/help/work-orders) em que o pedido se torna (também na aplicação de campo), por isso todos veem as mesmas mensagens do início ao fim.
+
+Quem participa:
+
+- quem enviou o pedido e os utilizadores do portal do cliente do proprietário da moradia e do seu gestor de propriedade;
+- os colaboradores que podem **falar com clientes nos pedidos** (Super Admin, Administrador e Gestor, salvo alteração em [Funções](/help/roles));
+- os técnicos atribuídos à ordem de trabalho.
+
+Mais ninguém a vê, e nunca outros clientes. Cada mensagem mostra quem a escreveu e quando; os colaboradores veem a etiqueta **Cliente** nas mensagens escritas no portal. Os restantes são notificados de cada nova mensagem.
+
+> A conversa é um registo permanente: ninguém pode editar nem apagar mensagens, por isso confirme antes de enviar.
+
 ## Quem pode fazer o quê
 
 - **Super Admin**, **Administrador** e **Gestor**: veem, aprovam e recusam pedidos, e são notificados dos novos.
 - **Técnico**, **Contabilista** e **Observador**: veem os pedidos, mas não os aprovam nem recusam.
 - **Quem está de prevenção** nessa semana também é notificado de todos os novos pedidos e pode aprovar ou recusar os que chegaram durante a sua semana, seja qual for a sua função. O pedido mostra quem estava de prevenção. Veja [Prevenção](/help/on-call).
-- Os **clientes** enviam pedidos e acompanham-nos no portal do cliente.
+- Os **clientes** enviam pedidos e acompanham-nos no portal do cliente. Também veem e escrevem na conversa dos seus pedidos.
 `,
 };
 

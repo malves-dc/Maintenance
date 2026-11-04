@@ -21,6 +21,7 @@ export const PERMISSIONS = {
   "workOrders.sendReport": ["OWNER", "ADMIN", "MANAGER"], // e-mail the PDF service report
   "requests.create": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "REQUESTER"],
   "requests.approve": ["OWNER", "ADMIN", "MANAGER"],
+  "requests.chat": ["OWNER", "ADMIN", "MANAGER"], // take part in every request's chat with the client (assigned technicians always can, on their jobs)
   "onCall.manage": ["OWNER", "ADMIN"], // on-call team and its weekly rota, from Settings → Staff (whoever is on call receives every client request)
   "pm.manage": ["OWNER", "ADMIN", "MANAGER"],
   "procedures.manage": ["OWNER", "ADMIN", "MANAGER"],
@@ -47,7 +48,7 @@ export const STAFF_BASE: Permission[] = ["internal.view"];
 /** Permissions shown in Settings → Roles, by section. */
 export const PERMISSION_GROUPS: { key: string; permissions: Permission[] }[] = [
   { key: "admin", permissions: ["org.manage", "users.manage", "onCall.manage", "teams.manage", "audit.view"] },
-  { key: "work", permissions: ["workOrders.create", "workOrders.execute", "workOrders.manage", "workOrders.sendReport", "requests.create", "requests.approve", "pm.manage", "procedures.manage"] },
+  { key: "work", permissions: ["workOrders.create", "workOrders.execute", "workOrders.manage", "workOrders.sendReport", "requests.create", "requests.approve", "requests.chat", "pm.manage", "procedures.manage"] },
   { key: "sites", permissions: ["clients.manage", "contracts.manage", "assets.manage", "secrets.view", "knowledge.manage"] },
   { key: "supply", permissions: ["inventory.use", "inventory.manage", "vendors.manage", "purchasing.manage", "purchasing.approve"] },
   { key: "insights", permissions: ["reports.view"] },

@@ -8,6 +8,8 @@ import { WorkOrderStatusBadge } from "@/components/badges";
 import { getPortalContext } from "@/lib/portal";
 import { fileUrl } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import { openRequestChat } from "@/lib/request-chat";
+import { RequestChat } from "@/components/request-chat";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -37,6 +39,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
     },
   });
   if (!r) notFound();
+  const chat = await openRequestChat(ctx, { requestId: r.id });
   const wo = r.workOrder?.clientVisible ? r.workOrder : null;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
@@ -103,6 +106,11 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
             <Card className="p-5">
               <h2 className="mb-2 font-medium">{t("workReport.title")}</h2>
               <p className="whitespace-pre-wrap text-sm">{wo.workReport}</p>
+            </Card>
+          )}
+          {chat && (
+            <Card className="p-5">
+              <RequestChat initial={chat} staff={false} />
             </Card>
           )}
         </div>

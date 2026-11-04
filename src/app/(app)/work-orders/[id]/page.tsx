@@ -26,6 +26,8 @@ import { SendReportPanel } from "./send-report";
 import { reportRecipients } from "@/lib/report-email";
 import { villaClient } from "@/lib/villa-client";
 import { roleName, WORK_ORDER_BUILT_IN_ROLE } from "@/lib/roles";
+import { openRequestChat } from "@/lib/request-chat";
+import { RequestChat } from "@/components/request-chat";
 
 export default async function WorkOrderPage({ params }: PageProps<"/work-orders/[id]">) {
   const { id } = await params;
@@ -112,6 +114,8 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const reportEmail = ctx.can("workOrders.sendReport") ? await reportRecipients(ctx, wo.id) : null;
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
+  // The conversation with the client on the request this job came from (participants only).
+  const chat = wo.request ? await openRequestChat(ctx, { requestId: wo.request.id }) : null;
   const myRunning = wo.timeEntries.find((e) => e.userId === ctx.user.id && !e.endedAt);
   // A new entry starts where my last one was (on site / remote); entries are newest first.
   const myLastMode = wo.timeEntries.find((e) => e.userId === ctx.user.id)?.mode ?? "ONSITE";
@@ -261,6 +265,12 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             </ol>
             {canExecute && <CommentBox woId={wo.id} members={staff.map((m) => m.user).filter((u) => u.id !== ctx.user.id)} />}
           </Card>
+
+          {chat && (
+            <Card className="p-5">
+              <RequestChat initial={chat} />
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
