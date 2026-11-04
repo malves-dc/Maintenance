@@ -1,0 +1,43 @@
+# Development stack without Node on the host: `docker compose -f docker-compose.dev.yml up -d --build`.
+# The `node` container is the Dockerfile's `dev` stage (the production image's system tools: ffmpeg, PostgreSQL
+# client, busybox tar) with the repo bind-mounted at /app. It installs dependencies on first start, applies
+# migrations and runs `next dev` on http://localhost:3000. After editing code, run `restart-dev` in it
+# (`docker compose -f docker-compose.dev.yml exec node restart-dev`); logs are in /tmp/dev.log.
+# .env must point DATABASE_URL at db:5432 (Postgres is also published on localhost:5433).
+name: villaops-dev
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: maintenance
+      POSTGRES_PASSWORD: maintenance
+      POSTGRES_DB: maintenance
+    ports: ["5433:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U maintenance"]
+      interval: 3s
+      retries: 20
+
+  node:
+    build: { context: ., target: dev }
+    working_dir: /app
+    command: ["sh", "-c", "[ -d node_modules/next ] || npm ci; npx prisma migrate deploy; restart-dev; exec sleep infinity"]
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      # The file watcher misses changes on a Windows bind mount without polling.
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports: ["3000:3000"]
+    volumes:
+      - .:/app
+      # Linux (musl) packages and build output stay in volumes, apart from the host's files.
+      - node_modules:/app/node_modules
+      - next:/app/.next
+
+volumes:
+  pgdata: {}
+  node_modules: {}
+  next: {}
