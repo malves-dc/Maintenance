@@ -62,7 +62,7 @@ Everyone has a bell and a notifications list, including clients in the client po
 - Technicians mostly get assignments, status changes, comments and mentions on their jobs.
 - Managers and Administrators also get new requests, meter alerts and stock alerts (by default).
 - The Super Admin and Administrators also get purchase orders waiting for approval (by default).
-- Clients only get notified when their requests are accepted or declined and when their jobs change status.
+- Clients only get notified when their requests are accepted, declined or given a visit date and time, and when their jobs change status.
 
 If the Super Admin changes what a role can do in [Roles](/help/roles), the alerts follow: for example, giving a role the right to approve requests also sends it new requests.
 `,
@@ -125,7 +125,7 @@ Todos têm um sino e uma lista de notificações, incluindo os clientes no porta
 - Os técnicos recebem sobretudo atribuições, mudanças de estado, comentários e menções nos seus trabalhos.
 - Gestores e Administradores recebem também novos pedidos, alertas de contadores e alertas de stock (por defeito).
 - O Super Admin e os Administradores recebem também as encomendas a aguardar aprovação (por defeito).
-- Os clientes só são notificados quando os seus pedidos são aceites ou recusados e quando os seus trabalhos mudam de estado.
+- Os clientes só são notificados quando os seus pedidos são aceites, recusados ou recebem a data e a hora da visita, e quando os seus trabalhos mudam de estado.
 
 Se o Super Admin alterar o que uma função pode fazer em [Funções](/help/roles), os alertas acompanham: por exemplo, dar a uma função o direito de aprovar pedidos faz com que passe também a receber os novos pedidos.
 `,

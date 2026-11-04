@@ -236,7 +236,12 @@
     "categoryTaken": "Já existe uma categoria com este nome.",
     "badEmails": "Um ou mais endereços não são endereços de e-mail válidos.",
     "badFrom": "Indique um endereço, ou um nome e endereço: Empresa '<'nome@empresa.pt'>'.",
-    "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos."
+    "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos.",
+    "windowIncomplete": "Indique o início e o fim do período.",
+    "windowOrder": "O fim tem de ser depois do início.",
+    "windowPast": "Este período já terminou.",
+    "windowTooLong": "O período não pode ter mais de um ano.",
+    "slotRequired": "Confirme a data e a hora da visita."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -742,7 +747,24 @@
     "declineTitle": "Recusar",
     "decline": "Recusar pedido",
     "declinePlaceholder": "Motivo, mostrado ao cliente (opcional)",
-    "notPending": "Este pedido já foi tratado."
+    "notPending": "Este pedido já foi tratado.",
+    "windowTitle": "Quando podemos fazer o trabalho?",
+    "windowHint": "Opcional. Indique um período que lhe convenha e confirmaremos uma data e hora dentro dele.",
+    "windowFrom": "De",
+    "windowTo": "Até",
+    "windowLabel": "Disponibilidade do cliente",
+    "visitLabel": "Visita confirmada",
+    "clientWindow": "O cliente pode receber o trabalho entre {window}.",
+    "confirmVisit": "Visita confirmada (opcional)",
+    "confirmVisitRequired": "Visita confirmada",
+    "confirmVisitHint": "O cliente vê esta data e hora e é avisado. Passa também a ser a data de início da ordem de trabalho.",
+    "confirmVisitTitle": "Confirmar a visita",
+    "visitTitle": "Visita",
+    "confirmVisitButton": "Confirmar visita",
+    "moveVisit": "Alterar visita",
+    "visitSaved": "Guardado. O cliente foi avisado.",
+    "outsideWindow": "Fora da disponibilidade do cliente.",
+    "notSchedulable": "Já não é possível alterar a visita deste pedido."
   },
   "portal": {
     "title": "Portal do cliente",
@@ -795,7 +817,11 @@
     "pastRequests": "Pedidos anteriores",
     "pastRequestsHint": "O que pediu e os trabalhos feitos, com os relatórios de serviço.",
     "noPastRequests": "Ainda não há nada aqui.",
-    "requestNumber": "Pedido R{number}"
+    "requestNumber": "Pedido R{number}",
+    "visitConfirmed": "Visita confirmada para {date}",
+    "visitConfirmedTitle": "Visita confirmada",
+    "yourWindow": "Tem disponibilidade {window}. Vamos confirmar a data e a hora.",
+    "visitOn": "Visita {date}"
   },
   "vendors": {
     "description": "Fornecedores, subempreiteiros e fabricantes a quem compra peças e equipamento.",
@@ -1020,7 +1046,7 @@
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {O seu pedido R{number} foi aceite} other {O seu pedido R{number} foi recusado}}",
+      "title": "{status, select, APPROVED {O seu pedido R{number} foi aceite} SCHEDULED {O seu pedido R{number} foi aceite: visita a {when}} RESCHEDULED {A visita do seu pedido R{number} passou para {when}} other {O seu pedido R{number} foi recusado}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
@@ -1117,7 +1143,7 @@
       "MENTION": "Alguém me menciona com @",
       "MESSAGE": "Novas mensagens de conversa",
       "REQUEST_NEW": "Novos pedidos de manutenção",
-      "REQUEST_UPDATE": "Os meus pedidos são aceites ou recusados",
+      "REQUEST_UPDATE": "Os meus pedidos são aceites, recusados ou agendados",
       "METER_ALERT": "Leituras de contadores fora dos limites",
       "LOW_STOCK": "Peças a esgotar",
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",

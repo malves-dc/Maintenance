@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { enumOf, optId, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { enumOf, optDate, optId, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { windowError } from "@/lib/request-window";
 import { getPortalContext } from "@/lib/portal";
 import { createRequest, MAX_REQUEST_PHOTOS } from "@/lib/requests";
 import { Priority } from "@/generated/prisma/enums";
@@ -15,6 +16,8 @@ const schema = z.object({
   title: str(200),
   description: optStr(5000),
   priority: enumOf(Priority).default("MEDIUM"),
+  availableFrom: optDate(),
+  availableTo: optDate(),
 });
 
 export async function createPortalRequestAction(_: FormResult, form: FormData): Promise<FormResult> {
@@ -22,6 +25,8 @@ export async function createPortalRequestAction(_: FormResult, form: FormData): 
   const parsed = parseForm(schema, form); // unknown keys (photos) are stripped
   if (parsed.error) return parsed.error;
   const d = parsed.data;
+  const bad = windowError(d);
+  if (bad) return { error: "validation", fieldErrors: { [bad.field]: bad.code } };
 
   // Everything must belong to one of this client's villas.
   const villa = await ctx.db.villa.findFirst({ where: { id: d.villaId, ...ctx.villaWhere } });
@@ -42,6 +47,8 @@ export async function createPortalRequestAction(_: FormResult, form: FormData): 
       assetId: asset?.id ?? null,
       system: asset?.system ?? null,
       requesterId: ctx.user.id,
+      availableFrom: d.availableFrom,
+      availableTo: d.availableTo,
     },
     photos,
   );

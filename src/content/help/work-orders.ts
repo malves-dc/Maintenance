@@ -84,7 +84,7 @@ To change a work order later, open it and click **Edit**. If you change the vill
 
 At the top are the title, the status, the system, the priority and, if it applies, **Overdue**. The buttons on the right open the **Service report** (PDF), **Edit** the work order and delete it.
 
-On the right, the details card sums up the job: villa, client, area, asset, type, dates, team, categories, who it's assigned to, who created and completed it, the request it came from and the contract. Below it are the panels for time, photos and files, parts, amounts to bill, client sign-off and e-mailing the report.
+On the right, the details card sums up the job: villa, client, area, asset, type, dates, team, categories, who it's assigned to, who created and completed it, the request it came from (with the client's availability and the confirmed visit, if any) and the contract. Below it are the panels for time, photos and files, parts, amounts to bill, client sign-off and e-mailing the report.
 
 ## Your role on the job
 
@@ -298,7 +298,7 @@ Para alterar uma ordem de trabalho mais tarde, abra-a e clique em **Editar**. Se
 
 No topo estão o título, o estado, o sistema, a prioridade e, se for o caso, **Em atraso**. Os botões à direita abrem o **Relatório de serviço** (PDF), permitem **Editar** a ordem de trabalho e eliminá-la.
 
-À direita, o cartão de detalhes resume o trabalho: moradia, cliente, área, equipamento, tipo, datas, equipa, categorias, a quem está atribuída, quem a criou e concluiu, o pedido de origem e o contrato. Por baixo estão os painéis de tempo, fotografias e ficheiros, peças, valores a faturar, aprovação do cliente e envio do relatório por e-mail.
+À direita, o cartão de detalhes resume o trabalho: moradia, cliente, área, equipamento, tipo, datas, equipa, categorias, a quem está atribuída, quem a criou e concluiu, o pedido de origem (com a disponibilidade do cliente e a visita confirmada, quando existem) e o contrato. Por baixo estão os painéis de tempo, fotografias e ficheiros, peças, valores a faturar, aprovação do cliente e envio do relatório por e-mail.
 
 ## A sua função no trabalho
 

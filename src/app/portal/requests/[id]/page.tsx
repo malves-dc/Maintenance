@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { CheckCircle2, Circle, FileDown, XCircle } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Circle, FileDown, XCircle } from "lucide-react";
 import { Card } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
 import { WorkOrderStatusBadge } from "@/components/badges";
@@ -38,13 +38,24 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
   if (!r) notFound();
   const wo = r.workOrder?.clientVisible ? r.workOrder : null;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
+  const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
 
   // Simple progress timeline for the client.
   const steps = [
     { done: true, label: t("portal.stepReceived"), detail: dt(r.createdAt) },
     r.status === "DECLINED"
       ? { done: true, declined: true, label: t("portal.stepDeclined"), detail: r.declineReason }
-      : { done: r.status === "APPROVED", label: t("portal.stepScheduled"), detail: wo?.dueDate ? t("portal.plannedFor", { date: dt(wo.dueDate) }) : null },
+      : {
+          done: r.status === "APPROVED",
+          label: t("portal.stepScheduled"),
+          detail: r.scheduledFor
+            ? t("portal.visitConfirmed", { date: dt(r.scheduledFor) })
+            : clientWindow
+              ? t("portal.yourWindow", { window: clientWindow })
+              : wo?.dueDate
+                ? t("portal.plannedFor", { date: dt(wo.dueDate) })
+                : null,
+        },
     ...(r.status !== "DECLINED"
       ? [
           { done: wo?.status === "IN_PROGRESS" || wo?.status === "DONE", label: t("portal.stepInProgress"), detail: wo?.assignees.map((a) => a.user.name).join(", ") || null },
@@ -61,6 +72,15 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
         R{r.number} · {r.villa?.name}
         {r.asset && ` · ${r.asset.name}`}
       </p>
+      {r.status === "APPROVED" && r.scheduledFor && wo?.status !== "DONE" && wo?.status !== "CANCELLED" && (
+        <div className="mb-5 flex items-center gap-3 rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+          <CalendarCheck className="size-5 shrink-0" />
+          <span>
+            <span className="block font-medium">{t("portal.visitConfirmedTitle")}</span>
+            {dt(r.scheduledFor)}
+          </span>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-[1fr_280px]">
         <Card className="p-5">

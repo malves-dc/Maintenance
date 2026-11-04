@@ -236,7 +236,12 @@
     "categoryTaken": "There's already a category with this name.",
     "badEmails": "One or more addresses aren't valid e-mail addresses.",
     "badFrom": "Use an address, or a name and address: Company '<'name@company.com'>'.",
-    "ownerOrManager": "Choose an owner, a property manager, or both."
+    "ownerOrManager": "Choose an owner, a property manager, or both.",
+    "windowIncomplete": "Give both the start and the end of the period.",
+    "windowOrder": "The end must be after the start.",
+    "windowPast": "This period is already over.",
+    "windowTooLong": "The period can't be longer than a year.",
+    "slotRequired": "Confirm the date and time of the visit."
   },
   "clients": {
     "description": "Villa owners, family offices and property managers you work for.",
@@ -742,7 +747,24 @@
     "declineTitle": "Decline",
     "decline": "Decline request",
     "declinePlaceholder": "Reason, shown to the client (optional)",
-    "notPending": "This request has already been handled."
+    "notPending": "This request has already been handled.",
+    "windowTitle": "When can we do the work?",
+    "windowHint": "Optional. Give a period that suits you and we'll confirm a date and time within it.",
+    "windowFrom": "From",
+    "windowTo": "Until",
+    "windowLabel": "Client's availability",
+    "visitLabel": "Confirmed visit",
+    "clientWindow": "The client can have the work done between {window}.",
+    "confirmVisit": "Confirmed visit (optional)",
+    "confirmVisitRequired": "Confirmed visit",
+    "confirmVisitHint": "The client sees this date and time and is told about it. It also becomes the work order's start date.",
+    "confirmVisitTitle": "Confirm the visit",
+    "visitTitle": "Visit",
+    "confirmVisitButton": "Confirm visit",
+    "moveVisit": "Change visit",
+    "visitSaved": "Saved. The client was told.",
+    "outsideWindow": "Outside the client's availability.",
+    "notSchedulable": "This request's visit can no longer be changed."
   },
   "portal": {
     "title": "Client portal",
@@ -795,7 +817,11 @@
     "pastRequests": "Earlier requests",
     "pastRequestsHint": "What you asked for and the work done, with the service reports.",
     "noPastRequests": "Nothing here yet.",
-    "requestNumber": "Request R{number}"
+    "requestNumber": "Request R{number}",
+    "visitConfirmed": "Visit confirmed for {date}",
+    "visitConfirmedTitle": "Visit confirmed",
+    "yourWindow": "You're available {window}. We'll confirm a date and time.",
+    "visitOn": "Visit {date}"
   },
   "vendors": {
     "description": "Suppliers, subcontractors and manufacturers you buy parts and equipment from.",
@@ -1020,7 +1046,7 @@
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {Your request R{number} was accepted} other {Your request R{number} was declined}}",
+      "title": "{status, select, APPROVED {Your request R{number} was accepted} SCHEDULED {Your request R{number} was accepted: visit on {when}} RESCHEDULED {Visit for your request R{number} moved to {when}} other {Your request R{number} was declined}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
@@ -1117,7 +1143,7 @@
       "MENTION": "Someone @mentions me",
       "MESSAGE": "New chat messages",
       "REQUEST_NEW": "New maintenance requests",
-      "REQUEST_UPDATE": "My requests are accepted or declined",
+      "REQUEST_UPDATE": "My requests are accepted, declined or scheduled",
       "METER_ALERT": "Meter readings out of range",
       "LOW_STOCK": "Parts running low",
       "PO_APPROVAL": "Purchase orders waiting for approval",

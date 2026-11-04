@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Mail, Phone, PhoneCall } from "lucide-react";
+import { CalendarCheck, CalendarClock, Mail, Phone, PhoneCall } from "lucide-react";
 import { Card, PageHeader, Textarea } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
 import { ActionForm } from "@/components/action-form";
@@ -13,7 +13,10 @@ import { assignableUsers, workOrderCosts } from "@/lib/work-orders";
 import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
 import { travelOf } from "@/lib/travel-charge";
-import { approveRequestAction, declineRequestAction } from "../actions";
+import { approveRequestAction, declineRequestAction, scheduleRequestAction } from "../actions";
+import { DateTimeField } from "@/components/datetime-field";
+import { FieldError } from "@/components/action-form";
+import { canReschedule, slotInWindow } from "@/lib/request-window";
 import { ApproveFields } from "./approve-fields";
 import { villaClient } from "@/lib/villa-client";
 
@@ -50,7 +53,12 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   });
   if (!r) notFound();
   // Approvers, and whoever was on call when it arrived.
-  const canApprove = (ctx.can("requests.approve") || r.onCallUsers.some((u) => u.id === ctx.user.id)) && r.status === "PENDING";
+  const isHandler = ctx.can("requests.approve") || r.onCallUsers.some((u) => u.id === ctx.user.id);
+  const canApprove = isHandler && r.status === "PENDING";
+  const canSchedule = isHandler && r.status === "APPROVED" && canReschedule(r.status, r.workOrder?.status);
+  const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
+  const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
+  const outsideWindow = !!r.scheduledFor && !slotInWindow(r.scheduledFor, r);
 
   const [teams, members] = canApprove
     ? await Promise.all([
@@ -97,6 +105,20 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
                 #{r.workOrder.number}
                 <WorkOrderStatusBadge status={r.workOrder.status} />
               </Link>
+            </Card>
+          )}
+          {canSchedule && (
+            <Card className="p-5">
+              <h2 className="mb-1 font-medium">{r.scheduledFor ? t("requests.visitTitle") : t("requests.confirmVisitTitle")}</h2>
+              <p className="mb-4 text-sm text-muted">{clientWindow ? t("requests.clientWindow", { window: clientWindow }) : t("requests.confirmVisitHint")}</p>
+              <ActionForm
+                action={scheduleRequestAction.bind(null, r.id)}
+                submitLabel={r.scheduledFor ? t("requests.moveVisit") : t("requests.confirmVisitButton")}
+                successMessage={t("requests.visitSaved")}
+              >
+                <DateTimeField name="scheduledFor" defaultValue={r.scheduledFor?.toISOString()} />
+                <FieldError name="scheduledFor" />
+              </ActionForm>
             </Card>
           )}
           {r.status === "APPROVED" && r.workOrder && ctx.can("costs.view") && (() => {
@@ -165,6 +187,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
                   teams={teams.map((x) => ({ id: x.id, name: x.name, memberIds: x.members.map((m) => m.userId) }))}
                   people={members}
                   initialAssignees={r.onCallUsers.map((u) => u.id).filter((id) => members.some((m) => m.id === id))}
+                  clientWindow={clientWindow}
                 />
               </ActionForm>
             </Card>
@@ -190,6 +213,25 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
                 </a>
               )}
             </div>
+            {clientWindow && (
+              <div>
+                <div className="text-xs text-muted">{t("requests.windowLabel")}</div>
+                <div className="flex items-center gap-1.5">
+                  <CalendarClock className="size-3.5 text-muted" />
+                  {clientWindow}
+                </div>
+              </div>
+            )}
+            {r.scheduledFor && (
+              <div>
+                <div className="text-xs text-muted">{t("requests.visitLabel")}</div>
+                <div className="flex items-center gap-1.5 font-medium">
+                  <CalendarCheck className="size-3.5 text-green-600" />
+                  {dt(r.scheduledFor)}
+                </div>
+                {outsideWindow && <div className="text-xs text-amber-700">{t("requests.outsideWindow")}</div>}
+              </div>
+            )}
             {r.onCallUsers.length > 0 && (
               <div>
                 <div className="text-xs text-muted">{t("onCall.requestOnCall")}</div>

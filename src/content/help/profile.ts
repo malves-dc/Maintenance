@@ -90,7 +90,7 @@ To stop alerts on that device, click **Turn off**.
 
 ## Who can use it
 
-Every signed-in person has a profile. Client users have their own profile in the client portal, with a shorter list of notifications (their requests being accepted or declined, and status changes on their jobs).
+Every signed-in person has a profile. Client users have their own profile in the client portal, with a shorter list of notifications (their requests being accepted, declined or scheduled, and status changes on their jobs).
 `,
   pt: `# O meu perfil
 
@@ -179,7 +179,7 @@ Para deixar de receber alertas nesse dispositivo, clique em **Desativar**.
 
 ## Quem pode usar
 
-Todas as pessoas com sessão iniciada têm um perfil. Os utilizadores de cliente têm o seu próprio perfil no portal do cliente, com uma lista de notificações mais curta (os seus pedidos aceites ou recusados e as mudanças de estado nos seus trabalhos).
+Todas as pessoas com sessão iniciada têm um perfil. Os utilizadores de cliente têm o seu próprio perfil no portal do cliente, com uma lista de notificações mais curta (os seus pedidos aceites, recusados ou agendados e as mudanças de estado nos seus trabalhos).
 `,
 };
 

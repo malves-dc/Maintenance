@@ -910,6 +910,12 @@ model Request {
   requesterPhone String?
   workOrderId    String?       @unique
   declineReason  String?
+  // When the client says the work can be done (optional; both or neither). A request with this window
+  // can only be approved with a confirmed visit time (lib/request-window.ts).
+  availableFrom  DateTime?
+  availableTo    DateTime?
+  // The visit date and time confirmed to the client (copied to the work order's start date).
+  scheduledFor   DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
