@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { FileDown, ImagePlus, MapPin, Monitor, Pencil, Play, Send, Square, Trash2, X } from "lucide-react";
 import { ActionForm, FieldError } from "@/components/action-form";
 import { Button, Field, Input } from "@/components/ui";
+import { MediaPickerButton } from "@/components/media-picker-button";
 import { MentionTextarea, type MentionMember } from "@/components/mention-textarea";
 import { SignaturePad, type SignaturePadHandle } from "@/components/signature-pad";
 import { uploadFile, type Uploaded } from "@/lib/upload-client";
@@ -363,7 +364,6 @@ export function CommentBox({ woId, members }: { woId: string; members: MentionMe
   const [files, setFiles] = useState<Uploaded[]>([]);
   const uploader = useUploader();
   const [pending, start] = useTransition();
-  const input = useRef<HTMLInputElement>(null);
 
   return (
     <form
@@ -387,23 +387,16 @@ export function CommentBox({ woId, members }: { woId: string; members: MentionMe
       )}
       {uploader.error && <p className="text-xs text-danger">{uploader.error}</p>}
       <div className="flex justify-between">
-        <input
-          ref={input}
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          className="sr-only"
-          onChange={async (e) => {
-            const list = [...(e.target.files ?? [])];
-            e.target.value = "";
+        <MediaPickerButton
+          disabled={uploader.busy}
+          onFiles={async (list) => {
             const ups = await uploader.upload(list, { workOrderId: woId });
             setFiles((prev) => [...prev, ...ups]);
           }}
-        />
-        <Button type="button" size="sm" variant="ghost" disabled={uploader.busy} onClick={() => input.current?.click()}>
+        >
           <ImagePlus className="size-4" />
           {uploader.busy ? uploader.label : t("activity.attach")}
-        </Button>
+        </MediaPickerButton>
         <Button size="sm" disabled={pending || uploader.busy || (!body.trim() && files.length === 0)}>
           <Send className="size-4" />
           {t("activity.send")}

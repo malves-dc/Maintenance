@@ -128,7 +128,7 @@ Click **Edit** in the checklist header to add, move (arrows) or delete steps. At
 
 ## Activity and comments
 
-The **Activity** card lists comments and status changes, oldest first. To add an update, type in the box and click **Post**; **Photo or video** attaches pictures or short videos to the comment.
+The **Activity** card lists comments and status changes, oldest first. To add an update, type in the box and click **Post**; **Photo or video** attaches pictures or short videos to the comment. On a phone it lets you take a photo, record a video or choose from the gallery.
 
 Type **@** followed by a name to mention a colleague: they get a notification. The creator and the people assigned are notified of every comment. See [Notifications](/help/notifications).
 
@@ -346,7 +346,7 @@ Clique em **Editar** no cabeçalho da checklist para acrescentar, mover (setas) 
 
 ## Atividade e comentários
 
-O cartão **Atividade** lista os comentários e as mudanças de estado, do mais antigo para o mais recente. Para acrescentar uma atualização, escreva na caixa e clique em **Publicar**; **Fotografia ou vídeo** junta imagens ou vídeos curtos ao comentário.
+O cartão **Atividade** lista os comentários e as mudanças de estado, do mais antigo para o mais recente. Para acrescentar uma atualização, escreva na caixa e clique em **Publicar**; **Fotografia ou vídeo** junta imagens ou vídeos curtos ao comentário. No telemóvel, permite tirar uma fotografia, gravar um vídeo ou escolher da galeria.
 
 Escreva **@** seguido de um nome para mencionar um colega: ele recebe uma notificação. Quem criou a ordem e as pessoas atribuídas são notificados de cada comentário. Veja [Notificações](/help/notifications).
 
