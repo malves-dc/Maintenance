@@ -593,6 +593,7 @@
     "title": "Atividade",
     "placeholder": "Adicione uma atualização ou nota…",
     "attach": "Fotografia ou vídeo",
+    "fromGallery": "Escolher da galeria",
     "send": "Publicar",
     "changedStatus": "alterou o estado para",
     "created": "criou esta ordem de trabalho"

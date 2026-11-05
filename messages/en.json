@@ -593,6 +593,7 @@
     "title": "Activity",
     "placeholder": "Add an update or note…",
     "attach": "Photo or video",
+    "fromGallery": "Choose from gallery",
     "send": "Post",
     "changedStatus": "changed status to",
     "created": "created this work order"
