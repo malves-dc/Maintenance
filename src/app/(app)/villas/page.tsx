@@ -9,6 +9,7 @@ import { getContext } from "@/lib/context";
 import { pageOf, PAGE_SIZE, searchWhere, sp } from "@/lib/list";
 import { titled } from "@/lib/metadata";
 import { villaClient } from "@/lib/villa-client";
+import { ConnectivityBadge } from "./connectivity-badge";
 
 export const generateMetadata = titled("nav.villas");
 
@@ -93,6 +94,7 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
                 <th>{t("common.name")}</th>
                 <th>{t("villas.owner")}</th>
                 <th>{t("villas.city")}</th>
+                <th>{t("connectivity.column")}</th>
                 <th className="text-right">{t("nav.assets")}</th>
                 <th className="text-right">{t("villas.openWorkOrders")}</th>
               </tr>
@@ -120,6 +122,7 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
                     )}
                   </td>
                   <td className="text-muted">{v.city ?? "—"}</td>
+                  <td>{v.connectivityType ? <ConnectivityBadge online={v.online} /> : <span className="text-muted">—</span>}</td>
                   <td className="text-right tabular-nums">{v._count.assets}</td>
                   <td className="text-right tabular-nums">{v._count.workOrders}</td>
                 </tr>

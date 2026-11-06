@@ -53,7 +53,19 @@ export async function auditUser(userId: string, action: string, meta?: Record<st
 
 // ── Field changes
 
-const SKIP = new Set(["id", "organizationId", "createdAt", "updatedAt"]);
+// Bookkeeping, not edits: the villa internet check's last result (lib/connectivity.ts) changes on every check.
+const SKIP = new Set([
+  "id",
+  "organizationId",
+  "createdAt",
+  "updatedAt",
+  "online",
+  "onlineCheckedAt",
+  "onlineSince",
+  "onlineLatencyMs",
+  "onlineAddress",
+  "onlineError",
+]);
 /** Secret or token fields: the log says they changed, never what to. */
 export const isSecretField = (k: string) => /Enc$|password|token|secret|hash/i.test(k);
 export const MASK = "••••";

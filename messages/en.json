@@ -126,7 +126,8 @@
     "audit": "Audit log",
     "search": "Search",
     "onCall": "On call",
-    "clientUsers": "Clients"
+    "clientUsers": "Clients",
+    "technical": "Technical"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -237,6 +238,7 @@
     "badEmails": "One or more addresses aren't valid e-mail addresses.",
     "badFrom": "Use an address, or a name and address: Company '<'name@company.com'>'.",
     "ownerOrManager": "Choose an owner, a property manager, or both.",
+    "invalid_host": "Not a valid host name or IP address.",
     "windowIncomplete": "Give both the start and the end of the period.",
     "windowOrder": "The end must be after the start.",
     "windowPast": "This period is already over.",
@@ -2153,7 +2155,8 @@
         "update": "Changed the company settings",
         "logo": "Changed the company logo",
         "roleRates": "Changed the role prices",
-        "permissions": "Changed role permissions"
+        "permissions": "Changed role permissions",
+        "technical": "Changed the technical settings"
       },
       "villa": {
         "secrets": {
@@ -2476,6 +2479,67 @@
     "nextDay": "until the next day",
     "allDay": "24 hours",
     "holidays": "Company holidays (from business hours): all day"
+  },
+  "connectivity": {
+    "title": "Internet connection",
+    "column": "Internet",
+    "type": "Remote access",
+    "typeHint": "How the server reaches the villa to check that its internet is up, at the interval set in Settings → Technical.",
+    "none": "Not monitored",
+    "DYNDNS": "DynDNS",
+    "VPN": "VPN",
+    "dyndnsHost": "DynDNS host name",
+    "dyndnsHostHint": "The villa's dynamic DNS name, e.g. villa7.dyndns.org or a no-ip / DuckDNS name.",
+    "vpnName": "VPN",
+    "vpnNameHint": "Which VPN reaches this villa, for the team. The server running this app must be connected to it.",
+    "vpnNamePlaceholder": "e.g. WireGuard – office",
+    "vpnHost": "Address in the VPN",
+    "vpnHostHint": "IP address (or VPN name) of the router or another always-on device at the villa.",
+    "port": "Port (optional)",
+    "portHint": "Empty = ping. Set a TCP port that answers (e.g. the router's web admin) only if the router doesn't answer pings from the internet.",
+    "online": "Online",
+    "offline": "Offline",
+    "unchecked": "Not checked",
+    "notMonitored": "Not monitored.",
+    "notMonitoredEdit": "Not monitored. Edit the villa to add its DynDNS name or VPN address.",
+    "onlineSince": "Online since",
+    "offlineSince": "Offline since",
+    "lastCheck": "Last check",
+    "latency": "Response time",
+    "ms": "{ms, number} ms",
+    "address": "Resolved IP",
+    "checkNow": "Check now",
+    "checking": "Checking…",
+    "error": {
+      "dnsFailed": "The host name doesn't resolve. Check the DynDNS name and whether the router still updates it.",
+      "timeout": "No answer within 5 seconds. If the router doesn't answer pings, set a port.",
+      "unreachable": "No route to the address. For a VPN, check that the server is connected to it.",
+      "blockedAddress": "That address points at the server itself and isn't checked.",
+      "failed": "The connection failed.",
+      "portClosed": "The connection is up, but this port is closed.",
+      "noPing": "The server can't run ping. Set a port to check with a TCP connection instead."
+    },
+    "portPlaceholder": "Ping",
+    "viaPing": "Checked by ping",
+    "viaTcp": "Checked by TCP connection to port {port}"
+  },
+  "technical": {
+    "description": "Technical monitoring of the villas you maintain.",
+    "interval": "Check each villa",
+    "intervalHint": "How often the server checks that each monitored villa's internet is up (its DynDNS name or VPN address). Applies to every villa of the company.",
+    "every": {
+      "0": "Off (only “Check now”)",
+      "30": "Every 30 seconds",
+      "300": "Every 5 minutes",
+      "1800": "Every 30 minutes",
+      "3600": "Every hour",
+      "43200": "Every 12 hours",
+      "86400": "Once a day"
+    },
+    "monitored": "Monitored villas",
+    "noneMonitored": "No villa is monitored yet. Edit a villa and choose DynDNS or VPN under Internet connection.",
+    "villas": "Villas",
+    "seeVillas": "See villas"
   },
   "workReport": {
     "title": "Report",

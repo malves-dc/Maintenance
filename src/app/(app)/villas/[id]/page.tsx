@@ -16,6 +16,7 @@ import { KnowledgeCard } from "@/components/knowledge/knowledge-card";
 import type { SystemType } from "@/generated/prisma/enums";
 import { villaClient } from "@/lib/villa-client";
 import { isFar, travelRuleFor } from "@/lib/travel-charge";
+import { ConnectivityCard } from "./connectivity-card";
 
 export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
   const { id } = await params;
@@ -225,6 +226,8 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
               </div>
             )}
           </Card>
+
+          <ConnectivityCard villa={villa} canEdit={canManage} />
 
           <Card className="p-5">
             <h2 className="mb-2 font-medium">{t("villas.accessNotes")}</h2>

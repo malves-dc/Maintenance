@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requirePermission } from "@/lib/context";
 import { assertOwned } from "@/lib/db/tenant";
-import { enumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
-import { AreaKind, BillTo } from "@/generated/prisma/enums";
+import { enumOf, optEnumOf, optId, optInt, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { AreaKind, BillTo, ConnectivityType } from "@/generated/prisma/enums";
 import { relinkClientWorkOrders } from "@/lib/contracts";
 import { normalizeBillTo } from "@/lib/villa-client";
+import { isHostOrIp, NO_RESULT } from "@/lib/connectivity-rules";
+import { checkVilla } from "@/lib/connectivity";
 
 const villaSchema = z
   .object({
@@ -24,9 +26,21 @@ const villaSchema = z
     longitude: optNumber().refine((v) => v === null || Math.abs(v) <= 180),
     distanceKm: optNumber().refine((v) => v === null || (v >= 0 && v <= 10_000)),
     accessNotes: optStr(5000),
+    connectivityType: optEnumOf(ConnectivityType),
+    connectivityHost: optStr(253).refine((v) => v === null || isHostOrIp(v), { message: "invalid_host" }),
+    connectivityPort: optInt().refine((v) => v === null || (v >= 1 && v <= 65535)),
+    connectivityVpn: optStr(100),
   })
   .refine((v) => v.clientId || v.managerId, { path: ["clientId"], message: "ownerOrManager" })
-  .refine((v) => !v.clientId || v.managerId !== v.clientId, { path: ["managerId"], message: "managerIsOwner" });
+  .refine((v) => !v.clientId || v.managerId !== v.clientId, { path: ["managerId"], message: "managerIsOwner" })
+  .refine((v) => !v.connectivityType || v.connectivityHost, { path: ["connectivityHost"], message: "too_small" })
+  // Not monitored: drop the connection details, so a stale host is never probed.
+  .transform((v) => ({
+    ...v,
+    connectivityHost: v.connectivityType ? v.connectivityHost : null,
+    connectivityPort: v.connectivityType ? v.connectivityPort : null,
+    connectivityVpn: v.connectivityType === "VPN" ? v.connectivityVpn : null,
+  }));
 
 export async function saveVillaAction(id: string | null, _: FormResult, form: FormData): Promise<FormResult> {
   const ctx = await requirePermission("clients.manage");
@@ -37,8 +51,16 @@ export async function saveVillaAction(id: string | null, _: FormResult, form: Fo
 
   let villaId = id;
   if (id) {
-    const before = await ctx.db.villa.findUniqueOrThrow({ where: { id }, select: { clientId: true, managerId: true } });
-    await ctx.db.villa.update({ where: { id }, data });
+    const before = await ctx.db.villa.findUniqueOrThrow({
+      where: { id },
+      select: { clientId: true, managerId: true, connectivityType: true, connectivityHost: true, connectivityPort: true },
+    });
+    // A different host or port: the last check result no longer applies.
+    const reachChanged =
+      before.connectivityType !== data.connectivityType ||
+      before.connectivityHost !== data.connectivityHost ||
+      before.connectivityPort !== data.connectivityPort;
+    await ctx.db.villa.update({ where: { id }, data: reachChanged ? { ...data, ...NO_RESULT } : data });
     // Owner or manager changed: the villa's jobs may now fall under a different service contract.
     if (before.clientId !== data.clientId || before.managerId !== data.managerId) {
       const affected = new Set([before.clientId, before.managerId, data.clientId, data.managerId].filter((c): c is string => !!c));
@@ -54,6 +76,19 @@ export async function saveVillaAction(id: string | null, _: FormResult, form: Fo
 export async function setVillaArchivedAction(id: string, archived: boolean) {
   const ctx = await requirePermission("clients.manage");
   await ctx.db.villa.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } });
+  revalidatePath("/villas");
+  revalidatePath(`/villas/${id}`);
+}
+
+/** "Check now" on the villa page: probes the villa's DynDNS name or VPN address and stores the result. */
+export async function checkConnectivityAction(id: string) {
+  const ctx = await requirePermission("internal.view");
+  const villa = await ctx.db.villa.findUniqueOrThrow({
+    where: { id },
+    select: { connectivityHost: true, connectivityPort: true, online: true, onlineSince: true },
+  });
+  const data = await checkVilla(villa);
+  if (data) await ctx.db.villa.update({ where: { id }, data });
   revalidatePath("/villas");
   revalidatePath(`/villas/${id}`);
 }

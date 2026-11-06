@@ -3,6 +3,7 @@ import { ActionForm, FieldError } from "@/components/action-form";
 import { Field, Input, Select, Textarea } from "@/components/ui";
 import type { Villa } from "@/generated/prisma/client";
 import { saveVillaAction } from "./actions";
+import { ConnectivityFields } from "./connectivity-fields";
 
 export async function VillaForm({
   villa,
@@ -81,6 +82,12 @@ export async function VillaForm({
       <Field label={t("villas.accessNotes")} hint={t("villas.accessNotesHint")}>
         <Textarea name="accessNotes" defaultValue={villa?.accessNotes ?? ""} />
       </Field>
+      <ConnectivityFields
+        type={villa?.connectivityType ?? null}
+        host={villa?.connectivityHost ?? null}
+        port={villa?.connectivityPort ?? null}
+        vpn={villa?.connectivityVpn ?? null}
+      />
     </ActionForm>
   );
 }

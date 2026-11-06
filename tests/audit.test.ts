@@ -31,6 +31,12 @@ describe("field changes", () => {
     expect(relations).toEqual([]);
   });
 
+  it("leaves out the villa internet check's results, but not its settings", () => {
+    const before = { online: false, onlineCheckedAt: new Date("2026-10-30T09:00:00Z"), connectivityPort: 80 };
+    const { changes } = changesOf(before, { online: true, onlineCheckedAt: new Date(), onlineLatencyMs: 12, connectivityPort: null });
+    expect(changes).toEqual({ connectivityPort: [80, null] });
+  });
+
   it("never stores secret values, and names the relations an update touched", () => {
     const { changes, relations } = changesOf(
       { credentialsEnc: "old-cipher", name: "NVR" },
