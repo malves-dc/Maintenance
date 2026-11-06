@@ -32,7 +32,7 @@ export async function reportRecipients(ctx: Pick<AppContext, "db" | "organizatio
     where: { id: workOrderId },
     select: {
       id: true,
-      number: true,
+      year: true, number: true,
       reportSentAt: true,
       reportSentTo: true,
       villa: { select: { client: { select: recipientFields }, manager: { select: recipientFields }, billTo: true } },

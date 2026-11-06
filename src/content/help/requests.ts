@@ -29,9 +29,9 @@ The tabs at the top split requests by status, with a count on each:
 - **Declined**: rejected, with the reason if one was given.
 - **All**: every request, with its status shown under the title.
 
-Each row shows the **Title** with the request number (**R12**), the system, the urgency and a camera icon with the number of photos; the client's availability (amber calendar) or, once confirmed, the visit date (green calendar); the **Location** (villa and asset); who it's **From** (with "via QR label" for requests sent from a label); and when it was **Received**.
+Each row shows the **Title** with the request number (**2026-12**), the system, the urgency and a camera icon with the number of photos; the client's availability (amber calendar) or, once confirmed, the visit date (green calendar); the **Location** (villa and asset); who it's **From** (with "via QR label" for requests sent from a label); and when it was **Received**.
 
-Use the search box to find a word in the title or description, the requester's name or an R-number, and the villa filter to see one villa.
+Use the search box to find a word in the title or description, the requester's name or a number, and the villa filter to see one villa.
 
 ## Reviewing a request
 
@@ -125,9 +125,9 @@ Os separadores no topo dividem os pedidos por estado, com uma contagem em cada u
 - **Recusado**: rejeitado, com o motivo, se tiver sido indicado.
 - **Todos**: todos os pedidos, com o estado por baixo do título.
 
-Cada linha mostra o **Título** com o número do pedido (**R12**), o sistema, a urgência e um ícone de câmara com o número de fotografias; a disponibilidade do cliente (calendário laranja) ou, depois de confirmada, a data da visita (calendário verde); a **Localização** (moradia e equipamento); **De** quem é (com "via etiqueta QR" nos pedidos enviados a partir de uma etiqueta); e quando foi **Recebido**.
+Cada linha mostra o **Título** com o número do pedido (**2026-12**), o sistema, a urgência e um ícone de câmara com o número de fotografias; a disponibilidade do cliente (calendário laranja) ou, depois de confirmada, a data da visita (calendário verde); a **Localização** (moradia e equipamento); **De** quem é (com "via etiqueta QR" nos pedidos enviados a partir de uma etiqueta); e quando foi **Recebido**.
 
-Use a caixa de pesquisa para encontrar uma palavra no título ou na descrição, o nome de quem pediu ou um número R, e o filtro de moradia para ver só uma moradia.
+Use a caixa de pesquisa para encontrar uma palavra no título ou na descrição, o nome de quem pediu ou um número, e o filtro de moradia para ver só uma moradia.
 
 ## Analisar um pedido
 

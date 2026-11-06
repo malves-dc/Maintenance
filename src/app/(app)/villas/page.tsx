@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { getContext } from "@/lib/context";
 import { pageOf, PAGE_SIZE, searchWhere, sp } from "@/lib/list";
 import { titled } from "@/lib/metadata";
+import { ACTIVE_STATUSES } from "@/lib/work-orders";
 import { villaClient } from "@/lib/villa-client";
 import { ConnectivityBadge } from "./connectivity-badge";
 
@@ -38,7 +39,7 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
         _count: {
           select: {
             assets: { where: { archivedAt: null } },
-            workOrders: { where: { status: { in: ["OPEN", "IN_PROGRESS", "ON_HOLD"] } } },
+            workOrders: { where: { status: { in: ACTIVE_STATUSES } } },
           },
         },
       },

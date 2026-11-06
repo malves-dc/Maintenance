@@ -1,4 +1,5 @@
 import { sp } from "@/lib/list";
+import { parseDocRef } from "@/lib/series";
 import { ACTIVE_STATUSES } from "@/lib/work-orders";
 import { Priority, SystemType, WorkOrderStatus } from "@/generated/prisma/enums";
 import type { Prisma } from "@/generated/prisma/client";
@@ -7,16 +8,20 @@ type Params = Record<string, string | string[] | undefined>;
 
 /**
  * Work order `where` from list params.
- * status: "" = active (open/in progress/on hold), "all", or a specific status.
+ * status: "" = active (open/received/in progress/on hold), "all", or a specific status.
  * assignee: "me", "unassigned", a user id, or "all" / absent for anyone.
+ * invoiced: "yes" / "no"; ignored without `billing` (permission billing.view).
  */
-export function woFilter(params: Params, userId: string, opts: { ignoreStatus?: boolean } = {}): Prisma.WorkOrderWhereInput {
+export function woFilter(params: Params, userId: string, opts: { ignoreStatus?: boolean; billing?: boolean } = {}): Prisma.WorkOrderWhereInput {
   const q = sp(params, "q");
   const status = sp(params, "status");
   const priority = sp(params, "priority");
   const system = sp(params, "system");
   const assignee = sp(params, "assignee");
   const where: Prisma.WorkOrderWhereInput = {};
+
+  if (opts.billing && sp(params, "invoiced") === "yes") where.invoicedAt = { not: null };
+  if (opts.billing && sp(params, "invoiced") === "no") where.invoicedAt = null;
 
   if (!opts.ignoreStatus) {
     if (status === "all") {
@@ -39,11 +44,11 @@ export function woFilter(params: Params, userId: string, opts: { ignoreStatus?: 
     where.status = { in: ACTIVE_STATUSES };
   }
   if (q) {
-    const n = Number(q.replace(/^#/, ""));
+    const ref = parseDocRef(q, 0); // a bare number matches it in any year
     where.OR = [
       { title: { contains: q, mode: "insensitive" } },
       { description: { contains: q, mode: "insensitive" } },
-      ...(Number.isInteger(n) && n > 0 ? [{ number: n }] : []),
+      ...(ref ? [ref.year ? ref : { number: ref.number }] : []),
     ];
   }
   return where;
@@ -53,5 +58,6 @@ export function woFilter(params: Params, userId: string, opts: { ignoreStatus?: 
 export const WO_ORDER: Prisma.WorkOrderOrderByWithRelationInput[] = [
   { dueDate: { sort: "asc", nulls: "last" } },
   { priority: "desc" },
+  { year: "desc" },
   { number: "desc" },
 ];

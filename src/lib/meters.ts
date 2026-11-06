@@ -2,6 +2,7 @@ import "server-only";
 import { onMeterReading } from "@/lib/pm";
 import { ACTIVE_STATUSES, createWorkOrder, type WoCtx } from "@/lib/work-orders";
 import { membersWith, notify } from "@/lib/notify";
+import { docRef } from "@/lib/series";
 
 export function isOutOfRange(m: { lowerLimit: number | null; upperLimit: number | null }, value: number) {
   return (m.lowerLimit !== null && value < m.lowerLimit) || (m.upperLimit !== null && value > m.upperLimit);
@@ -41,7 +42,7 @@ export async function recordReading(ctx: WoCtx, meterId: string, value: number, 
       alertWorkOrderId = wo.id;
       await notify(ctx, await membersWith(ctx.db, "workOrders.manage"), {
         type: "METER_ALERT",
-        data: { asset: meter.asset.name, meter: meter.name, value, unit: meter.unit, number: wo.number },
+        data: { asset: meter.asset.name, meter: meter.name, value, unit: meter.unit, number: docRef(wo) },
         link: `/work-orders/${wo.id}`,
       });
     }

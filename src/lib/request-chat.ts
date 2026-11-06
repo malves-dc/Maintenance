@@ -3,6 +3,7 @@ import type { AppContext } from "@/lib/context";
 import { membersWith, notify } from "@/lib/notify";
 import { excerpt } from "@/lib/mentions";
 import { mayChat, REQUEST_MESSAGE_MAX, type ChatPayload, type ChatViewer } from "@/lib/request-chat-rules";
+import { docRef } from "@/lib/series";
 
 // The chat on a support request (RequestMessage). It belongs to the request and is shown on the request
 // (staff and portal) and on the work order it became (web and field app). Messages are only ever added:
@@ -18,7 +19,7 @@ async function findRequest(ctx: AppContext, by: Lookup) {
     where: "requestId" in by ? { id: by.requestId } : { workOrderId: by.workOrderId },
     select: {
       id: true,
-      number: true,
+      year: true, number: true,
       title: true,
       requesterId: true,
       villa: { select: { name: true, clientId: true, managerId: true } },
@@ -49,7 +50,7 @@ export async function openRequestChat(ctx: AppContext, by: Lookup): Promise<Chat
   });
   return {
     requestId: r.id,
-    number: r.number,
+    number: docRef(r),
     messages: rows.reverse().map((m) => ({
       id: m.id,
       body: m.body,
@@ -90,7 +91,7 @@ async function notifyParticipants(ctx: AppContext, r: Found, body: string) {
   const portal = new Set([...(r.requesterId ? [r.requesterId] : []), ...portalUsers.map((m) => m.userId)]);
   const staff = new Set(managers.filter((id) => !portal.has(id)));
   const technicians = assigneeIds(r).filter((id) => !portal.has(id) && !staff.has(id));
-  const data = { number: r.number, title: r.title, actor: ctx.user.name, excerpt: excerpt(body, 140) };
+  const data = { number: docRef(r), title: r.title, actor: ctx.user.name, excerpt: excerpt(body, 140) };
   await notify(ctx, [...portal], { type: "REQUEST_MESSAGE", data, link: `/portal/requests/${r.id}` });
   await notify(ctx, [...staff], { type: "REQUEST_MESSAGE", data, link: `/requests/${r.id}` });
   if (r.workOrder) await notify(ctx, technicians, { type: "REQUEST_MESSAGE", data, link: `/work-orders/${r.workOrder.id}` });

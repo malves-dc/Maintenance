@@ -17,7 +17,7 @@ export type OfflineItem = {
 
 export type OfflineWorkOrder = {
   id: string;
-  number: number;
+  number: string; // "2026-12" (a plain number in snapshots cached before the yearly series)
   title: string;
   description: string | null;
   status: WorkOrderStatus;

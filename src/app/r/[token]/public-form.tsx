@@ -28,7 +28,7 @@ export function PublicRequestForm({ token, privacyHref }: { token: string; priva
       <div className="flex flex-col items-center py-6 text-center">
         <CheckCircle2 className="size-10 text-green-600" />
         <p className="mt-3 font-medium">{t("qr.thanks")}</p>
-        {state.number ? <p className="mt-1 text-sm text-muted">{t("qr.reference", { number: `R${state.number}` })}</p> : null}
+        {state.number ? <p className="mt-1 text-sm text-muted">{t("qr.reference", { number: state.number })}</p> : null}
       </div>
     );
   }

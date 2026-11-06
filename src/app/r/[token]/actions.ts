@@ -7,6 +7,7 @@ import { enumOf, optDate, optStr, parseForm, str, type FormResult } from "@/lib/
 import { windowError } from "@/lib/request-window";
 import { createRequest, MAX_REQUEST_PHOTOS } from "@/lib/requests";
 import { Priority } from "@/generated/prisma/enums";
+import { docRef } from "@/lib/series";
 
 const HOUR = 3_600_000;
 const MAX_PER_ASSET_PER_HOUR = 5;
@@ -25,12 +26,12 @@ const schema = z
   })
   .refine((d) => d.phone || d.email, { path: ["phone"], message: "contactRequired" });
 
-export type PublicResult = FormResult & { number?: number };
+export type PublicResult = FormResult & { number?: string };
 
 /** Anonymous request from an asset's QR label. */
 export async function publicRequestAction(token: string, _: PublicResult, form: FormData): Promise<PublicResult> {
   // Honeypot: real users never see or fill this field.
-  if (String(form.get("website") ?? "")) return { ok: true, number: 0 };
+  if (String(form.get("website") ?? "")) return { ok: true };
 
   const asset = await prisma.asset.findUnique({
     where: { qrToken: token },
@@ -71,5 +72,5 @@ export async function publicRequestAction(token: string, _: PublicResult, form: 
     },
     photos,
   );
-  return { ok: true, number: req.number };
+  return { ok: true, number: docRef(req) };
 }

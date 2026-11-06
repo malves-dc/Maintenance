@@ -53,7 +53,7 @@ async function labelOf(model: string, row: Row | null | undefined): Promise<stri
     const u = await prisma.user.findUnique({ where: { id: row.userId }, select: { name: true } }).catch(() => null);
     return [row.weekStart.toISOString().slice(0, 10), u?.name].filter(Boolean).join(" · ");
   }
-  const number = row.number != null ? `#${row.number}` : null;
+  const number = row.number == null ? null : row.year != null ? `${row.year}-${row.number}` : `#${row.number}`; // work orders and requests go by year
   const name = (row.title ?? row.name ?? row.email ?? row.filename ?? null) as string | null;
   return [number, name].filter(Boolean).join(" ") || null;
 }

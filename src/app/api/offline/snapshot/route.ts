@@ -3,6 +3,7 @@ import { ACTIVE_STATUSES, jobTechnicians } from "@/lib/work-orders";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import type { Snapshot } from "@/lib/offline-types";
 import { ARTICLE_LIST_SELECT, listedArticle } from "@/lib/knowledge-select";
+import { docRef } from "@/lib/series";
 
 const MAX_WORK_ORDERS = 50;
 const COMMENTS = 20;
@@ -46,7 +47,7 @@ export async function GET() {
     user: { id: ctx.user.id, name: ctx.user.name },
     workOrders: wos.map((w) => ({
       id: w.id,
-      number: w.number,
+      number: docRef(w),
       title: w.title,
       description: w.description,
       status: w.status,

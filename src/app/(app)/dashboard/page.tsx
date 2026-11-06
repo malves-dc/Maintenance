@@ -22,8 +22,8 @@ export default async function DashboardPage() {
   }
 
   const [open, overdue, pending, villas, assets, members] = await Promise.all([
-    db.workOrder.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "ON_HOLD"] } } }),
-    db.workOrder.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "ON_HOLD"] }, dueDate: { lt: now } } }),
+    db.workOrder.count({ where: { status: { in: ACTIVE_STATUSES } } }),
+    db.workOrder.count({ where: { status: { in: ACTIVE_STATUSES }, dueDate: { lt: now } } }),
     db.request.count({ where: { status: "PENDING" } }),
     db.villa.count({ where: { archivedAt: null } }),
     db.asset.count({ where: { archivedAt: null } }),

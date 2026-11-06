@@ -13,6 +13,7 @@ import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
 import { chargesTravel, countTrips, dayKey, travelRuleFor } from "@/lib/travel-charge";
 import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
+import { docRef } from "@/lib/series";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
 // e-mailing (lib/report-email.ts). `where` scopes the work order (tenant + portal rules are the caller's);
@@ -41,6 +42,8 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       timeEntries: { where: { minutes: { not: null } }, include: { user: { select: { name: true } } }, orderBy: { startedAt: "asc" } },
       attachments: { where: { mimeType: { in: REPORT_IMAGE_TYPES } }, orderBy: { createdAt: "asc" } },
       parts: { include: { part: { select: { name: true, sku: true, unit: true } } }, orderBy: { id: "asc" } },
+      linksFrom: { where: { to: { clientVisible: true } }, select: { to: { select: { year: true, number: true, title: true } } } },
+      linksTo: { where: { from: { clientVisible: true } }, select: { from: { select: { year: true, number: true, title: true } } } },
       contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
     },
   });
@@ -111,6 +114,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       revisionNote: t("report.revisionNote"),
       description: t("wo.descriptionLabel"),
       workReport: t("workReport.title"),
+      related: t("wo.related"),
       checklist: t("checklist.title"),
       time: t("time.title"),
       total: t("time.total"),
@@ -121,13 +125,15 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       clientAbsent: t("signoff.absentNote"),
     },
     lh: await letterhead(ctx.organization, t("company.taxIdShort")),
-    number: wo.number,
+    number: docRef(wo),
     revision,
     title: wo.title,
     generatedAt: dt(new Date()),
     info: info.filter((x): x is [string, string] => !!x[1]),
     description: wo.description,
     workReport: wo.workReport,
+    // Only other client-visible jobs: this report goes to the client.
+    related: [...wo.linksFrom.map((l) => l.to), ...wo.linksTo.map((l) => l.from)].map((w) => `${docRef(w)} · ${w.title}`),
     checklist: await Promise.all(
       wo.items.map(async (i) => ({
         label: i.label,
@@ -139,7 +145,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     ),
     time: timeRows,
     // Parts used (quantities only: the report is client-facing, so no costs).
-    parts: wo.parts.map((p) => ({ name: p.part.name, sku: p.part.sku, qty: `${format.number(Number(p.quantity))} ${p.part.unit}`, serials: p.serialNumbers })),
+    parts: wo.parts.map((p) => ({ name: p.part?.name ?? p.description ?? "", sku: p.part?.sku ?? p.model, qty: `${format.number(Number(p.quantity))}${p.part ? ` ${p.part.unit}` : ""}`, serials: p.serialNumbers })),
     totalTime: duration(billed.billed),
     photos: (await Promise.all(photoAtts.map((a) => getObject(a.url).catch(() => null)))).filter((b): b is Buffer => !!b),
     signature:
@@ -150,5 +156,5 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   };
 
   const pdf = await renderToBuffer(createElement(ServiceReport, { d: data }) as unknown as ReactElement<DocumentProps>);
-  return { pdf, number: wo.number, revision, title: wo.title, villa: wo.villa?.name ?? null };
+  return { pdf, number: docRef(wo), revision, title: wo.title, villa: wo.villa?.name ?? null };
 }

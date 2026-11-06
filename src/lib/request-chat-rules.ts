@@ -50,4 +50,4 @@ export function breaksAppendOnly(model: string, operation: string): boolean {
 export type ChatMessage = { id: string; body: string; at: string; author: string; fromClient: boolean; mine: boolean };
 
 /** A request's chat as loaded for one viewer (the API and the pages hand this to <RequestChat>). */
-export type ChatPayload = { requestId: string; number: number; messages: ChatMessage[] };
+export type ChatPayload = { requestId: string; number: string; messages: ChatMessage[] };

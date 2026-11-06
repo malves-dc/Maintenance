@@ -5,6 +5,7 @@ import { Button, Card } from "@/components/ui";
 import { WorkOrderStatusBadge } from "@/components/badges";
 import type { AppContext } from "@/lib/context";
 import type { Prisma } from "@/generated/prisma/client";
+import { docRef } from "@/lib/series";
 
 /** Card with the latest work orders matching `where`, plus a create button with prefill query. */
 export async function RecentWorkOrders({
@@ -28,7 +29,7 @@ export async function RecentWorkOrders({
   const format = await getFormatter();
   const wos = await ctx.db.workOrder.findMany({
     where,
-    select: { id: true, number: true, title: true, status: true, dueDate: true, completedAt: true, createdAt: true },
+    select: { id: true, year: true, number: true, title: true, status: true, dueDate: true, completedAt: true, createdAt: true },
     orderBy,
     take,
   });
@@ -61,7 +62,7 @@ export async function RecentWorkOrders({
             <li key={w.id}>
               <Link href={`/work-orders/${w.id}`} className="flex items-center justify-between gap-3 px-5 py-2.5 text-sm hover:bg-gray-50">
                 <span className="min-w-0 truncate">
-                  <span className="mr-1.5 font-mono text-xs text-muted">#{w.number}</span>
+                  <span className="mr-1.5 font-mono text-xs text-muted">{docRef(w)}</span>
                   {w.title}
                 </span>
                 <span className="flex shrink-0 items-center gap-2">

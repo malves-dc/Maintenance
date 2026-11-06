@@ -3,14 +3,14 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ScanLine, Undo2 } from "lucide-react";
+import { ScanLine, Trash2, Undo2 } from "lucide-react";
 import { Scanner } from "@/components/scanner";
 import { ActionForm, FieldError } from "@/components/action-form";
 import { Input, Select } from "@/components/ui";
 import { SerialList } from "@/components/serial-list";
-import { addPartAction, returnPartAction } from "../actions";
+import { addManualPartAction, addPartAction, returnPartAction } from "../actions";
 
-export type UsedPart = { id: string; partId: string; name: string; qty: string; location: string | null; cost: string | null; serials: string[] };
+export type UsedPart = { id: string; partId: string | null; name: string; qty: string; location: string | null; cost: string | null; serials: string[] };
 export type PartOption = { id: string; name: string; sku: string | null; barcode: string | null; unit: string; compatible: boolean; stock: Record<string, number> };
 
 export function PartsPanel({
@@ -21,6 +21,7 @@ export function PartsPanel({
   defaultLocationId,
   canUse,
   orderHref,
+  showCost,
 }: {
   woId: string;
   used: UsedPart[];
@@ -29,10 +30,12 @@ export function PartsPanel({
   defaultLocationId: string | null;
   canUse: boolean;
   orderHref: string | null; // "order parts for this WO" (purchasing users)
+  showCost: boolean;
 }) {
   const t = useTranslations();
   const [pending, start] = useTransition();
   const [adding, setAdding] = useState(false);
+  const [manual, setManual] = useState(false);
   const [partId, setPartId] = useState("");
   const [locationId, setLocationId] = useState(defaultLocationId ?? locations[0]?.id ?? "");
   const [scanning, setScanning] = useState(false);
@@ -64,15 +67,19 @@ export function PartsPanel({
     <div className="space-y-2 text-sm">
       {scanning && <Scanner onResult={onScan} onClose={() => setScanning(false)} />}
       {unknownCode && <p className="text-xs text-danger">{t("scan.partNotFound", { code: unknownCode })}</p>}
-      {used.length === 0 && !adding && <p className="text-muted">{t("woParts.none")}</p>}
+      {used.length === 0 && !adding && !manual && <p className="text-muted">{t("woParts.none")}</p>}
       {used.length > 0 && (
         <ul className="divide-y divide-border">
           {used.map((u) => (
             <li key={u.id} className="flex items-start justify-between gap-2 py-1.5">
               <span className="min-w-0">
-                <Link href={`/parts/${u.partId}`} className="font-medium hover:text-brand">
-                  {u.name}
-                </Link>
+                {u.partId ? (
+                  <Link href={`/parts/${u.partId}`} className="font-medium hover:text-brand">
+                    {u.name}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{u.name}</span>
+                )}
                 {u.location && <span className="block text-xs text-muted">{u.location}</span>}
                 {u.serials.length > 0 && (
                   <span className="block font-mono text-xs text-muted" title={t("serials.label")}>
@@ -88,17 +95,30 @@ export function PartsPanel({
                 {canUse && (
                   <button
                     className="rounded p-1 text-muted hover:text-danger"
-                    title={t("woParts.return")}
+                    title={t(u.partId ? "woParts.return" : "woParts.remove")}
                     disabled={pending}
-                    onClick={() => confirm(t("woParts.returnConfirm")) && start(() => returnPartAction(woId, u.id))}
+                    onClick={() => confirm(t(u.partId ? "woParts.returnConfirm" : "woParts.removeConfirm")) && start(() => returnPartAction(woId, u.id))}
                   >
-                    <Undo2 className="size-3.5" />
+                    {u.partId ? <Undo2 className="size-3.5" /> : <Trash2 className="size-3.5" />}
                   </button>
                 )}
               </span>
             </li>
           ))}
         </ul>
+      )}
+      {canUse && manual && (
+        // Re-created after each one added, so the form starts empty.
+        <ActionForm key={used.length} action={addManualPartAction.bind(null, woId)} submitLabel={t("common.add")} className="rounded-md border border-border p-3">
+          <Input name="quantity" type="number" step="any" min={0} defaultValue="1" required className="w-24" aria-label={t("stock.quantity")} />
+          <FieldError name="quantity" />
+          <Input name="model" maxLength={120} placeholder={t("woParts.model")} aria-label={t("woParts.model")} />
+          <FieldError name="model" />
+          <Input name="description" maxLength={300} required placeholder={t("woParts.description")} aria-label={t("woParts.description")} />
+          <FieldError name="description" />
+          {showCost && <Input name="unitCost" type="number" step="any" min={0} placeholder={t("woParts.unitCost")} aria-label={t("woParts.unitCost")} />}
+          {showCost && <FieldError name="unitCost" />}
+        </ActionForm>
       )}
       {canUse &&
         (adding ? (
@@ -137,6 +157,11 @@ export function PartsPanel({
             <button className="text-xs font-medium text-brand" onClick={() => setAdding(true)}>
               + {t("woParts.add")}
             </button>
+            {!manual && (
+              <button className="text-xs font-medium text-muted hover:text-brand" onClick={() => setManual(true)}>
+                + {t("woParts.addManual")}
+              </button>
+            )}
             {options.length > 0 && (
               <button className="inline-flex items-center gap-1 text-xs font-medium text-muted hover:text-brand" onClick={() => setScanning(true)}>
                 <ScanLine className="size-3.5" />

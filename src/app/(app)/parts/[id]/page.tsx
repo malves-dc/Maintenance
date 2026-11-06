@@ -21,6 +21,7 @@ import {
   transferStockAction,
   unlinkAssetPartAction,
 } from "../actions";
+import { docRef } from "@/lib/series";
 
 export default async function PartPage({ params }: PageProps<"/parts/[id]">) {
   const { id } = await params;
@@ -55,7 +56,7 @@ export default async function PartPage({ params }: PageProps<"/parts/[id]">) {
       include: {
         location: { select: { name: true } },
         user: { select: { name: true } },
-        workOrder: { select: { id: true, number: true } },
+        workOrder: { select: { id: true, year: true, number: true } },
         purchaseOrder: { select: { id: true, number: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -260,7 +261,7 @@ export default async function PartPage({ params }: PageProps<"/parts/[id]">) {
                           <div className="text-xs text-muted">
                             {m.workOrder && (
                               <Link href={`/work-orders/${m.workOrder.id}`} className="hover:text-brand">
-                                #{m.workOrder.number}
+                                {docRef(m.workOrder)}
                               </Link>
                             )}
                             {m.purchaseOrder && (

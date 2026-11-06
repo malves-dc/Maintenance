@@ -56,6 +56,7 @@ export function CriticalityText({ value }: { value: Criticality }) {
 
 export const WO_STATUS_TONE: Record<WorkOrderStatus, string> = {
   OPEN: "bg-sky-50 text-sky-800",
+  RECEIVED: "bg-violet-50 text-violet-800",
   IN_PROGRESS: "bg-indigo-50 text-indigo-800",
   ON_HOLD: "bg-amber-50 text-amber-800",
   DONE: "bg-green-50 text-green-700",

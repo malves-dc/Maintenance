@@ -1,12 +1,13 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { nextNumber, type TenantDb } from "@/lib/db/tenant";
+import { nextSeriesNumber, type TenantDb } from "@/lib/db/tenant";
+import { docRef } from "@/lib/series";
 import { prisma } from "@/lib/db/client";
 import { membersWith, notify, notifyExternal, type NotifyActor } from "@/lib/notify";
 import { requestOnCallUsers } from "@/lib/on-call-db";
 import { canReschedule, needsConfirmedSlot, slotText } from "@/lib/request-window";
 import { putObject } from "@/lib/storage";
-import { createWorkOrder, type WoCtx, type WorkOrderInput } from "@/lib/work-orders";
+import { createWorkOrder, notifyClients, type WoCtx, type WorkOrderInput } from "@/lib/work-orders";
 import type { Priority, SystemType } from "@/generated/prisma/enums";
 
 export const MAX_REQUEST_PHOTOS = 4;
@@ -44,10 +45,11 @@ export class RequestError extends Error {
 export async function createRequest(db: TenantDb, organizationId: string, input: RequestInput, photos: File[] = []) {
   const org = await prisma.organization.findUniqueOrThrow({ where: { id: organizationId }, select: { id: true, name: true, timezone: true, onCallHours: true, businessHours: true } });
   const onCallIds = await requestOnCallUsers(db, org, input.system ?? null);
-  const number = await nextNumber(organizationId, "request");
+  const { year, number } = await nextSeriesNumber(org);
   const req = await db.request.create({
     data: {
       organizationId,
+      year,
       number,
       title: input.title,
       description: input.description ?? null,
@@ -91,7 +93,7 @@ export async function createRequest(db: TenantDb, organizationId: string, input:
   const recipients = new Set([...(await membersWith(db, "requests.approve")), ...onCallIds]);
   await notify({ organization: org, user: input.requesterId ? { id: input.requesterId } : null }, [...recipients], {
     type: "REQUEST_NEW",
-    data: { number: req.number, title: req.title, place: [villa?.name, input.requesterName].filter(Boolean).join(" · ") },
+    data: { number: docRef(req), title: req.title, place: [villa?.name, input.requesterName].filter(Boolean).join(" · ") },
     link: `/requests/${req.id}`,
   });
   return req;
@@ -100,13 +102,13 @@ export async function createRequest(db: TenantDb, organizationId: string, input:
 /** REQUEST_UPDATE to whoever asked: in-app for portal users, by email for QR-form requesters. */
 export async function notifyRequester(
   ctx: NotifyActor & { organization: { defaultLocale: string; timezone: string } },
-  req: { id: string; number: number; title: string; requesterId: string | null; requesterEmail: string | null },
+  req: { id: string; year: number; number: number; title: string; requesterId: string | null; requesterEmail: string | null },
   status: "APPROVED" | "DECLINED" | "SCHEDULED" | "RESCHEDULED",
   reason: string | null = null,
   visit: Date | null = null,
 ) {
   const data = {
-    number: req.number,
+    number: docRef(req),
     title: req.title,
     status,
     when: visit ? slotText(visit, ctx.organization.timezone) : "",
@@ -125,6 +127,8 @@ export async function approveRequest(ctx: WoCtx, requestId: string, overrides: P
   const req = await ctx.db.request.findUnique({ where: { id: requestId } });
   if (!req || req.status !== "PENDING") throw new RequestError("notPending");
   if (!scheduledFor && needsConfirmedSlot(req)) throw new RequestError("slotRequired");
+  // Requests from before the shared series can have a number some other work order already uses.
+  const taken = await ctx.db.workOrder.count({ where: { year: req.year, number: req.number } });
   const wo = await createWorkOrder(ctx, {
     title: req.title,
     description: [req.description, requesterLine(req)].filter(Boolean).join("\n\n"),
@@ -136,6 +140,11 @@ export async function approveRequest(ctx: WoCtx, requestId: string, overrides: P
     type: "REACTIVE",
     ...overrides,
     ...(scheduledFor ? { startDate: scheduledFor } : {}),
+    series: taken ? undefined : { year: req.year, number: req.number },
+    tellClients: false,
+  }).catch((e) => {
+    // Two people approving at once: the second one's work order hits the same number.
+    throw (e as { code?: string }).code === "P2002" ? new RequestError("notPending") : e;
   });
   const claimed = await ctx.db.request.updateMany({
     where: { id: requestId, status: "PENDING" },
@@ -147,6 +156,7 @@ export async function approveRequest(ctx: WoCtx, requestId: string, overrides: P
   }
   await ctx.db.attachment.updateMany({ where: { requestId }, data: { workOrderId: wo.id } });
   await notifyRequester(ctx, req, scheduledFor ? "SCHEDULED" : "APPROVED", null, scheduledFor);
+  await notifyClients(ctx, wo, "CREATED", req.requesterId); // the requester has just been told above
   return wo;
 }
 

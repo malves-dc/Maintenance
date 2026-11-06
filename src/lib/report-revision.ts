@@ -29,7 +29,9 @@ const SELECT = {
   assignees: { select: { userId: true, role: true, jobRoleId: true } },
   items: { select: { id: true, label: true, value: true, note: true } },
   timeEntries: { where: { minutes: { not: null } }, select: { id: true, userId: true, minutes: true, mode: true, note: true, startedAt: true } },
-  parts: { select: { id: true, partId: true, quantity: true, serialNumbers: true } },
+  parts: { select: { id: true, partId: true, model: true, description: true, quantity: true, serialNumbers: true } },
+  linksFrom: { select: { toId: true } },
+  linksTo: { select: { fromId: true } },
   attachments: { where: { mimeType: { in: REPORT_IMAGE_TYPES } }, select: { id: true } },
 } as const;
 
@@ -40,6 +42,8 @@ export type ReportContent = Row & {
   timeEntries: (Row & { id: string })[];
   parts: (Row & { id: string; quantity: unknown })[];
   attachments: { id: string }[];
+  linksFrom?: { toId: string }[];
+  linksTo?: { fromId: string }[];
 };
 
 const by = <T extends Row>(rows: T[], key: keyof T) => [...rows].sort((a, b) => String(a[key]).localeCompare(String(b[key])));
@@ -55,6 +59,9 @@ export function reportFingerprint(wo: ReportContent) {
     timeEntries: by(wo.timeEntries, "id"),
     parts: by(wo.parts, "id").map((p) => ({ ...p, quantity: Number(p.quantity) })),
     attachments: wo.attachments.map((a) => a.id).sort(),
+    linksFrom: undefined,
+    linksTo: undefined,
+    links: [...(wo.linksFrom ?? []).map((l) => l.toId), ...(wo.linksTo ?? []).map((l) => l.fromId)].sort(),
   };
   return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
 }
@@ -72,4 +79,4 @@ export async function syncReportRevision(db: AppContext["db"], workOrderId: stri
   return reportRevision;
 }
 
-export const reportFilename = (number: number, revision: number) => `WO-${number}${revision ? `-rev${revision}` : ""}.pdf`;
+export const reportFilename = (number: string, revision: number) => `WO-${number}${revision ? `-rev${revision}` : ""}.pdf`;

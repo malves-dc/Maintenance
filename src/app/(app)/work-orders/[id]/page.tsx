@@ -21,6 +21,8 @@ import { StatusBar } from "./status-bar";
 import { Checklist } from "./checklist";
 import { CommentBox, CostsPanel, Gallery, SignOff, TimeTracker, WorkOrderActions } from "./panels";
 import { PartsPanel } from "./parts-panel";
+import { BillingPanel } from "./billing-panel";
+import { RelatedPanel } from "./related-panel";
 import { Assignees } from "./assignees";
 import { AttachmentThumb } from "@/components/attachment-thumb";
 import { SendReportPanel } from "./send-report";
@@ -29,6 +31,9 @@ import { villaClient } from "@/lib/villa-client";
 import { roleName, WORK_ORDER_BUILT_IN_ROLE } from "@/lib/roles";
 import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
+import { docRef } from "@/lib/series";
+
+const RELATED = { id: true, year: true, number: true, title: true, status: true } as const;
 
 export default async function WorkOrderPage({ params }: PageProps<"/work-orders/[id]">) {
   const { id } = await params;
@@ -46,6 +51,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       team: { select: { name: true, color: true } },
       createdBy: { select: { name: true } },
       completedBy: { select: { name: true } },
+      invoicedBy: { select: { name: true } },
+      linksFrom: { select: { id: true, to: { select: RELATED } } },
+      linksTo: { select: { id: true, from: { select: RELATED } } },
       assignees: {
         select: {
           role: true,
@@ -60,7 +68,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       otherCosts: true,
       parts: { include: { part: { select: { name: true, unit: true } }, stockLocation: { select: { name: true } } }, orderBy: { id: "asc" } },
       attachments: { where: { commentId: null, workOrderItemId: null }, orderBy: { createdAt: "asc" } },
-      request: { select: { id: true, number: true, availableFrom: true, availableTo: true, scheduledFor: true } },
+      request: { select: { id: true, year: true, number: true, availableFrom: true, availableTo: true, scheduledFor: true } },
       contract: { select: { id: true, name: true, responseTimeHours: true, resolutionTimeHours: true, businessHoursOnly: true, pauseOnHold: true, urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
       categories: { select: { id: true, name: true, color: true }, orderBy: { name: "asc" } },
     },
@@ -69,6 +77,12 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
 
   const canExecute = ctx.can("workOrders.execute");
   const canUseParts = canExecute && ctx.can("inventory.use");
+  const canSeeBilling = ctx.can("billing.view") || ctx.can("billing.manage");
+  // Recent jobs at the same villa, offered when linking: a recurring problem is usually there.
+  const linkSuggestions =
+    canExecute && wo.villaId
+      ? await ctx.db.workOrder.findMany({ where: { villaId: wo.villaId, id: { not: wo.id } }, select: { year: true, number: true, title: true }, orderBy: { createdAt: "desc" }, take: 50 })
+      : [];
   const [meters, procedures, partOptions, locations, staff, jobRoles] = await Promise.all([
     wo.assetId ? ctx.db.meter.findMany({ where: { assetId: wo.assetId }, select: { id: true, name: true, unit: true }, orderBy: { name: "asc" } }) : [],
     ctx.db.procedure.findMany({ where: { archivedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
@@ -174,7 +188,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
     ],
     [t("wo.createdBy"), `${wo.createdBy.name} · ${dt(wo.createdAt)}`],
     [t("wo.completedBy"), wo.completedBy && wo.completedAt && `${wo.completedBy.name} · ${dt(wo.completedAt)}`],
-    [t("wo.fromRequest"), wo.request && <Link href={`/requests/${wo.request.id}`} className="hover:text-brand">R{wo.request.number}</Link>],
+    [t("wo.fromRequest"), wo.request && <Link href={`/requests/${wo.request.id}`} className="hover:text-brand">{docRef(wo.request)}</Link>],
     [t("requests.windowLabel"), wo.request?.availableFrom && wo.request.availableTo && format.dateTimeRange(wo.request.availableFrom, wo.request.availableTo, { dateStyle: "medium", timeStyle: "short" })],
     [t("requests.visitLabel"), wo.request?.scheduledFor && <Link href={`/requests/${wo.request.id}`} className="font-medium hover:text-brand">{dt(wo.request.scheduledFor)}</Link>],
     [t("contracts.contract"), wo.contract && <Link href={`/contracts/${wo.contract.id}`} className="hover:text-brand">{wo.contract.name}</Link>],
@@ -186,7 +200,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
     <>
       <BackLink href="/work-orders" label={t("nav.workOrders")} />
       <PageHeader
-        title={`#${wo.number} · ${wo.title}`}
+        title={`${docRef(wo)} · ${wo.title}`}
         actions={<WorkOrderActions woId={wo.id} canEdit={canEdit} canDelete={ctx.can("workOrders.manage")} />}
       />
       <div className="-mt-3 mb-5 flex flex-wrap items-center gap-2">
@@ -248,6 +262,14 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             ) : (
               <p className="whitespace-pre-wrap text-sm">{wo.workReport || <span className="text-muted">{t("workReport.empty")}</span>}</p>
             )}
+            <RelatedPanel
+              woId={wo.id}
+              canEdit={canExecute}
+              suggestions={linkSuggestions.map((w) => ({ ref: docRef(w), title: w.title }))}
+              links={[...wo.linksFrom.map((l) => ({ id: l.id, wo: l.to })), ...wo.linksTo.map((l) => ({ id: l.id, wo: l.from }))]
+                .sort((a, b) => b.wo.year - a.wo.year || b.wo.number - a.wo.number)
+                .map((l) => ({ id: l.id, woId: l.wo.id, ref: docRef(l.wo), title: l.wo.title, status: l.wo.status }))}
+            />
           </Card>
 
           <Card className="p-5">
@@ -293,6 +315,17 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
         </div>
 
         <div className="space-y-6">
+          {canSeeBilling && (
+            <Card className="p-5">
+              <h2 className="mb-3 font-medium">{t("billing.title")}</h2>
+              <BillingPanel
+                key={wo.invoiceNumber ?? ""}
+                woId={wo.id}
+                canManage={ctx.can("billing.manage")}
+                invoiced={wo.invoicedAt ? { number: wo.invoiceNumber, at: dt(wo.invoicedAt), by: wo.invoicedBy?.name ?? null } : null}
+              />
+            </Card>
+          )}
           <Card className="p-5">
             <dl className="space-y-2.5 text-sm">
               {details
@@ -361,11 +394,12 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             <PartsPanel
               woId={wo.id}
               canUse={canUseParts}
+              showCost={ctx.can("costs.view")}
               used={wo.parts.map((p) => ({
                 id: p.id,
                 partId: p.partId,
-                name: p.part.name,
-                qty: `${format.number(Number(p.quantity))} ${p.part.unit}`,
+                name: p.part?.name ?? [p.model, p.description].filter(Boolean).join(" · "),
+                qty: `${format.number(Number(p.quantity))}${p.part ? ` ${p.part.unit}` : ""}`,
                 location: p.stockLocation?.name ?? null,
                 cost: money(Number(p.quantity) * Number(p.unitCost)),
                 serials: p.serialNumbers,

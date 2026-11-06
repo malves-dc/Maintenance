@@ -30,7 +30,7 @@ Each row shows how many people have the role, a **Permissions** button with how 
 - **Manager**: by default plans and assigns work, manages clients, stock and purchasing.
 - **Technician**: by default does the work: work orders, checklists, time, parts.
 - **Viewer**: by default an observer: sees everything, changes nothing.
-- **Accountant**: by default reports, amounts and billing; no field work.
+- **Accountant**: by default reports, amounts and billing, including marking work orders as invoiced; no field work.
 - **Client (requester)**: the client portal only: their villas and requests.
 
 A new company also starts with **Designer**, **Electrician**, **Engineer**, **Helper** and **Integrator**. Rename them, delete them or add your own: they work like any other role.
@@ -109,7 +109,7 @@ Cada linha mostra quantas pessoas têm a função, um botão **Permissões** com
 - **Gestor**: por defeito, planeia e atribui trabalho, gere clientes, stock e compras.
 - **Técnico**: por defeito, executa o trabalho: ordens de trabalho, listas de verificação, tempo, peças.
 - **Observador**: por defeito, observação: vê tudo, não altera nada.
-- **Contabilista**: por defeito, relatórios, valores e faturação; sem trabalho de campo.
+- **Contabilista**: por defeito, relatórios, valores e faturação, incluindo marcar ordens de trabalho como faturadas; sem trabalho de campo.
 - **Cliente (requerente)**: apenas o portal do cliente: as suas moradias e pedidos.
 
 Uma empresa nova começa também com **Designer**, **Electrician**, **Engineer**, **Helper** e **Integrator**. Mude-lhes o nome, elimine-as ou acrescente as suas: funcionam como qualquer outra função.

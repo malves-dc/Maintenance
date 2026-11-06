@@ -10,6 +10,7 @@ import { fileUrl } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
+import { docRef } from "@/lib/series";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -26,7 +27,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
       workOrder: {
         select: {
           id: true,
-          number: true,
+          year: true, number: true,
           status: true,
           clientVisible: true,
           dueDate: true,
@@ -73,7 +74,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
       {r.villa ? <BackLink href={`/portal/villas/${r.villa.id}/requests`} label={t("portal.pastRequests")} /> : <BackLink href="/portal" label={t("portal.yourVillas")} />}
       <h1 className="text-xl font-semibold">{r.title}</h1>
       <p className="mb-5 mt-1 text-sm text-muted">
-        R{r.number} · {r.villa?.name}
+        {docRef(r)} · {r.villa?.name}
         {r.asset && ` · ${r.asset.name}`}
       </p>
       {r.status === "APPROVED" && r.scheduledFor && wo?.status !== "DONE" && wo?.status !== "CANCELLED" && (
@@ -135,7 +136,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           </ol>
           {wo && (
             <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
-              <span className="text-muted">#{wo.number}</span>
+              <span className="text-muted">{docRef(wo)}</span>
               <WorkOrderStatusBadge status={wo.status} />
             </div>
           )}

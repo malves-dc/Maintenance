@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "./client";
 import { withAuditTrail } from "./audit-trail";
 import { breaksAppendOnly } from "@/lib/request-chat-rules";
+import { seriesYear } from "@/lib/series";
 import type { AuditActor } from "@/lib/audit";
 
 /**
@@ -145,4 +146,10 @@ export async function nextNumber(organizationId: string, key: string): Promise<n
     update: { value: { increment: 1 } },
   });
   return row.value;
+}
+
+/** The next request / work order number in the company's yearly series (lib/series.ts). */
+export async function nextSeriesNumber(org: { id: string; timezone: string }) {
+  const year = seriesYear(org.timezone);
+  return { year, number: await nextNumber(org.id, `series:${year}`) };
 }

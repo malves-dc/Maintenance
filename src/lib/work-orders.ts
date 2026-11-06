@@ -3,7 +3,8 @@ import type { AppContext } from "@/lib/context";
 
 /** What work-order logic needs; the PM scheduler builds one without a signed-in request. */
 export type WoCtx = Pick<AppContext, "db" | "organization" | "user">;
-import { assertOwned, nextNumber } from "@/lib/db/tenant";
+import { assertOwned, nextSeriesNumber } from "@/lib/db/tenant";
+import { docRef, type SeriesNumber } from "@/lib/series";
 import { notify, notifyExternal } from "@/lib/notify";
 import { contractFor } from "@/lib/contracts";
 import { effectivePermissions } from "@/lib/rbac";
@@ -15,7 +16,10 @@ import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-sur
 import { travelCharge, type TravelContext, type TripEntry } from "@/lib/travel-charge";
 import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
 
-export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "IN_PROGRESS", "ON_HOLD"];
+export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "RECEIVED", "IN_PROGRESS", "ON_HOLD"];
+
+/** Work hasn't started: a first step, time entry or timer moves the job to In progress. */
+export const notStarted = (status: WorkOrderStatus) => status === "OPEN" || status === "RECEIVED";
 
 export class WorkOrderError extends Error {
   constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned") {
@@ -54,6 +58,10 @@ export type WorkOrderInput = {
   categoryIds?: string[];
   clientVisible?: boolean;
   items?: ChecklistItemInput[];
+  /** The request's year and number, when it comes from one; otherwise the next number in the series. */
+  series?: SeriesNumber;
+  /** False when the caller tells the client itself. */
+  tellClients?: boolean;
 };
 
 /** Validates villa/area/asset/team consistency and fills villa/area/system from the asset. */
@@ -127,10 +135,11 @@ export async function createWorkOrder(ctx: WoCtx, input: WorkOrderInput) {
   }
   items = await linkMeterItems(ctx, input.assetId ?? null, items);
 
-  const number = await nextNumber(ctx.organization.id, "workOrder");
+  const { year, number } = input.series ?? (await nextSeriesNumber(ctx.organization));
   const wo = await ctx.db.workOrder.create({
     data: {
       organizationId: ctx.organization.id,
+      year,
       number,
       title: input.title,
       description: input.description ?? null,
@@ -166,12 +175,13 @@ export async function createWorkOrder(ctx: WoCtx, input: WorkOrderInput) {
     },
   });
   await notifyAssigned(ctx, wo, assigneeIds);
+  if (input.tellClients !== false) await notifyClients(ctx, wo, "CREATED");
   return wo;
 }
 
 /** WO_ASSIGNED to people newly put on a work order. */
-export async function notifyAssigned(ctx: WoCtx, wo: { id: string; number: number; title: string }, userIds: string[]) {
-  await notify(ctx, userIds, { type: "WO_ASSIGNED", data: { number: wo.number, title: wo.title, actor: ctx.user.name }, link: `/work-orders/${wo.id}` });
+export async function notifyAssigned(ctx: WoCtx, wo: { id: string; year: number; number: number; title: string }, userIds: string[]) {
+  await notify(ctx, userIds, { type: "WO_ASSIGNED", data: { number: docRef(wo), title: wo.title, actor: ctx.user.name }, link: `/work-orders/${wo.id}` });
 }
 
 /**
@@ -237,7 +247,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       status: to,
       completedAt: to === "DONE" ? now : null,
       completedById: to === "DONE" ? ctx.user.id : null,
-      firstResponseAt: wo.firstResponseAt ?? (to === "IN_PROGRESS" || to === "DONE" ? now : null),
+      firstResponseAt: wo.firstResponseAt ?? (to === "RECEIVED" || to === "IN_PROGRESS" || to === "DONE" ? now : null),
       statusLogs: { create: { fromStatus: wo.status, toStatus: to, userId: ctx.user.id, note: note || null } },
     },
   });
@@ -263,18 +273,40 @@ export async function assertCanLogTime(ctx: AppContext, woId: string) {
   if (!canLogTime(ctx.role, wo.assignees.length > 0)) throw new WorkOrderError("timeNotAssigned");
 }
 
-/** WO_STATUS to the creator and assignees; when a client-visible job from a request is done, the requester too. */
-async function notifyStatus(ctx: WoCtx, wo: { id: string; number: number; title: string; status: WorkOrderStatus; createdById: string; clientVisible: boolean }, note?: string | null) {
+/** WO_STATUS to the creator and assignees, and to the client. */
+async function notifyStatus(
+  ctx: WoCtx,
+  wo: { id: string; year: number; number: number; title: string; status: WorkOrderStatus; createdById: string; clientVisible: boolean; villaId: string | null },
+  note?: string | null,
+) {
   const assignees = await ctx.db.workOrderAssignee.findMany({ where: { workOrderId: wo.id }, select: { userId: true } });
-  const data = { number: wo.number, title: wo.title, status: wo.status, actor: ctx.user.name, note: note ?? "" };
+  const data = { number: docRef(wo), title: wo.title, status: wo.status, actor: ctx.user.name, note: note ?? "" };
   await notify(ctx, [wo.createdById, ...assignees.map((a) => a.userId)], { type: "WO_STATUS", data, link: `/work-orders/${wo.id}` });
+  await notifyClients(ctx, wo, wo.status);
+}
 
-  if (wo.status !== "DONE" || !wo.clientVisible) return;
-  const req = await ctx.db.request.findFirst({ where: { workOrderId: wo.id }, select: { id: true, number: true, requesterId: true, requesterEmail: true } });
-  if (!req) return;
-  const clientData = { ...data, note: "", request: req.number };
-  if (req.requesterId) await notify(ctx, [req.requesterId], { type: "WO_STATUS", data: clientData, link: `/portal/requests/${req.id}` });
-  else await notifyExternal(ctx.organization, req.requesterEmail, ctx.organization.defaultLocale, "WO_STATUS", clientData);
+/**
+ * WO_STATUS to the client of a client-visible job: portal users of the villa's owner and of its property manager, and
+ * whoever asked for it. Each one's preferences decide push and e-mail. Someone who asked through a QR label has no
+ * account, so they only get an e-mail when the job is done. "CREATED" = the job has just been opened.
+ */
+export async function notifyClients(
+  ctx: WoCtx,
+  wo: { id: string; year: number; number: number; title: string; clientVisible: boolean; villaId: string | null },
+  status: WorkOrderStatus | "CREATED",
+  except?: string | null,
+) {
+  if (!wo.clientVisible) return;
+  const [req, villa] = await Promise.all([
+    ctx.db.request.findFirst({ where: { workOrderId: wo.id }, select: { id: true, requesterId: true, requesterEmail: true } }),
+    wo.villaId ? ctx.db.villa.findUnique({ where: { id: wo.villaId }, select: { clientId: true, managerId: true } }) : null,
+  ]);
+  const clientIds = [villa?.clientId, villa?.managerId].filter((id): id is string => !!id);
+  const members = clientIds.length ? await ctx.db.membership.findMany({ where: { active: true, role: "REQUESTER", clientId: { in: clientIds } }, select: { userId: true } }) : [];
+  const data = { number: docRef(wo), title: wo.title, status, actor: ctx.user.name, note: "" };
+  const link = req ? `/portal/requests/${req.id}` : wo.villaId ? `/portal/villas/${wo.villaId}/requests` : "/portal";
+  await notify(ctx, [req?.requesterId, ...members.map((m) => m.userId)].filter((id) => id !== except), { type: "WO_STATUS", data, link });
+  if (status === "DONE" && req && !req.requesterId) await notifyExternal(ctx.organization, req.requesterEmail, ctx.organization.defaultLocale, "WO_STATUS", data);
 }
 
 export async function stopRunningTimers(ctx: WoCtx, workOrderId: string, at = new Date(), userId?: string) {
