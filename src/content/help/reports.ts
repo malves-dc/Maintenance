@@ -60,7 +60,7 @@ The **Value of the work** split into **Labour**, **Parts**, **Other charges** an
 - **Mean time to repair** and **Median first response** only count repairs: reactive, corrective and emergency work orders. They run from the moment the work order was opened to its completion (or to the first response).
 - **SLA** percentages only count targets that are decided. A job whose deadline hasn't passed and isn't finished yet isn't counted until it is met or missed.
 - **On time** (preventive) means completed by its due date.
-- **Labour** is the billed time (each technician's time per work order rounded up to the company's blocks, 30 minutes by default) at each technician's price per hour; **Parts** are charged at their sale price when they were used.
+- **Labour** is the billed time (each technician's time per work order and day rounded up to the company's blocks, 30 minutes by default) at each technician's price per hour; **Parts** are charged at their sale price when they were used.
 - **Contract fees** are the monthly fees of the client's contracts, pro rata for the days in the period. With a villa filter, only contracts for that villa count; with a system filter, fees and **Fees − work** are hidden because a fee can't be split by system.
 - **Utilisation** compares the hours a person logged with the hours available: 8 hours per working day (Monday to Friday) in the period.
 - **Downtime** is the time an asset was marked **Down** in its status history; availability is the share of the period it wasn't down. Time before the asset was added doesn't count against it. **Repairs** are reactive, corrective and emergency work orders opened on the asset.
@@ -131,7 +131,7 @@ A **Disponibilidade média**, os **Equipamentos com inatividade** e as **Repara�
 - O **Tempo médio de reparação** e a **Primeira resposta (mediana)** só contam reparações: ordens de trabalho reativas, corretivas e de emergência. Vão desde a abertura da ordem de trabalho até à conclusão (ou até à primeira resposta).
 - As percentagens de **SLA** só contam prazos decididos. Um trabalho cujo prazo ainda não passou e que ainda não terminou só conta quando for cumprido ou falhado.
 - **A tempo** (preventiva) significa concluída até à data prevista.
-- A **Mão de obra** é o tempo faturado (o tempo de cada técnico por ordem de trabalho arredondado para cima aos blocos da empresa, 30 minutos por defeito) ao preço por hora de cada técnico; as **Peças** contam ao preço de venda que tinham quando foram usadas.
+- A **Mão de obra** é o tempo faturado (o tempo de cada técnico por ordem de trabalho e por dia arredondado para cima aos blocos da empresa, 30 minutos por defeito) ao preço por hora de cada técnico; as **Peças** contam ao preço de venda que tinham quando foram usadas.
 - As **Mensalidades** são o valor mensal dos contratos do cliente, proporcional aos dias do período. Com o filtro de moradia, só contam os contratos dessa moradia; com o filtro de sistema, as mensalidades e **Mensalidades − trabalho** ficam escondidas, porque uma mensalidade não se pode dividir por sistema.
 - A **Utilização** compara as horas que a pessoa registou com as horas disponíveis: 8 horas por dia útil (segunda a sexta) no período.
 - A **inatividade** é o tempo em que um equipamento esteve marcado como **Avariado** no seu histórico de estado; a disponibilidade é a parte do período em que não esteve avariado. O tempo antes de o equipamento ser criado não conta contra ele. As **Reparações** são ordens de trabalho reativas, corretivas e de emergência abertas no equipamento.

@@ -28,6 +28,52 @@ describe("billed time", () => {
     expect(t.labor).toBe(70);
   });
 
+  it("rounds each day on its own, per technician", () => {
+    const at = (d: string) => `2026-11-${d}T10:00:00Z`;
+    const t = billedTime(
+      [
+        { userId: "rui", minutes: 15, hourlyRate: 60, startedAt: at("03") }, // → 30 min
+        { userId: "rui", minutes: 35, hourlyRate: 60, startedAt: at("04") }, // → 1 h
+        { userId: "rui", minutes: 17, hourlyRate: 60, startedAt: at("05") }, // → 30 min
+        { userId: "ana", minutes: 10, hourlyRate: 60, startedAt: at("05") }, // → 30 min
+      ],
+      30,
+      "Europe/Lisbon",
+    );
+    expect(t.days.map((d) => [d.userId, d.day, d.billed])).toEqual([
+      ["rui", "2026-11-03", 30],
+      ["rui", "2026-11-04", 60],
+      ["rui", "2026-11-05", 30],
+      ["ana", "2026-11-05", 30],
+    ]);
+    expect(t.people.find((p) => p.userId === "rui")).toMatchObject({ minutes: 67, billed: 120, labor: 120 });
+    expect(t.billed).toBe(150);
+    expect(t.labor).toBe(150);
+  });
+
+  it("adds up entries of the same day before rounding", () => {
+    const t = billedTime(
+      [
+        { userId: "rui", minutes: 10, hourlyRate: 60, startedAt: "2026-11-03T09:00:00Z" },
+        { userId: "rui", minutes: 10, hourlyRate: 60, startedAt: "2026-11-03T15:00:00Z" },
+      ],
+      30,
+      "Europe/Lisbon",
+    );
+    expect(t.days).toHaveLength(1);
+    expect(t.billed).toBe(30);
+  });
+
+  it("uses the company's calendar day, not UTC's", () => {
+    const entries = [
+      { userId: "rui", minutes: 20, hourlyRate: 60, startedAt: "2026-11-03T23:30:00Z" },
+      { userId: "rui", minutes: 20, hourlyRate: 60, startedAt: "2026-11-04T00:30:00Z" },
+    ];
+    expect(billedTime(entries, 30, "UTC").billed).toBe(60); // two days
+    expect(billedTime(entries, 30, "Atlantic/Azores").billed).toBe(60); // both on the 3rd: 40 min → 1 h
+    expect(billedTime(entries, 30, "Atlantic/Azores").days).toHaveLength(1);
+  });
+
   it("keeps a person's rate mix when scaling to the billed time", () => {
     // 15 min at 40 €/h + 15 min at 80 €/h = 30 min, 30 € → billed 60 min: 60 €
     const t = billedTime([{ userId: "u", minutes: 15, hourlyRate: 40 }, { userId: "u", minutes: 15, hourlyRate: 80 }], 60);

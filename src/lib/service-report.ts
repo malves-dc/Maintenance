@@ -11,7 +11,7 @@ import { ServiceReport, type ReportData } from "@/app/(app)/work-orders/[id]/rep
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
-import { chargesTravel, countTrips, travelRuleFor } from "@/lib/travel-charge";
+import { chargesTravel, countTrips, dayKey, travelRuleFor } from "@/lib/travel-charge";
 import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
@@ -63,19 +63,18 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     return unit ? `${shown} ${unit}` : shown;
   };
 
-  // Client-facing time is the billed time: one line per technician, their time on this work order rounded up to
-  // the company's billing period (lib/billing-time.ts), with the dates and notes of their entries.
-  const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding));
+  // Client-facing time is the billed time: one line per technician and day, their time that day rounded up to the
+  // company's billing period (lib/billing-time.ts), with the notes of that day's entries.
+  const timeZone = ctx.organization.timezone;
+  const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding), timeZone);
   const rule = travelRuleFor(ctx.organization, wo.contract);
-  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, ctx.organization.timezone, rule.perTechnician) : 0;
+  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, timeZone, rule.perTechnician) : 0;
   const day = (d: Date) => format.dateTime(d, { dateStyle: "short" });
-  const timeRows = billed.people.map((p) => {
-    const mine = wo.timeEntries.filter((e) => (e.userId ?? "-") === p.userId);
-    const first = day(mine[0].startedAt);
-    const last = day(mine[mine.length - 1].startedAt);
+  const timeRows = [...billed.days].sort((a, b) => a.day.localeCompare(b.day)).map((p) => {
+    const mine = wo.timeEntries.filter((e) => (e.userId ?? "-") === p.userId && dayKey(e.startedAt, timeZone) === p.day);
     // Where they worked: on site, remotely, or both.
     const modes = [...new Set(mine.map((e) => e.mode))].sort().map((m) => t(`time.modes.${m}`)).join(" + ");
-    return { who: `${mine[0].user.name} (${modes})`, when: first === last ? first : `${first} – ${last}`, duration: duration(p.billed), note: mine.map((e) => e.note).filter(Boolean).join("; ") || null };
+    return { who: `${mine[0].user.name} (${modes})`, when: day(mine[0].startedAt), duration: duration(p.billed), note: mine.map((e) => e.note).filter(Boolean).join("; ") || null };
   });
 
   const signatureIds = new Set([wo.signatureUrl, ...wo.items.filter((i) => i.type === "SIGNATURE").map((i) => i.value)]);

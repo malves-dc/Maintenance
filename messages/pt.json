@@ -553,7 +553,7 @@
     "running": "a decorrer",
     "total": "Total",
     "billed": "Faturado",
-    "billedHint": "O tempo de cada técnico arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
+    "billedHint": "O tempo de cada técnico em cada dia arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
     "billedFrom": "{billed} (registado {logged})",
     "mode": "Local",
     "modes": {
@@ -1360,7 +1360,7 @@
       "trips": "Deslocações"
     },
     "billedHoursCol": "Horas faturadas",
-    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho arredondado ao período de faturação. A utilização usa as horas registadas."
+    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho e por dia arredondado ao período de faturação. A utilização usa as horas registadas."
   },
   "scan": {
     "title": "Ler código",
@@ -2305,7 +2305,7 @@
   "timeBilling": {
     "title": "Faturação do tempo",
     "rounding": "Faturar o tempo em blocos de",
-    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
+    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros, dia a dia, quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos num dia são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
     "none": "Sem arredondamento (minutos registados)",
     "block": "{minutes} minutos"
   },

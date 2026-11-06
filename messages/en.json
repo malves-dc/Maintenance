@@ -553,7 +553,7 @@
     "running": "running",
     "total": "Total",
     "billed": "Billed",
-    "billedHint": "Each technician's time rounded up to blocks of {block} minutes (Settings → Organization).",
+    "billedHint": "Each technician's time on each day rounded up to blocks of {block} minutes (Settings → Organization).",
     "billedFrom": "{billed} (logged {logged})",
     "mode": "Where",
     "modes": {
@@ -1360,7 +1360,7 @@
       "trips": "Trips"
     },
     "billedHoursCol": "Hours billed",
-    "billedHoursHint": "Hours charged: each technician's time per work order rounded up to the billing period. Utilisation uses the hours logged."
+    "billedHoursHint": "Hours charged: each technician's time per work order and day rounded up to the billing period. Utilisation uses the hours logged."
   },
   "scan": {
     "title": "Scan",
@@ -2305,7 +2305,7 @@
   "timeBilling": {
     "title": "Time billing",
     "rounding": "Bill time in blocks of",
-    "hint": "Each technician's time on a work order is rounded up to whole blocks when it is billed: labour and the service report (e.g. 34 minutes bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
+    "hint": "Each technician's time on a work order is rounded up to whole blocks, day by day, when it is billed: labour and the service report (e.g. 34 minutes in a day bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
     "none": "No rounding (minutes logged)",
     "block": "{minutes} minutes"
   },

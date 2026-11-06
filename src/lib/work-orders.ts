@@ -288,7 +288,7 @@ export async function stopRunningTimers(ctx: WoCtx, workOrderId: string, at = ne
 }
 
 /**
- * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes rounded up
+ * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes per day rounded up
  * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged.
  */
 export function workOrderCosts(
@@ -306,7 +306,7 @@ export function workOrderCosts(
   /** The company's trip charges (see lib/travel-charge.ts); none when omitted. */
   travel: TravelContext | null = null,
 ) {
-  const time = billedTime(wo.timeEntries, block);
+  const time = billedTime(wo.timeEntries, block, travel?.timeZone);
   const other = wo.otherCosts.reduce((s, c) => s + Number(c.amount), 0);
   const parts = (wo.parts ?? []).reduce((s, p) => s + Number(p.quantity) * Number(p.unitCost), 0);
   const urgent = urgentSurcharge(wo.priority, time.labor, urgentRule);

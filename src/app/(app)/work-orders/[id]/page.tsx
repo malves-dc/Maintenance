@@ -333,7 +333,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                   ? {
                       block,
                       total: costs.billedMinutes,
-                      people: billedTime(wo.timeEntries, block).people.map((p) => ({
+                      people: billedTime(wo.timeEntries, block, ctx.organization.timezone).people.map((p) => ({
                         name: wo.timeEntries.find((e) => e.userId === p.userId)?.user.name ?? "",
                         minutes: p.minutes,
                         billed: p.billed,

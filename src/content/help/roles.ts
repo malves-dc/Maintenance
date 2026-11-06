@@ -67,7 +67,7 @@ When someone logs time on a work order, the app stores the time together with a 
 
 Changing your role on an open work order also recharges the time you already logged on it at the new role's price.
 
-Labour is the billed time multiplied by that stored price. Billed time is each technician's time on the work order rounded up to the company's blocks (30 minutes by default, see [Organization](/help/organization)), so 34 minutes at 40 per hour bill 40. It appears in a work order's amounts to bill, in requests and in the billing report (see [Reports](/help/reports)), for people allowed to **See amounts**.
+Labour is the billed time multiplied by that stored price. Billed time is each technician's time on the work order, day by day, rounded up to the company's blocks (30 minutes by default, see [Organization](/help/organization)), so 34 minutes in a day at 40 per hour bill 40. It appears in a work order's amounts to bill, in requests and in the billing report (see [Reports](/help/reports)), for people allowed to **See amounts**.
 
 > Price changes on this page only apply to time logged from now on. Time already recorded keeps the price it was logged with, so changing a price never rewrites past amounts. The same is true when you move a person to another role in Users.
 
@@ -146,7 +146,7 @@ Quando alguém regista tempo numa ordem de trabalho, a aplicação guarda o temp
 
 Mudar de função numa ordem de trabalho em aberto também volta a cobrar o tempo já registado nela ao preço da nova função.
 
-A mão de obra é o tempo faturado multiplicado por esse preço guardado. O tempo faturado é o tempo de cada técnico na ordem de trabalho arredondado para cima aos blocos da empresa (30 minutos por defeito, veja [Empresa](/help/organization)), por isso 34 minutos a 40 por hora faturam 40. Aparece nos valores a faturar da ordem de trabalho, nos pedidos e no relatório de faturação (veja [Relatórios](/help/reports)), para quem tem permissão para **Ver valores**.
+A mão de obra é o tempo faturado multiplicado por esse preço guardado. O tempo faturado é o tempo de cada técnico na ordem de trabalho, dia a dia, arredondado para cima aos blocos da empresa (30 minutos por defeito, veja [Empresa](/help/organization)), por isso 34 minutos num dia a 40 por hora faturam 40. Aparece nos valores a faturar da ordem de trabalho, nos pedidos e no relatório de faturação (veja [Relatórios](/help/reports)), para quem tem permissão para **Ver valores**.
 
 > As alterações de preço nesta página só se aplicam ao tempo registado a partir de agora. O tempo já registado mantém o preço com que foi registado, por isso mudar um preço nunca altera valores passados. O mesmo acontece quando muda uma pessoa de função em Utilizadores.
 
