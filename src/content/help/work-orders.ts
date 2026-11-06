@@ -84,7 +84,7 @@ To change a work order later, open it and click **Edit**. If you change the vill
 
 At the top are the title, the status, the system, the priority and, if it applies, **Overdue**. The buttons on the right open the **Service report** (PDF), **Edit** the work order and delete it.
 
-On the right, the details card sums up the job: villa, client, area, asset, type, dates, team, categories, who it's assigned to, who created and completed it, the request it came from and the contract. Below it are the panels for time, photos and files, parts, amounts to bill, client sign-off and e-mailing the report.
+On the right, the details card sums up the job: villa, client, area, asset, type, dates, team, categories, who it's assigned to, who created and completed it, the request it came from (with the client's availability and the confirmed visit, if any) and the contract. Below it are the panels for time, photos and files, parts, amounts to bill, client sign-off and e-mailing the report.
 
 ## Your role on the job
 
@@ -128,7 +128,7 @@ Click **Edit** in the checklist header to add, move (arrows) or delete steps. At
 
 ## Activity and comments
 
-The **Activity** card lists comments and status changes, oldest first. To add an update, type in the box and click **Post**; **Photo or video** attaches pictures or short videos to the comment.
+The **Activity** card lists comments and status changes, oldest first. To add an update, type in the box and click **Post**; **Photo or video** attaches pictures or short videos to the comment. On a phone it lets you take a photo, record a video or choose from the gallery.
 
 Type **@** followed by a name to mention a colleague: they get a notification. The creator and the people assigned are notified of every comment. See [Notifications](/help/notifications).
 
@@ -142,7 +142,9 @@ The **Time** panel records who worked on the job and for how long:
 
 Forgot to start the timer? Click **Log time** and enter the **Date**, the **Minutes** and an optional note; it is saved as **On site** or **Remote**, as chosen above. The list shows each entry and the **Total**. Each entry shows **On site** or **Remote**; click it to switch. You can change and delete your own entries; managers can change and delete anyone's. Two technicians on the same job can each log their own way, for example one on site and one remotely.
 
-Below the total, **Billed** shows the time that is charged: each technician's time on the job rounded up to whole blocks (30 minutes unless your company chose otherwise in [Settings → Organization](/help/organization)). For example, 34 minutes logged by one technician bill as 1 hour. The minutes logged stay as they are.
+Only the technicians assigned to the job can log time, each their own; the company owner never does. A job can have as many entries as it takes, on site or remote. For example: the first visit, the time spent ordering a part while the job is **On hold**, and the return visit on another day, which charges another trip. **Log time** leaves a job on hold as it is; **Start timer** puts it back **In progress**. Everyone assigned must have logged time before the job can be marked **Done**; the panel shows who is missing.
+
+Below the total, **Billed** shows the time that is charged: each technician's time on the job, day by day, rounded up to whole blocks (30 minutes unless your company chose otherwise in [Settings → Organization](/help/organization)). For example, 15 minutes one day and 35 the next bill as 30 minutes and 1 hour, 1 h 30 in all. The minutes logged stay as they are.
 
 ## Photos and files
 
@@ -165,7 +167,7 @@ The stock goes down straight away. The serial numbers are shown under the part (
 
 The **Amounts to bill** panel adds up what the job is charged to the client:
 
-- **Labour**: the billed time (each technician's time rounded up to the company's blocks), at the price per hour of each person's role.
+- **Labour**: the billed time (each technician's time per day rounded up to the company's blocks), at the price per hour of each person's role.
 - **Parts**: the parts used, at their sale price.
 - **Trips**, for time logged on site: one trip per day on the job, per technician or for the whole job as your company chose, at the fixed fee, or the rate per km × the villa's distance when it is farther than the radius set in [Settings → Organization](/help/organization). Remote time charges no trip. When the job's contract includes trips they show as included, at no charge.
 - **Urgent fee**, on work orders with Urgent priority: the fixed amount plus the percentage of labour set in [Settings → Organization](/help/organization) or in the work order's contract.
@@ -173,6 +175,10 @@ The **Amounts to bill** panel adds up what the job is charged to the client:
 - **Total**.
 
 These amounts stay internal: they are never shown to the client or printed on the service report.
+
+## Report
+
+Under **Report**, the technician describes the work done: what was found, what was changed, anything still to do. Click **Save** to keep it. A job can't be marked done without a report, and once it's done or cancelled the report can't be changed (reopen the job first). The client sees it in the service report and in the client portal.
 
 ## Client sign-off
 
@@ -186,7 +192,7 @@ If nobody is there to sign, tick **Client absent** instead. The signature can be
 
 ## The service report
 
-**Service report** opens a PDF for the client with the job details, description, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts.
+**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician and day, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts. If a completed job changes, for example it is reopened and more time is logged, the PDF shows the revision next to its number and says it replaces earlier versions. Reopening and closing a job without changing anything is not a revision.
 
 To send it, use the **E-mail the service report** panel:
 
@@ -298,7 +304,7 @@ Para alterar uma ordem de trabalho mais tarde, abra-a e clique em **Editar**. Se
 
 No topo estão o título, o estado, o sistema, a prioridade e, se for o caso, **Em atraso**. Os botões à direita abrem o **Relatório de serviço** (PDF), permitem **Editar** a ordem de trabalho e eliminá-la.
 
-À direita, o cartão de detalhes resume o trabalho: moradia, cliente, área, equipamento, tipo, datas, equipa, categorias, a quem está atribuída, quem a criou e concluiu, o pedido de origem e o contrato. Por baixo estão os painéis de tempo, fotografias e ficheiros, peças, valores a faturar, aprovação do cliente e envio do relatório por e-mail.
+À direita, o cartão de detalhes resume o trabalho: moradia, cliente, área, equipamento, tipo, datas, equipa, categorias, a quem está atribuída, quem a criou e concluiu, o pedido de origem (com a disponibilidade do cliente e a visita confirmada, quando existem) e o contrato. Por baixo estão os painéis de tempo, fotografias e ficheiros, peças, valores a faturar, aprovação do cliente e envio do relatório por e-mail.
 
 ## A sua função no trabalho
 
@@ -342,7 +348,7 @@ Clique em **Editar** no cabeçalho da checklist para acrescentar, mover (setas) 
 
 ## Atividade e comentários
 
-O cartão **Atividade** lista os comentários e as mudanças de estado, do mais antigo para o mais recente. Para acrescentar uma atualização, escreva na caixa e clique em **Publicar**; **Fotografia ou vídeo** junta imagens ou vídeos curtos ao comentário.
+O cartão **Atividade** lista os comentários e as mudanças de estado, do mais antigo para o mais recente. Para acrescentar uma atualização, escreva na caixa e clique em **Publicar**; **Fotografia ou vídeo** junta imagens ou vídeos curtos ao comentário. No telemóvel, permite tirar uma fotografia, gravar um vídeo ou escolher da galeria.
 
 Escreva **@** seguido de um nome para mencionar um colega: ele recebe uma notificação. Quem criou a ordem e as pessoas atribuídas são notificados de cada comentário. Veja [Notificações](/help/notifications).
 
@@ -356,7 +362,9 @@ O painel **Tempo** regista quem trabalhou no trabalho e durante quanto tempo:
 
 Esqueceu-se de iniciar o cronómetro? Clique em **Registar tempo** e indique a **Data**, os **Minutos** e uma nota opcional; fica registado como **No local** ou **Remoto**, conforme escolhido acima. A lista mostra cada registo e o **Total**. Cada registo mostra **No local** ou **Remoto**; clique para mudar. Pode alterar e eliminar os seus próprios registos; os gestores podem alterar e eliminar os de qualquer pessoa. Dois técnicos no mesmo trabalho registam cada um à sua maneira, por exemplo um no local e outro remotamente.
 
-Por baixo do total, **Faturado** mostra o tempo que é cobrado: o tempo de cada técnico no trabalho arredondado para cima a blocos inteiros (30 minutos, a não ser que a empresa tenha escolhido outro valor em [Definições → Empresa](/help/organization)). Por exemplo, 34 minutos registados por um técnico são faturados como 1 hora. Os minutos registados mantêm-se.
+Só os técnicos atribuídos ao trabalho podem registar tempo, cada um o seu; o proprietário da empresa nunca regista. Um trabalho pode ter os registos que forem precisos, no local ou remotos. Por exemplo: a primeira visita, o tempo a encomendar uma peça com o trabalho **Em espera** e a visita de regresso noutro dia, que cobra outra deslocação. **Registar tempo** deixa o trabalho em espera tal como está; **Iniciar cronómetro** volta a pô-lo **Em curso**. Todos os técnicos atribuídos têm de ter tempo registado antes de o trabalho poder ser marcado como **Concluída**; o painel mostra quem falta.
+
+Por baixo do total, **Faturado** mostra o tempo que é cobrado: o tempo de cada técnico no trabalho, dia a dia, arredondado para cima a blocos inteiros (30 minutos, a não ser que a empresa tenha escolhido outro valor em [Definições → Empresa](/help/organization)). Por exemplo, 15 minutos num dia e 35 no dia seguinte são faturados como 30 minutos e 1 hora, 1 h 30 no total. Os minutos registados mantêm-se.
 
 ## Fotografias e ficheiros
 
@@ -379,7 +387,7 @@ O stock desce de imediato. Os números de série aparecem por baixo da peça (**
 
 O painel **Valores a faturar** soma o que é cobrado ao cliente pelo trabalho:
 
-- **Mão de obra**: o tempo faturado (o tempo de cada técnico arredondado aos blocos da empresa), ao preço por hora da função de cada pessoa.
+- **Mão de obra**: o tempo faturado (o tempo de cada técnico por dia arredondado aos blocos da empresa), ao preço por hora da função de cada pessoa.
 - **Peças**: as peças usadas, ao preço de venda.
 - **Deslocações**, pelo tempo registado no local: uma deslocação por dia no trabalho, por técnico ou para o trabalho todo conforme a empresa escolheu, ao valor fixo, ou o valor por km × a distância da moradia quando fica para lá do raio definido em [Definições → Empresa](/help/organization). O tempo remoto não cobra deslocação. Quando o contrato do trabalho inclui as deslocações, aparecem como incluídas, sem custo.
 - **Taxa de urgência**, nas ordens de trabalho com prioridade Urgente: o valor fixo mais a percentagem da mão de obra definidos em [Definições → Empresa](/help/organization) ou no contrato da ordem de trabalho.
@@ -387,6 +395,10 @@ O painel **Valores a faturar** soma o que é cobrado ao cliente pelo trabalho:
 - **Total**.
 
 Estes valores são internos: nunca são mostrados ao cliente nem impressos no relatório de serviço.
+
+## Relatório
+
+Em **Relatório**, o técnico descreve o trabalho realizado: o que encontrou, o que mudou e o que ficou por fazer. Clique em **Guardar** para o gravar. Um trabalho não pode ser concluído sem relatório e, depois de concluído ou cancelado, o relatório já não pode ser alterado (reabra o trabalho primeiro). O cliente vê-o no relatório de serviço e no portal do cliente.
 
 ## Aprovação do cliente
 
@@ -400,7 +412,7 @@ Se não estiver ninguém para assinar, marque **Cliente ausente**. A assinatura 
 
 ## O relatório de serviço
 
-**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores.
+**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico por dia, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores. Se um trabalho concluído for alterado, por exemplo reaberto para registar mais tempo, o PDF mostra a revisão junto ao número e indica que substitui as versões anteriores. Reabrir e fechar um trabalho sem alterar nada não conta como revisão.
 
 Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 

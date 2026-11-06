@@ -1,6 +1,7 @@
 import { getContext } from "@/lib/context";
 import { renderServiceReport } from "@/lib/service-report";
 import { portalScopes } from "@/lib/portal-scope";
+import { reportFilename } from "@/lib/report-revision";
 
 export async function GET(_req: Request, { params }: RouteContext<"/work-orders/[id]/report">) {
   const { id } = await params;
@@ -16,7 +17,7 @@ export async function GET(_req: Request, { params }: RouteContext<"/work-orders/
   return new Response(new Uint8Array(report.pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="WO-${report.number}.pdf"`,
+      "Content-Disposition": `inline; filename="${reportFilename(report.number, report.revision)}"`,
       "Cache-Control": "private, no-store",
     },
   });

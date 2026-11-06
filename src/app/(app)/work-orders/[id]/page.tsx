@@ -2,13 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AlertTriangle } from "lucide-react";
-import { Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader, Textarea } from "@/components/ui";
+import { ActionForm, FieldError } from "@/components/action-form";
+import { saveWorkReportAction } from "../actions";
+import { WORK_REPORT_MAX } from "@/lib/wo-ops";
 import { BackLink } from "@/components/back-link";
 import { CategoryChip, PriorityText, SlaBadge, SystemBadge, WorkOrderStatusBadge } from "@/components/badges";
 import { slaCalendar, slaStates } from "@/lib/sla";
 import { getContext } from "@/lib/context";
 import { fileUrl } from "@/lib/storage";
-import { ACTIVE_STATUSES, workOrderCosts } from "@/lib/work-orders";
+import { ACTIVE_STATUSES, jobTechnicians, workOrderCosts } from "@/lib/work-orders";
+import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { countTrips, isFar, travelOf } from "@/lib/travel-charge";
@@ -23,6 +27,8 @@ import { SendReportPanel } from "./send-report";
 import { reportRecipients } from "@/lib/report-email";
 import { villaClient } from "@/lib/villa-client";
 import { roleName, WORK_ORDER_BUILT_IN_ROLE } from "@/lib/roles";
+import { openRequestChat } from "@/lib/request-chat";
+import { RequestChat } from "@/components/request-chat";
 
 export default async function WorkOrderPage({ params }: PageProps<"/work-orders/[id]">) {
   const { id } = await params;
@@ -54,7 +60,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       otherCosts: true,
       parts: { include: { part: { select: { name: true, unit: true } }, stockLocation: { select: { name: true } } }, orderBy: { id: "asc" } },
       attachments: { where: { commentId: null, workOrderItemId: null }, orderBy: { createdAt: "asc" } },
-      request: { select: { id: true, number: true } },
+      request: { select: { id: true, number: true, availableFrom: true, availableTo: true, scheduledFor: true } },
       contract: { select: { id: true, name: true, responseTimeHours: true, resolutionTimeHours: true, businessHoursOnly: true, pauseOnHold: true, urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
       categories: { select: { id: true, name: true, color: true }, orderBy: { name: "asc" } },
     },
@@ -109,6 +115,11 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const reportEmail = ctx.can("workOrders.sendReport") ? await reportRecipients(ctx, wo.id) : null;
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
+  // The conversation with the client on the request this job came from (participants only).
+  const chat = wo.request ? await openRequestChat(ctx, { requestId: wo.request.id }) : null;
+  const canLog = canExecute && !closed && canLogTime(ctx.role, wo.assignees.some((a) => a.user.id === ctx.user.id));
+  // Who still has to log time before the job can be marked done.
+  const timeMissing = closed ? [] : withoutTime(await jobTechnicians(ctx, wo.assignees.map((a) => a.user.id)), wo.timeEntries).map((p) => p.name);
   const myRunning = wo.timeEntries.find((e) => e.userId === ctx.user.id && !e.endedAt);
   // A new entry starts where my last one was (on site / remote); entries are newest first.
   const myLastMode = wo.timeEntries.find((e) => e.userId === ctx.user.id)?.mode ?? "ONSITE";
@@ -163,7 +174,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
     ],
     [t("wo.createdBy"), `${wo.createdBy.name} · ${dt(wo.createdAt)}`],
     [t("wo.completedBy"), wo.completedBy && wo.completedAt && `${wo.completedBy.name} · ${dt(wo.completedAt)}`],
-    [t("wo.fromRequest"), wo.request && `#${wo.request.number}`],
+    [t("wo.fromRequest"), wo.request && <Link href={`/requests/${wo.request.id}`} className="hover:text-brand">R{wo.request.number}</Link>],
+    [t("requests.windowLabel"), wo.request?.availableFrom && wo.request.availableTo && format.dateTimeRange(wo.request.availableFrom, wo.request.availableTo, { dateStyle: "medium", timeStyle: "short" })],
+    [t("requests.visitLabel"), wo.request?.scheduledFor && <Link href={`/requests/${wo.request.id}`} className="font-medium hover:text-brand">{dt(wo.request.scheduledFor)}</Link>],
     [t("contracts.contract"), wo.contract && <Link href={`/contracts/${wo.contract.id}`} className="hover:text-brand">{wo.contract.name}</Link>],
     [t("contracts.respondBy"), sla && (sla.responseDue || sla.response === "paused") && <span className="flex flex-wrap items-center gap-1.5">{sla.responseDue && dt(sla.responseDue)} <SlaBadge state={sla.response} /></span>],
     [t("contracts.resolveBy"), sla && (sla.resolutionDue || sla.resolution === "paused") && <span className="flex flex-wrap items-center gap-1.5">{sla.resolutionDue && dt(sla.resolutionDue)} <SlaBadge state={sla.resolution} /></span>],
@@ -223,6 +236,21 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
           </Card>
 
           <Card className="p-5">
+            <h2 className="mb-1 font-medium">
+              <label htmlFor="workReport">{t("workReport.title")}</label>
+            </h2>
+            {canExecute && !closed ? (
+              <ActionForm action={saveWorkReportAction.bind(null, wo.id)} successMessage={t("common.saved")}>
+                <p className="text-sm text-muted">{t("workReport.hint")}</p>
+                <Textarea id="workReport" name="workReport" defaultValue={wo.workReport ?? ""} maxLength={WORK_REPORT_MAX} rows={5} placeholder={t("workReport.placeholder")} />
+                <FieldError name="workReport" />
+              </ActionForm>
+            ) : (
+              <p className="whitespace-pre-wrap text-sm">{wo.workReport || <span className="text-muted">{t("workReport.empty")}</span>}</p>
+            )}
+          </Card>
+
+          <Card className="p-5">
             <h2 className="mb-4 font-medium">{t("activity.title")}</h2>
             <ol className="mb-5 space-y-4">
               {activity.map((a) =>
@@ -256,6 +284,12 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             </ol>
             {canExecute && <CommentBox woId={wo.id} members={staff.map((m) => m.user).filter((u) => u.id !== ctx.user.id)} />}
           </Card>
+
+          {chat && (
+            <Card className="p-5">
+              <RequestChat initial={chat} />
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -277,6 +311,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             <TimeTracker
               woId={wo.id}
               canExecute={canExecute && !closed}
+              canLog={canLog}
+              missing={timeMissing}
+              unrated={ctx.can("costs.view") && wo.timeEntries.some((e) => (e.minutes ?? 0) > 0 && e.hourlyRate === null)}
               canDeleteAny={ctx.can("workOrders.manage")}
               runningSince={myRunning?.startedAt.toISOString() ?? null}
               runningMode={myRunning?.mode ?? null}
@@ -296,7 +333,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                   ? {
                       block,
                       total: costs.billedMinutes,
-                      people: billedTime(wo.timeEntries, block).people.map((p) => ({
+                      people: billedTime(wo.timeEntries, block, ctx.organization.timezone).people.map((p) => ({
                         name: wo.timeEntries.find((e) => e.userId === p.userId)?.user.name ?? "",
                         minutes: p.minutes,
                         billed: p.billed,

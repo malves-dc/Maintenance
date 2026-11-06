@@ -31,11 +31,11 @@ RUN npm init -y >/dev/null && npm install --omit=dev --no-audit --no-fund prisma
 # Update FFMPEG_VERSION and FFMPEG_SHA256 together (sha256 of the .tar.xz from ffmpeg.org/releases, whose
 # .asc signature is checked against the FFmpeg release key FCF9 86EA 15E6 E293 A564 4F10 B432 2F04 D676 58D8).
 FROM alpine:3.24 AS ffmpeg
-ARG FFMPEG_VERSION=7.1.5
-ARG FFMPEG_SHA256=de668509caf9e35e3cd162473441fdb29538c6d96ed080292b3cf9e6fc5d558f
+ARG FFMPEG_VERSION=8.1.3
+ARG FFMPEG_SHA256=7138d28c96d9d3e3af4ee3d8cad72741f8ffb40da90c1112235dea3ecd3178a3
 RUN apk add --no-cache ca-certificates curl xz tar build-base nasm pkgconf x264-dev dav1d-dev
 WORKDIR /src
-RUN curl -fsSL -o ffmpeg.tar.xz "https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.xz" \
+RUN curl -fsSL --retry 8 --retry-all-errors --retry-delay 3 -o ffmpeg.tar.xz "https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.xz" \
  && echo "${FFMPEG_SHA256}  ffmpeg.tar.xz" | sha256sum -c - \
  && tar -xJf ffmpeg.tar.xz --strip-components=1 \
  && ./configure --prefix=/opt/ffmpeg --enable-gpl --enable-libx264 --enable-libdav1d \
@@ -45,11 +45,20 @@ RUN curl -fsSL -o ffmpeg.tar.xz "https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VER
       --disable-muxers --enable-muxer=mp4,mov,image2 \
  && make -j"$(nproc)" && make install && strip /opt/ffmpeg/bin/*
 
-# ── Runtime
-FROM base AS runner
+# ── System tools the app runs, shared by the runtime and development images
+FROM base AS system
 # PostgreSQL 18 client tools (pg_dump/pg_restore/psql) for backups; they work with servers up to 18.
 # Backups use busybox tar. x264 / dav1d libraries for the ffmpeg built above.
 RUN apk add --no-cache postgresql18-client x264-libs libdav1d
+COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin/
+
+# ── Development (docker-compose.dev.yml): the runtime's tools plus npm, running `next dev` on the bind-mounted repo
+FROM system AS dev
+COPY docker/restart-dev.sh /usr/local/bin/restart-dev
+RUN chmod +x /usr/local/bin/restart-dev
+
+# ── Runtime
+FROM system AS runner
 # The server runs with plain `node`; drop npm/npx/corepack/yarn so their bundled packages (undici,
 # brace-expansion…) aren't shipped.
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /opt/yarn-* \
@@ -69,7 +78,6 @@ ENV NODE_ENV=production \
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
-COPY --from=ffmpeg /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe /usr/local/bin/
 COPY --from=migrator /migrator/node_modules /migrator/node_modules
 COPY prisma /migrator/prisma
 COPY prisma.config.ts /migrator/

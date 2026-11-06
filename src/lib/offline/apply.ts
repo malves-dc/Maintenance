@@ -32,7 +32,8 @@ export function applyOps(snapshot: Snapshot, ops: QueuedOp[], me: string): Offli
         break;
       case "time":
         wo.minutesLogged += Math.max(0, Math.round((new Date(op.endedAt).getTime() - new Date(op.startedAt).getTime()) / 60_000));
-        if (wo.status === "OPEN" || wo.status === "ON_HOLD") wo.status = "IN_PROGRESS";
+        wo.timeMissing = wo.timeMissing?.filter((name) => name !== me);
+        if (wo.status === "OPEN") wo.status = "IN_PROGRESS";
         break;
       case "status":
         wo.status = op.status;
@@ -43,6 +44,9 @@ export function applyOps(snapshot: Snapshot, ops: QueuedOp[], me: string): Offli
         break;
       case "clientAbsent":
         if (!wo.signOff) wo.clientAbsent = op.absent;
+        break;
+      case "report":
+        wo.workReport = op.text.trim() || null;
         break;
     }
   }

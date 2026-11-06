@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { CheckCircle2, Circle, FileDown, XCircle } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Circle, FileDown, XCircle } from "lucide-react";
 import { Card } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
 import { WorkOrderStatusBadge } from "@/components/badges";
 import { getPortalContext } from "@/lib/portal";
 import { fileUrl } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import { openRequestChat } from "@/lib/request-chat";
+import { RequestChat } from "@/components/request-chat";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -30,21 +32,34 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           dueDate: true,
           completedAt: true,
           signedByName: true,
+          workReport: true,
           assignees: { select: { user: { select: { name: true } } } },
         },
       },
     },
   });
   if (!r) notFound();
+  const chat = await openRequestChat(ctx, { requestId: r.id });
   const wo = r.workOrder?.clientVisible ? r.workOrder : null;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
+  const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
 
   // Simple progress timeline for the client.
   const steps = [
     { done: true, label: t("portal.stepReceived"), detail: dt(r.createdAt) },
     r.status === "DECLINED"
       ? { done: true, declined: true, label: t("portal.stepDeclined"), detail: r.declineReason }
-      : { done: r.status === "APPROVED", label: t("portal.stepScheduled"), detail: wo?.dueDate ? t("portal.plannedFor", { date: dt(wo.dueDate) }) : null },
+      : {
+          done: r.status === "APPROVED",
+          label: t("portal.stepScheduled"),
+          detail: r.scheduledFor
+            ? t("portal.visitConfirmed", { date: dt(r.scheduledFor) })
+            : clientWindow
+              ? t("portal.yourWindow", { window: clientWindow })
+              : wo?.dueDate
+                ? t("portal.plannedFor", { date: dt(wo.dueDate) })
+                : null,
+        },
     ...(r.status !== "DECLINED"
       ? [
           { done: wo?.status === "IN_PROGRESS" || wo?.status === "DONE", label: t("portal.stepInProgress"), detail: wo?.assignees.map((a) => a.user.name).join(", ") || null },
@@ -61,22 +76,44 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
         R{r.number} · {r.villa?.name}
         {r.asset && ` · ${r.asset.name}`}
       </p>
+      {r.status === "APPROVED" && r.scheduledFor && wo?.status !== "DONE" && wo?.status !== "CANCELLED" && (
+        <div className="mb-5 flex items-center gap-3 rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+          <CalendarCheck className="size-5 shrink-0" />
+          <span>
+            <span className="block font-medium">{t("portal.visitConfirmedTitle")}</span>
+            {dt(r.scheduledFor)}
+          </span>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-[1fr_280px]">
-        <Card className="p-5">
-          {r.description && <p className="whitespace-pre-wrap text-sm">{r.description}</p>}
-          {r.attachments.length > 0 && (
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              {r.attachments.map((a) => (
-                <a key={a.id} href={fileUrl(a.id)} target="_blank" rel="noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={fileUrl(a.id)} alt={a.filename} className="aspect-square w-full rounded-md border border-border object-cover" />
-                </a>
-              ))}
-            </div>
+        <div className="min-w-0 space-y-6">
+          <Card className="p-5">
+            {r.description && <p className="whitespace-pre-wrap text-sm">{r.description}</p>}
+            {r.attachments.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {r.attachments.map((a) => (
+                  <a key={a.id} href={fileUrl(a.id)} target="_blank" rel="noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fileUrl(a.id)} alt={a.filename} className="aspect-square w-full rounded-md border border-border object-cover" />
+                  </a>
+                ))}
+              </div>
+            )}
+            {!r.description && r.attachments.length === 0 && <p className="text-sm text-muted">{t("requests.noDescription")}</p>}
+          </Card>
+          {wo?.status === "DONE" && wo.workReport && (
+            <Card className="p-5">
+              <h2 className="mb-2 font-medium">{t("workReport.title")}</h2>
+              <p className="whitespace-pre-wrap text-sm">{wo.workReport}</p>
+            </Card>
           )}
-          {!r.description && r.attachments.length === 0 && <p className="text-sm text-muted">{t("requests.noDescription")}</p>}
-        </Card>
+          {chat && (
+            <Card className="p-5">
+              <RequestChat initial={chat} staff={false} />
+            </Card>
+          )}
+        </div>
 
         <Card className="p-5">
           <ol className="space-y-4">

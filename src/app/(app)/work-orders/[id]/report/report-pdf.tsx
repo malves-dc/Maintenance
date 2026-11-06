@@ -9,10 +9,14 @@ export type ReportData = {
   labels: Record<string, string>;
   lh: Letterhead;
   number: number;
+  /** The report's revision: 0 until the completed job changes. */
+  revision: number;
   title: string;
   generatedAt: string;
   info: [string, string][];
   description: string | null;
+  /** The technician's report: what was done. */
+  workReport: string | null;
   checklist: { label: string; heading: boolean; answer: string; note: string | null; image: Buffer | null }[];
   time: { who: string; when: string; duration: string; note: string | null }[];
   totalTime: string;
@@ -41,9 +45,10 @@ export function ServiceReport({ d }: { d: ReportData }) {
   return (
     <Document title={`${L.reportTitle} #${d.number}`} author={d.lh.name}>
       <Page size="A4" style={s.page}>
-        <PdfHeader lh={d.lh} title={L.reportTitle} reference={`#${d.number}`} date={d.generatedAt} />
+        <PdfHeader lh={d.lh} title={L.reportTitle} reference={d.revision ? `#${d.number} · ${L.revision}` : `#${d.number}`} date={d.generatedAt} />
 
         <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginBottom: 8 }}>{d.title}</Text>
+        {d.revision > 0 && <Text style={{ fontSize: 9, color: "#666666", marginBottom: 8 }}>{L.revisionNote}</Text>}
         <View style={s.grid}>
           {d.info.map(([k, v]) => (
             <View key={k} style={s.cell}>
@@ -57,6 +62,13 @@ export function ServiceReport({ d }: { d: ReportData }) {
           <>
             <Text style={s.h2}>{L.description}</Text>
             <Text>{d.description}</Text>
+          </>
+        )}
+
+        {d.workReport && (
+          <>
+            <Text style={s.h2}>{L.workReport}</Text>
+            <Text>{d.workReport}</Text>
           </>
         )}
 

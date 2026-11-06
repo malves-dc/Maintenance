@@ -61,11 +61,16 @@ are mostly UI and logic plus small additive migrations.
 
 ## 3. Environment (Windows 11)
 
-**Docker-only machines (2026-10-14):** a PC without Node can develop entirely in containers: a compose stack
-with `postgres:17-alpine` and `node:24-bookworm-slim` (repo bind-mounted at `/app`, named volumes for
-`node_modules` and `.next`, `WATCHPACK_POLLING=true`, port 3000), `.env` pointing at `db:5432`, and every
-`npm`/`npx` command run with `docker compose exec`. Turbopack misses **new** files over the Windows bind mount:
-restart `next dev` after adding a file. `npx playwright install --with-deps chromium` works in that container.
+**Docker-only machines:** a PC without Node develops in containers with `docker-compose.dev.yml`
+(`docker compose -f docker-compose.dev.yml up -d --build`): Postgres 17 (host port 5433) and the Dockerfile's `dev`
+stage, which has the production image's tools (ffmpeg, PostgreSQL 18 client, busybox tar on Alpine/musl), so
+video uploads and backups work in development too. The repo is bind-mounted at `/app` (named volumes for
+`node_modules` and `.next`); `.env` points at `db:5432`. On start it runs `npm ci` (first time), `prisma migrate
+deploy` and `next dev` on port 3000. Run every `npm`/`npx` command with `docker compose -f docker-compose.dev.yml
+exec node …`. The file watcher misses edits over the Windows bind mount: run `restart-dev` in the container
+(`docker/restart-dev.sh`, logs in `/tmp/dev.log`) before checking a change. Playwright has no Alpine/musl build, so
+e2e tests run in CI (job `e2e`), not in this container. Switching from a glibc `node_modules` volume (the old
+Debian dev container) needs that volume removed first.
 
 
 - **Node 24** was installed after the Claude app started, so the app's inherited PATH lacks it.
@@ -229,6 +234,9 @@ restart `next dev` after adding a file. `npx playwright install --with-deps chro
 - **Client sign-off**: signature (`signOff()`) or `WorkOrder.clientAbsent` (`setClientAbsent()`, refused once
   signed), both in `src/lib/wo-ops.ts` and shared by the web panel and offline sync (ops `signoff` /
   `clientAbsent`; an offline signature is a queued photo with `signOffName`). Completing a job **requires** a signature or client absent (`isSignedOff()`, enforced in `changeStatus`); a done job's sign-off can't be removed without reopening it. The PDF prints "Client absent" when set.
+- **Technician's report** ("Relatório", `WorkOrder.workReport`): what was done, written by whoever has `workOrders.execute` (`setWorkReport()` in `wo-ops.ts`; web `saveWorkReportAction`, field-app op `report`). Required to complete (`hasWorkReport()`, `wo.reportRequired` in `changeStatus`); locked once DONE/CANCELLED. Printed in the service report, shown in the portal once the job is done, and searchable.
+- **Time rules** (`lib/wo-time.ts`): only the people assigned to a job log time, each their own, and never the owner (`assertCanLogTime()`; the owner isn't offered as an assignee either). Marking DONE needs someone assigned (`wo.noTechnician`) and time from every active assignee (`wo.timeRequired`; a running timer counts). Time is locked on closed jobs in the web app; device timers queued offline still land. A finished interval leaves a job ON_HOLD as it is; the timer resumes it. Billed time is rounded per technician and per day in the company's time zone (`billedTime()`, `lib/billing-time.ts`), so labour, the reports and the PDF's one line per technician and day agree.
+- **Service report revision** (`lib/report-revision.ts`): `syncReportRevision()` hashes the report's own data on completion and whenever the PDF is produced; a change on a DONE job raises `WorkOrder.reportRevision`, shown in the PDF, the file name and the e-mail subject. Reopening and closing unchanged, or another language, is no revision. A job's first fingerprint is the baseline.
 - **REQUESTER users are redirected to `/portal`** by `(app)/layout.tsx`. Portal scope
   (`src/lib/portal-scope.ts`, tested):
   - Villas the member's client owns (`clientId`) **or manages** (`Villa.managerId`, a property

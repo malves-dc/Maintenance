@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "./client";
 import { withAuditTrail } from "./audit-trail";
+import { breaksAppendOnly } from "@/lib/request-chat-rules";
 import type { AuditActor } from "@/lib/audit";
 
 /**
@@ -37,6 +38,7 @@ export const TENANT_MODELS = new Set([
   "SyncOperation",
   "KnowledgeArticle",
   "OnCallWeek",
+  "RequestMessage",
 ]);
 
 const WHERE_OPS = new Set([
@@ -80,6 +82,8 @@ export function tenantDb(organizationId: string, actor?: AuditActor) {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
           if (!TENANT_MODELS.has(model)) return query(args);
+          // Request chat messages are a permanent record (the database refuses it too).
+          if (breaksAppendOnly(model, operation)) throw new Error(`${model} rows cannot be changed or deleted`);
           const a = (args ?? {}) as AnyArgs;
 
           if (WHERE_OPS.has(operation)) {

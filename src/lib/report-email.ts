@@ -7,6 +7,7 @@ import { orgBrand } from "@/lib/notify";
 import { appOrigin } from "@/lib/qr";
 import { audit } from "@/lib/audit";
 import { renderServiceReport } from "@/lib/service-report";
+import { reportFilename } from "@/lib/report-revision";
 import { isLocale } from "@/i18n/config";
 import { villaClient } from "@/lib/villa-client";
 import { mergeRecipients, parseCompanyRecipients, type Recipient } from "@/lib/report-recipients";
@@ -73,14 +74,15 @@ export async function sendServiceReport(ctx: AppContext, workOrderId: string, to
   const brand = await orgBrand(ctx.organization.id, await appOrigin());
   const t = createTranslator({ locale, messages: locale === "pt" ? pt : en, namespace: "reportEmail" });
   const vars = { number: report.number, title: report.title, villa: report.villa ?? "", company: ctx.organization.name };
+  const subject = report.revision ? t("subjectRevision", { ...vars, revision: report.revision }) : t("subject", vars);
   const mail = emailLayout({
     ...brand,
-    heading: t("subject", vars),
+    heading: subject,
     paragraphs: [report.villa ? t("bodyVilla", vars) : t("body", vars), t("signature", vars)],
     privacy: { label: t("privacy"), url: brand.privacyUrl },
   });
-  const attachments = [{ filename: `WO-${report.number}.pdf`, content: report.pdf }];
-  for (const email of to) await sendEmail({ to: email, subject: t("subject", vars), ...mail, attachments });
+  const attachments = [{ filename: reportFilename(report.number, report.revision), content: report.pdf }];
+  for (const email of to) await sendEmail({ to: email, subject, ...mail, attachments });
 
   await ctx.db.workOrder.update({ where: { id: workOrderId }, data: { reportSentAt: new Date(), reportSentTo: to } });
   await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, { to });

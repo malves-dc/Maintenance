@@ -238,7 +238,12 @@
     "badEmails": "Um ou mais endereços não são endereços de e-mail válidos.",
     "badFrom": "Indique um endereço, ou um nome e endereço: Empresa '<'nome@empresa.pt'>'.",
     "ownerOrManager": "Escolha um proprietário, uma gestão da propriedade, ou ambos.",
-    "invalid_host": "Nome de anfitrião ou endereço IP inválido."
+    "invalid_host": "Nome de anfitrião ou endereço IP inválido.",
+    "windowIncomplete": "Indique o início e o fim do período.",
+    "windowOrder": "O fim tem de ser depois do início.",
+    "windowPast": "Este período já terminou.",
+    "windowTooLong": "O período não pode ter mais de um ano.",
+    "slotRequired": "Confirme a data e a hora da visita."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -474,7 +479,11 @@
     "clientVisible": "Visível para o cliente no portal",
     "clientVisibleHint": "Desmarque para trabalho interno que o cliente não deve ver.",
     "alreadySigned": "O cliente já assinou esta ordem de trabalho.",
-    "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente."
+    "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente.",
+    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída.",
+    "timeRequired": "Tempo: cada técnico atribuído tem de registar o seu tempo antes de a marcar como concluída.",
+    "noTechnician": "Técnico: atribua um técnico a esta ordem de trabalho antes de a marcar como concluída.",
+    "timeNotAssigned": "Só os técnicos atribuídos a esta ordem de trabalho podem registar tempo."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -546,14 +555,16 @@
     "running": "a decorrer",
     "total": "Total",
     "billed": "Faturado",
-    "billedHint": "O tempo de cada técnico arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
+    "billedHint": "O tempo de cada técnico em cada dia arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
     "billedFrom": "{billed} (registado {logged})",
     "mode": "Local",
     "modes": {
       "ONSITE": "No local",
       "REMOTE": "Remoto"
     },
-    "switchTo": "Mudar para {mode}"
+    "switchTo": "Mudar para {mode}",
+    "missing": "Falta registar tempo: {names}",
+    "noRate": "Há tempo registado sem preço por hora, por isso não está a ser cobrado (Definições → Funções)."
   },
   "costs": {
     "title": "Valores a faturar",
@@ -589,6 +600,7 @@
     "title": "Atividade",
     "placeholder": "Adicione uma atualização ou nota…",
     "attach": "Fotografia ou vídeo",
+    "fromGallery": "Escolher da galeria",
     "send": "Publicar",
     "changedStatus": "alterou o estado para",
     "created": "criou esta ordem de trabalho"
@@ -609,11 +621,15 @@
   "report": {
     "title": "Relatório de serviço",
     "back": "Voltar",
+    "noViewer": "Este navegador não consegue mostrar o relatório aqui. Abra-o na sua aplicação de PDF.",
+    "openPdf": "Abrir PDF",
     "photos": "Fotografias",
     "seePhotos": "Ver fotografias",
     "service": "Serviço",
     "urgentService": "Urgente",
-    "trips": "Deslocações"
+    "trips": "Deslocações",
+    "revision": "Revisão {revision}",
+    "revisionNote": "Este relatório foi atualizado depois da conclusão e substitui as versões anteriores."
   },
   "procedures": {
     "description": "Checklists reutilizáveis que a equipa segue em obra. Use-as em ordens de trabalho e planos preventivos.",
@@ -744,7 +760,24 @@
     "declineTitle": "Recusar",
     "decline": "Recusar pedido",
     "declinePlaceholder": "Motivo, mostrado ao cliente (opcional)",
-    "notPending": "Este pedido já foi tratado."
+    "notPending": "Este pedido já foi tratado.",
+    "windowTitle": "Quando podemos fazer o trabalho?",
+    "windowHint": "Opcional. Indique um período que lhe convenha e confirmaremos uma data e hora dentro dele.",
+    "windowFrom": "De",
+    "windowTo": "Até",
+    "windowLabel": "Disponibilidade do cliente",
+    "visitLabel": "Visita confirmada",
+    "clientWindow": "O cliente pode receber o trabalho entre {window}.",
+    "confirmVisit": "Visita confirmada (opcional)",
+    "confirmVisitRequired": "Visita confirmada",
+    "confirmVisitHint": "O cliente vê esta data e hora e é avisado. Passa também a ser a data de início da ordem de trabalho.",
+    "confirmVisitTitle": "Confirmar a visita",
+    "visitTitle": "Visita",
+    "confirmVisitButton": "Confirmar visita",
+    "moveVisit": "Alterar visita",
+    "visitSaved": "Guardado. O cliente foi avisado.",
+    "outsideWindow": "Fora da disponibilidade do cliente.",
+    "notSchedulable": "Já não é possível alterar a visita deste pedido."
   },
   "portal": {
     "title": "Portal do cliente",
@@ -797,7 +830,11 @@
     "pastRequests": "Pedidos anteriores",
     "pastRequestsHint": "O que pediu e os trabalhos feitos, com os relatórios de serviço.",
     "noPastRequests": "Ainda não há nada aqui.",
-    "requestNumber": "Pedido R{number}"
+    "requestNumber": "Pedido R{number}",
+    "visitConfirmed": "Visita confirmada para {date}",
+    "visitConfirmedTitle": "Visita confirmada",
+    "yourWindow": "Tem disponibilidade {window}. Vamos confirmar a data e a hora.",
+    "visitOn": "Visita {date}"
   },
   "vendors": {
     "description": "Fornecedores, subempreiteiros e fabricantes a quem compra peças e equipamento.",
@@ -1022,7 +1059,7 @@
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {O seu pedido R{number} foi aceite} other {O seu pedido R{number} foi recusado}}",
+      "title": "{status, select, APPROVED {O seu pedido R{number} foi aceite} SCHEDULED {O seu pedido R{number} foi aceite: visita a {when}} RESCHEDULED {A visita do seu pedido R{number} passou para {when}} other {O seu pedido R{number} foi recusado}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
@@ -1040,6 +1077,10 @@
     "PO_UPDATE": {
       "title": "A nota de encomenda PO-{number} {status, select, APPROVED {foi aprovada} DRAFT {foi devolvida a rascunho} CANCELLED {foi cancelada} other {foi atualizada}}",
       "body": "{vendor} · {actor}"
+    },
+    "REQUEST_MESSAGE": {
+      "title": "Nova mensagem no pedido R{number}: {title}",
+      "body": "{actor}: {excerpt}"
     }
   },
   "email": {
@@ -1119,11 +1160,12 @@
       "MENTION": "Alguém me menciona com @",
       "MESSAGE": "Novas mensagens de conversa",
       "REQUEST_NEW": "Novos pedidos de manutenção",
-      "REQUEST_UPDATE": "Os meus pedidos são aceites ou recusados",
+      "REQUEST_UPDATE": "Os meus pedidos são aceites, recusados ou agendados",
       "METER_ALERT": "Leituras de contadores fora dos limites",
       "LOW_STOCK": "Peças a esgotar",
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",
-      "PO_UPDATE": "Atualizações das minhas notas de encomenda"
+      "PO_UPDATE": "Atualizações das minhas notas de encomenda",
+      "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido"
     },
     "appearance": "Idioma e aspeto",
     "language": "Idioma"
@@ -1320,7 +1362,7 @@
       "trips": "Deslocações"
     },
     "billedHoursCol": "Horas faturadas",
-    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho arredondado ao período de faturação. A utilização usa as horas registadas."
+    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho e por dia arredondado ao período de faturação. A utilização usa as horas registadas."
   },
   "scan": {
     "title": "Ler código",
@@ -1366,7 +1408,10 @@
       "comment": "Comentário",
       "time": "Tempo",
       "status": "Estado",
-      "photo": "Fotografia"
+      "photo": "Fotografia",
+      "report": "Relatório",
+      "signoff": "Assinatura",
+      "clientAbsent": "Cliente ausente"
     },
     "firstLoad": "Ligue-se uma vez para descarregar as suas ordens de trabalho; depois ficam disponíveis sem rede.",
     "empty": "Não tem ordens de trabalho em aberto atribuídas.",
@@ -1745,6 +1790,10 @@
       "approve": {
         "label": "Aprovar pedidos",
         "hint": "Transformar pedidos em ordens de trabalho, ou recusá-los."
+      },
+      "chat": {
+        "label": "Falar com clientes nos pedidos",
+        "hint": "Ler e escrever na conversa de todos os pedidos. Os técnicos atribuídos ao trabalho podem sempre."
       }
     },
     "pm": {
@@ -1876,6 +1925,7 @@
     "companyEmails": "Estes endereços",
     "onePerLine": "Um por linha.",
     "subject": "Relatório de serviço n.º {number}: {title}",
+    "subjectRevision": "Relatório de serviço n.º {number} (revisão {revision}): {title}",
     "body": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\".",
     "bodyVilla": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\", na {villa}.",
     "signature": "Com os melhores cumprimentos,\n{company}",
@@ -2258,7 +2308,7 @@
   "timeBilling": {
     "title": "Faturação do tempo",
     "rounding": "Faturar o tempo em blocos de",
-    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
+    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros, dia a dia, quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos num dia são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
     "none": "Sem arredondamento (minutos registados)",
     "block": "{minutes} minutos"
   },
@@ -2328,7 +2378,8 @@
       "itemNote": "Nota em \"{step}\"",
       "itemAnswer": "Resposta a \"{step}\"",
       "timeNote": "Nota de tempo",
-      "statusNote": "Nota ao passar a {status}"
+      "statusNote": "Nota ao passar a {status}",
+      "workReport": "Relatório"
     },
     "articles": "{count, plural, one {# artigo da base de conhecimento} other {# artigos da base de conhecimento}}",
     "articlesMore": "{count, plural, one {Mais # artigo} other {Mais # artigos}}: acrescente palavras para restringir a pesquisa."
@@ -2489,5 +2540,24 @@
     "noneMonitored": "Ainda nenhuma moradia é monitorizada. Edite uma moradia e escolha DynDNS ou VPN em Ligação à internet.",
     "villas": "Moradias",
     "seeVillas": "Ver moradias"
+  },
+  "workReport": {
+    "title": "Relatório",
+    "hint": "Descreva o trabalho realizado. Obrigatório para marcar a ordem de trabalho como concluída; o cliente vê-o no relatório de serviço e no portal.",
+    "placeholder": "O que foi feito, o que foi encontrado, o que ficou por fazer…",
+    "empty": "Ainda sem relatório."
+  },
+  "requestChat": {
+    "title": "Conversa sobre o R{number}",
+    "permanent": "Fica guardada com o pedido. As mensagens não podem ser editadas nem apagadas.",
+    "noMessages": "Ainda não há mensagens. Escreva aqui ao cliente ou à equipa.",
+    "you": "Eu",
+    "client": "Cliente",
+    "placeholder": "Escreva uma mensagem…",
+    "send": "Enviar",
+    "sendFailed": "Não foi possível enviar. Verifique a ligação e tente de novo.",
+    "emptyMessage": "Escreva primeiro uma mensagem.",
+    "tooLong": "A mensagem é demasiado longa.",
+    "forbidden": "Não pode participar nesta conversa."
   }
 }

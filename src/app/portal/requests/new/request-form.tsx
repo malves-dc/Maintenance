@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FieldError, FieldErrorsProvider } from "@/components/action-form";
+import { AvailabilityFields } from "@/components/availability-fields";
 import { PhotoPicker } from "@/components/photo-picker";
 import { Button, Field, FormError, Input, Select, Textarea } from "@/components/ui";
 import { useActionForm } from "@/lib/use-action-form";
@@ -100,6 +101,7 @@ export function PortalRequestForm({
             ))}
           </div>
         </fieldset>
+        <AvailabilityFields />
         <div>
           <div className="mb-1.5 text-sm font-medium">{t("portal.photos")}</div>
           <PhotoPicker onChange={setPhotos} />

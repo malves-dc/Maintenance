@@ -15,6 +15,7 @@ import type { WorkOrderStatus } from "@/generated/prisma/enums";
 import { SignaturePad, type SignaturePadHandle } from "@/components/signature-pad";
 import { ChecklistItemInput } from "./checklist-item";
 import { KnowledgeSection } from "./knowledge-view";
+import { RequestChat } from "@/components/request-chat";
 import type { Timer } from "./field-app";
 
 type Enqueue = (op: NewOp, blob?: Blob) => Promise<void>;
@@ -25,6 +26,7 @@ function clock(sec: number) {
 
 export function WorkOrderView({
   wo,
+  me,
   articles,
   members,
   timer,
@@ -33,6 +35,8 @@ export function WorkOrderView({
   onBack,
 }: {
   wo: OfflineWorkOrder;
+  /** My name, as in `wo.timeMissing`. */
+  me: string;
   /** The villa's knowledge-base articles. */
   articles: OfflineArticle[];
   members: MentionMember[];
@@ -45,7 +49,19 @@ export function WorkOrderView({
   const format = useFormatter();
   const [now, setNow] = useState(() => Date.now());
   const [comment, setComment] = useState("");
-  const [blocked, setBlocked] = useState<{ items: string[]; signOff: boolean } | null>(null);
+  const [blocked, setBlocked] = useState<{ items: string[]; time: string[]; report: boolean; signOff: boolean } | null>(null);
+  // The report being typed; queued on blur, and before "Done" so a tap straight from the box counts.
+  const savedReport = wo.workReport ?? "";
+  const [report, setReport] = useState(savedReport);
+  const [shownSaved, setShownSaved] = useState(savedReport);
+  if (shownSaved !== savedReport) {
+    // A newer report arrived (synced, or queued from this box): show it.
+    setShownSaved(savedReport);
+    setReport(savedReport);
+  }
+  const saveReport = async () => {
+    if (report.trim() !== savedReport) await enqueue({ kind: "report", woId: wo.id, text: report.trim() });
+  };
   const [holdNote, setHoldNote] = useState<string | null>(null);
   const [mode, setMode] = useState<"ONSITE" | "REMOTE">("ONSITE");
   const photoInput = useRef<HTMLInputElement>(null);
@@ -73,11 +89,15 @@ export function WorkOrderView({
 
   const setStatus = async (status: WorkOrderStatus, note?: string) => {
     if (status === "DONE") {
+      await saveReport();
       const items = missingRequired(wo).map((i) => i.label);
-      // The server enforces this too: a signature, or "client absent".
+      // The server enforces these too: everyone's time, the technician's report, and a signature or "client absent".
+      // A timer running here counts: it is stopped and queued below.
+      const time = (wo.timeMissing ?? []).filter((name) => !(runningHere && name === me));
+      const needsReport = !report.trim();
       const signOff = !wo.signOff && !wo.clientAbsent;
-      if (items.length || signOff) {
-        setBlocked({ items, signOff });
+      if (items.length || time.length || needsReport || signOff) {
+        setBlocked({ items, time, report: needsReport, signOff });
         return;
       }
     }
@@ -227,6 +247,8 @@ export function WorkOrderView({
                   </ul>
                 </>
               )}
+              {blocked.time.length > 0 && <p>{t("time.missing", { names: blocked.time.join(", ") })}</p>}
+              {blocked.report && <p>{t("wo.reportRequired")}</p>}
               {blocked.signOff && <p>{t("wo.signOffRequired")}</p>}
             </div>
           )}
@@ -311,6 +333,29 @@ export function WorkOrderView({
       </section>
 
       <section className="mt-3 border-y border-border bg-surface px-4 py-3">
+        <h2 className="text-sm font-medium">
+          <label htmlFor="work-report">{t("workReport.title")}</label>
+        </h2>
+        {closed ? (
+          <p className="mt-1 whitespace-pre-wrap text-sm">{savedReport || <span className="text-muted">—</span>}</p>
+        ) : (
+          <>
+            <p className="mb-2 text-xs text-muted">{t("workReport.hint")}</p>
+            <textarea
+              id="work-report"
+              value={report}
+              onChange={(e) => setReport(e.target.value)}
+              onBlur={() => void saveReport()}
+              maxLength={10000}
+              rows={4}
+              placeholder={t("workReport.placeholder")}
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+            />
+          </>
+        )}
+      </section>
+
+      <section className="mt-3 border-y border-border bg-surface px-4 py-3">
         <h2 className="mb-2 text-sm font-medium">{t("signoff.title")}</h2>
         <FieldSignOff wo={wo} enqueue={enqueue} />
       </section>
@@ -344,6 +389,7 @@ export function WorkOrderView({
           </Button>
         </div>
       </section>
+      <RequestChat key={wo.id} workOrderId={wo.id} className="mt-3 border-y border-border bg-surface px-4 py-3 text-sm" />
     </main>
   );
 }

@@ -238,7 +238,12 @@
     "badEmails": "One or more addresses aren't valid e-mail addresses.",
     "badFrom": "Use an address, or a name and address: Company '<'name@company.com'>'.",
     "ownerOrManager": "Choose an owner, a property manager, or both.",
-    "invalid_host": "Not a valid host name or IP address."
+    "invalid_host": "Not a valid host name or IP address.",
+    "windowIncomplete": "Give both the start and the end of the period.",
+    "windowOrder": "The end must be after the start.",
+    "windowPast": "This period is already over.",
+    "windowTooLong": "The period can't be longer than a year.",
+    "slotRequired": "Confirm the date and time of the visit."
   },
   "clients": {
     "description": "Villa owners, family offices and property managers you work for.",
@@ -474,7 +479,11 @@
     "clientVisible": "Visible to the client in their portal",
     "clientVisibleHint": "Untick for internal work the client shouldn't see.",
     "alreadySigned": "The client has already signed this work order.",
-    "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent."
+    "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent.",
+    "reportRequired": "Report: describe the work done before marking it done.",
+    "timeRequired": "Time: each assigned technician must log their time before marking it done.",
+    "noTechnician": "Technician: assign a technician to this work order before marking it done.",
+    "timeNotAssigned": "Only the technicians assigned to this work order can log time."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -546,14 +555,16 @@
     "running": "running",
     "total": "Total",
     "billed": "Billed",
-    "billedHint": "Each technician's time rounded up to blocks of {block} minutes (Settings → Organization).",
+    "billedHint": "Each technician's time on each day rounded up to blocks of {block} minutes (Settings → Organization).",
     "billedFrom": "{billed} (logged {logged})",
     "mode": "Where",
     "modes": {
       "ONSITE": "On site",
       "REMOTE": "Remote"
     },
-    "switchTo": "Change to {mode}"
+    "switchTo": "Change to {mode}",
+    "missing": "Time still to log: {names}",
+    "noRate": "Some time has no price per hour, so it isn't being charged (Settings → Roles)."
   },
   "costs": {
     "title": "Amounts to bill",
@@ -589,6 +600,7 @@
     "title": "Activity",
     "placeholder": "Add an update or note…",
     "attach": "Photo or video",
+    "fromGallery": "Choose from gallery",
     "send": "Post",
     "changedStatus": "changed status to",
     "created": "created this work order"
@@ -609,11 +621,15 @@
   "report": {
     "title": "Service report",
     "back": "Back",
+    "noViewer": "This browser can't show the report here. Open it in your PDF app.",
+    "openPdf": "Open PDF",
     "photos": "Photos",
     "seePhotos": "See photos",
     "service": "Service",
     "urgentService": "Urgent",
-    "trips": "Trips"
+    "trips": "Trips",
+    "revision": "Revision {revision}",
+    "revisionNote": "This report was updated after completion and replaces earlier versions."
   },
   "procedures": {
     "description": "Reusable checklists your team follows on site. Use them in work orders and preventive schedules.",
@@ -744,7 +760,24 @@
     "declineTitle": "Decline",
     "decline": "Decline request",
     "declinePlaceholder": "Reason, shown to the client (optional)",
-    "notPending": "This request has already been handled."
+    "notPending": "This request has already been handled.",
+    "windowTitle": "When can we do the work?",
+    "windowHint": "Optional. Give a period that suits you and we'll confirm a date and time within it.",
+    "windowFrom": "From",
+    "windowTo": "Until",
+    "windowLabel": "Client's availability",
+    "visitLabel": "Confirmed visit",
+    "clientWindow": "The client can have the work done between {window}.",
+    "confirmVisit": "Confirmed visit (optional)",
+    "confirmVisitRequired": "Confirmed visit",
+    "confirmVisitHint": "The client sees this date and time and is told about it. It also becomes the work order's start date.",
+    "confirmVisitTitle": "Confirm the visit",
+    "visitTitle": "Visit",
+    "confirmVisitButton": "Confirm visit",
+    "moveVisit": "Change visit",
+    "visitSaved": "Saved. The client was told.",
+    "outsideWindow": "Outside the client's availability.",
+    "notSchedulable": "This request's visit can no longer be changed."
   },
   "portal": {
     "title": "Client portal",
@@ -797,7 +830,11 @@
     "pastRequests": "Earlier requests",
     "pastRequestsHint": "What you asked for and the work done, with the service reports.",
     "noPastRequests": "Nothing here yet.",
-    "requestNumber": "Request R{number}"
+    "requestNumber": "Request R{number}",
+    "visitConfirmed": "Visit confirmed for {date}",
+    "visitConfirmedTitle": "Visit confirmed",
+    "yourWindow": "You're available {window}. We'll confirm a date and time.",
+    "visitOn": "Visit {date}"
   },
   "vendors": {
     "description": "Suppliers, subcontractors and manufacturers you buy parts and equipment from.",
@@ -1022,7 +1059,7 @@
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {Your request R{number} was accepted} other {Your request R{number} was declined}}",
+      "title": "{status, select, APPROVED {Your request R{number} was accepted} SCHEDULED {Your request R{number} was accepted: visit on {when}} RESCHEDULED {Visit for your request R{number} moved to {when}} other {Your request R{number} was declined}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
@@ -1040,6 +1077,10 @@
     "PO_UPDATE": {
       "title": "PO-{number} {status, select, APPROVED {was approved} DRAFT {was sent back to draft} CANCELLED {was cancelled} other {was updated}}",
       "body": "{vendor} · {actor}"
+    },
+    "REQUEST_MESSAGE": {
+      "title": "New message on request R{number}: {title}",
+      "body": "{actor}: {excerpt}"
     }
   },
   "email": {
@@ -1119,11 +1160,12 @@
       "MENTION": "Someone @mentions me",
       "MESSAGE": "New chat messages",
       "REQUEST_NEW": "New maintenance requests",
-      "REQUEST_UPDATE": "My requests are accepted or declined",
+      "REQUEST_UPDATE": "My requests are accepted, declined or scheduled",
       "METER_ALERT": "Meter readings out of range",
       "LOW_STOCK": "Parts running low",
       "PO_APPROVAL": "Purchase orders waiting for approval",
-      "PO_UPDATE": "Updates on my purchase orders"
+      "PO_UPDATE": "Updates on my purchase orders",
+      "REQUEST_MESSAGE": "New messages in a request's conversation"
     },
     "appearance": "Language and appearance",
     "language": "Language"
@@ -1320,7 +1362,7 @@
       "trips": "Trips"
     },
     "billedHoursCol": "Hours billed",
-    "billedHoursHint": "Hours charged: each technician's time per work order rounded up to the billing period. Utilisation uses the hours logged."
+    "billedHoursHint": "Hours charged: each technician's time per work order and day rounded up to the billing period. Utilisation uses the hours logged."
   },
   "scan": {
     "title": "Scan",
@@ -1366,7 +1408,10 @@
       "comment": "Comment",
       "time": "Time",
       "status": "Status",
-      "photo": "Photo"
+      "photo": "Photo",
+      "report": "Report",
+      "signoff": "Sign-off",
+      "clientAbsent": "Client absent"
     },
     "firstLoad": "Connect once to download your work orders; after that they're available offline.",
     "empty": "No open work orders assigned to you.",
@@ -1745,6 +1790,10 @@
       "approve": {
         "label": "Approve requests",
         "hint": "Turn requests into work orders, or decline them."
+      },
+      "chat": {
+        "label": "Talk to clients on requests",
+        "hint": "Read and write in the conversation of every request. Technicians assigned to the job always can."
       }
     },
     "pm": {
@@ -1876,6 +1925,7 @@
     "companyEmails": "These addresses",
     "onePerLine": "One per line.",
     "subject": "Service report #{number}: {title}",
+    "subjectRevision": "Service report #{number} (revision {revision}): {title}",
     "body": "Please find attached the service report for work order #{number}, \"{title}\".",
     "bodyVilla": "Please find attached the service report for work order #{number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",
@@ -2258,7 +2308,7 @@
   "timeBilling": {
     "title": "Time billing",
     "rounding": "Bill time in blocks of",
-    "hint": "Each technician's time on a work order is rounded up to whole blocks when it is billed: labour and the service report (e.g. 34 minutes bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
+    "hint": "Each technician's time on a work order is rounded up to whole blocks, day by day, when it is billed: labour and the service report (e.g. 34 minutes in a day bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
     "none": "No rounding (minutes logged)",
     "block": "{minutes} minutes"
   },
@@ -2328,7 +2378,8 @@
       "itemNote": "Note on \"{step}\"",
       "itemAnswer": "Answer to \"{step}\"",
       "timeNote": "Time note",
-      "statusNote": "Note when moved to {status}"
+      "statusNote": "Note when moved to {status}",
+      "workReport": "Report"
     },
     "articles": "{count, plural, one {# knowledge-base article} other {# knowledge-base articles}}",
     "articlesMore": "{count, plural, one {# more article} other {# more articles}}: add more words to narrow the search."
@@ -2489,5 +2540,24 @@
     "noneMonitored": "No villa is monitored yet. Edit a villa and choose DynDNS or VPN under Internet connection.",
     "villas": "Villas",
     "seeVillas": "See villas"
+  },
+  "workReport": {
+    "title": "Report",
+    "hint": "Describe the work you did. Required before the work order can be marked done; the client sees it in the service report and the portal.",
+    "placeholder": "What was done, what was found, anything still to do…",
+    "empty": "No report yet."
+  },
+  "requestChat": {
+    "title": "Conversation about R{number}",
+    "permanent": "Kept with the request. Messages can't be edited or deleted.",
+    "noMessages": "No messages yet. Write to the client or the team here.",
+    "you": "You",
+    "client": "Client",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sendFailed": "Couldn't send. Check your connection and try again.",
+    "emptyMessage": "Write a message first.",
+    "tooLong": "That message is too long.",
+    "forbidden": "You can't take part in this conversation."
   }
 }

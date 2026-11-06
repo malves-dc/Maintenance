@@ -232,6 +232,7 @@ model User {
   posApproved        PurchaseOrder[]      @relation("POApprovedBy")
   conversationSeats  ConversationMember[]
   messages           Message[]
+  requestMessages    RequestMessage[]
   notifications      Notification[]
   auditLogs          AuditLog[]
   attachments        Attachment[]
@@ -303,6 +304,7 @@ model Organization {
   categories     Category[]
   workOrders     WorkOrder[]
   requests       Request[]
+  requestMessages RequestMessage[]
   onCallWeeks    OnCallWeek[]
   pmSchedules    PMSchedule[]
   meters         Meter[]
@@ -761,8 +763,12 @@ model WorkOrder {
   signedAt         DateTime?
   // The client wasn't there to sign: no signature needed (set by the technician).
   clientAbsent     Boolean         @default(false)
+  // What the technician did ("Relatório"): required to complete; shown in the service report and the portal.
+  workReport       String?
   reportSentAt     DateTime? // last time the service report was e-mailed
   reportSentTo     String[]        @default([])
+  reportRevision   Int             @default(0) // the service report's revision: see lib/report-revision.ts
+  reportFingerprint String? // hash of the report's content when last checked
   clientVisible    Boolean         @default(true)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -931,6 +937,12 @@ model Request {
   requesterPhone String?
   workOrderId    String?       @unique
   declineReason  String?
+  // When the client says the work can be done (optional; both or neither). A request with this window
+  // can only be approved with a confirmed visit time (lib/request-window.ts).
+  availableFrom  DateTime?
+  availableTo    DateTime?
+  // The visit date and time confirmed to the client (copied to the work order's start date).
+  scheduledFor   DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -943,9 +955,30 @@ model Request {
   onCallUsers  User[]       @relation("RequestOnCall")
   workOrder    WorkOrder?   @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
   attachments  Attachment[]
+  // The chat with the client, kept on the request and shown on the work order it becomes (lib/request-chat.ts).
+  messages     RequestMessage[]
 
   @@unique([organizationId, number])
   @@index([organizationId, status])
+}
+
+// One message in a request's chat. A permanent record: never edited or deleted (the tenant client refuses it and a
+// database trigger blocks UPDATE and any DELETE that is not a cascade from the request or the company).
+model RequestMessage {
+  id             String   @id @default(cuid())
+  organizationId String
+  requestId      String
+  userId         String
+  // Written from the client portal (the requester, an owner or a property manager), else by staff.
+  fromClient     Boolean  @default(false)
+  body           String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  request      Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([requestId, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────── Preventive maintenance & meters

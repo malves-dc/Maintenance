@@ -3,7 +3,8 @@
 import { z } from "zod";
 import { prisma } from "@/lib/db/client";
 import { tenantDb } from "@/lib/db/tenant";
-import { enumOf, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { enumOf, optDate, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { windowError } from "@/lib/request-window";
 import { createRequest, MAX_REQUEST_PHOTOS } from "@/lib/requests";
 import { Priority } from "@/generated/prisma/enums";
 
@@ -19,6 +20,8 @@ const schema = z
     title: str(200),
     description: optStr(5000),
     priority: enumOf(Priority).default("MEDIUM"),
+    availableFrom: optDate(),
+    availableTo: optDate(),
   })
   .refine((d) => d.phone || d.email, { path: ["phone"], message: "contactRequired" });
 
@@ -38,6 +41,8 @@ export async function publicRequestAction(token: string, _: PublicResult, form: 
   const parsed = parseForm(schema, form);
   if (parsed.error) return parsed.error;
   const d = parsed.data;
+  const bad = windowError(d);
+  if (bad) return { error: "validation", fieldErrors: { [bad.field]: bad.code } };
 
   const since = new Date(Date.now() - HOUR);
   const [forAsset, forOrg] = await Promise.all([
@@ -61,6 +66,8 @@ export async function publicRequestAction(token: string, _: PublicResult, form: 
       requesterName: d.name,
       requesterPhone: d.phone,
       requesterEmail: d.email,
+      availableFrom: d.availableFrom,
+      availableTo: d.availableTo,
     },
     photos,
   );

@@ -49,12 +49,13 @@ When the villa has a [knowledge base](/help/villas), tap **Knowledge base** unde
 3. Work through the **Checklist**: tick steps, choose pass/fail or an option, type text or numbers, take photos and collect signatures where a step asks for them.
 4. Under **Photos & videos**, tap **Take photo** to add pictures of the job, or **Record video** for a clip of up to 1 minute. The video is reduced to 720p on the phone (this takes a moment; the button shows the progress) and kept there until it is uploaded.
 5. Under **Activity**, write a note and tap the send button. Type @ to mention a colleague; they'll be notified once the comment syncs.
-6. Under **Client sign-off**, ask the client or house manager to sign, type their name and tap **Confirm sign-off**. If nobody is there, tick **Client absent** instead.
-7. Tap **Mark done**.
+6. Under **Report**, describe the work you did. It is saved on the phone when you leave the box and synced like everything else; the job can't be marked done without it.
+7. Under **Client sign-off**, ask the client or house manager to sign, type their name and tap **Confirm sign-off**. If nobody is there, tick **Client absent** instead.
+8. Tap **Mark done**.
 
 If you have to stop, tap **On hold**, type the reason (for example waiting for parts) and confirm. Stopping or finishing the job also stops your timer. To pick the job up again, tap **Resume**.
 
-> **Mark done** is refused while required checklist steps are empty or there is no sign-off. The app lists what's missing, so fill it in and try again.
+> **Mark done** is refused while required checklist steps are empty, the report is blank or there is no sign-off. The app lists what's missing, so fill it in and try again.
 
 ## Scanning an asset label
 
@@ -133,12 +134,13 @@ Quando a moradia tem [base de conhecimento](/help/villas), toque em **Base de co
 3. Percorra a **Checklist**: marque passos, escolha passa/falha ou uma opção, escreva texto ou números, tire fotografias e recolha assinaturas quando um passo o pedir.
 4. Em **Fotografias e vídeos**, toque em **Tirar fotografia** para juntar imagens do trabalho, ou em **Gravar vídeo** para um vídeo até 1 minuto. O vídeo é reduzido para 720p no telemóvel (demora um pouco; o botão mostra o progresso) e fica lá guardado até ser enviado.
 5. Em **Atividade**, escreva uma nota e toque no botão de enviar. Escreva @ para mencionar um colega; essa pessoa é notificada quando o comentário for sincronizado.
-6. Em **Aprovação do cliente**, peça ao cliente ou ao governante para assinar, escreva o nome dele e toque em **Confirmar aprovação**. Se não estiver ninguém, marque **Cliente ausente**.
-7. Toque em **Marcar como concluída**.
+6. Em **Relatório**, descreva o trabalho realizado. Fica guardado no telemóvel quando sai da caixa e é sincronizado como o resto; o trabalho não pode ser concluído sem ele.
+7. Em **Aprovação do cliente**, peça ao cliente ou ao governante para assinar, escreva o nome dele e toque em **Confirmar aprovação**. Se não estiver ninguém, marque **Cliente ausente**.
+8. Toque em **Marcar como concluída**.
 
 Se tiver de parar, toque em **Em espera**, escreva o motivo (por exemplo a aguardar material) e confirme. Pôr o trabalho em espera ou concluí-lo também para o cronómetro. Para retomar o trabalho, toque em **Retomar**.
 
-> **Marcar como concluída** é recusado enquanto houver passos obrigatórios da checklist por preencher ou faltar a aprovação do cliente. A aplicação mostra o que falta; preencha e tente novamente.
+> **Marcar como concluída** é recusado enquanto houver passos obrigatórios da checklist por preencher, faltar o relatório ou faltar a aprovação do cliente. A aplicação mostra o que falta; preencha e tente novamente.
 
 ## Ler a etiqueta de um equipamento
 

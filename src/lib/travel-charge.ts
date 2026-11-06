@@ -40,7 +40,8 @@ export function tripCost(distanceKm: number | null | undefined, rule: TravelRule
 
 export type TripEntry = { userId?: string | null; minutes: number | null; startedAt?: Date | string; mode?: string | null };
 
-const dayKey = (d: Date | string, timeZone: string) =>
+/** The calendar day of a moment in a time zone, as YYYY-MM-DD. */
+export const dayKey = (d: Date | string, timeZone: string) =>
   new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(d));
 
 /** Trips on one work order: one per day with finished on-site time, per technician or for the whole job. */

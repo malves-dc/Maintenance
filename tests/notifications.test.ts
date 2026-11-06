@@ -70,6 +70,7 @@ describe("renderNotification", () => {
     part: "PoE injector",
     qty: 2,
     vendor: "Redes Lusas",
+    when: "05/11/2026, 14:30",
   };
 
   it.each(NOTIFICATION_TYPES.flatMap((t) => [["en", t] as const, ["pt", t] as const]))("renders %s %s", (locale, type) => {
@@ -81,6 +82,8 @@ describe("renderNotification", () => {
   it("uses the status to pick the wording", () => {
     expect(renderNotification("en", "WO_STATUS", { ...data, status: "ON_HOLD" }).title).toBe("Work order #42 is on hold");
     expect(renderNotification("pt", "REQUEST_UPDATE", { ...data, status: "DECLINED" }).title).toBe("O seu pedido R42 foi recusado");
+    expect(renderNotification("en", "REQUEST_UPDATE", { ...data, status: "SCHEDULED", when: "05/11/2026, 14:30" }).title).toBe("Your request R42 was accepted: visit on 05/11/2026, 14:30");
+    expect(renderNotification("pt", "REQUEST_UPDATE", { ...data, status: "RESCHEDULED", when: "05/11/2026, 14:30" }).title).toBe("A visita do seu pedido R42 passou para 05/11/2026, 14:30");
   });
 
   it("drops an empty body", () => {

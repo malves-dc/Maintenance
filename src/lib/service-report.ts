@@ -11,14 +11,14 @@ import { ServiceReport, type ReportData } from "@/app/(app)/work-orders/[id]/rep
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
-import { chargesTravel, countTrips, travelRuleFor } from "@/lib/travel-charge";
+import { chargesTravel, countTrips, dayKey, travelRuleFor } from "@/lib/travel-charge";
+import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
 // e-mailing (lib/report-email.ts). `where` scopes the work order (tenant + portal rules are the caller's);
 // `locale` renders it in another language than the current request's (e.g. the company's default).
 
 const MAX_PHOTOS = 12;
-const PDF_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
 
 function duration(min: number) {
   const h = Math.floor(min / 60);
@@ -39,13 +39,14 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       completedBy: { select: { name: true } },
       items: { orderBy: { sortOrder: "asc" } },
       timeEntries: { where: { minutes: { not: null } }, include: { user: { select: { name: true } } }, orderBy: { startedAt: "asc" } },
-      attachments: { where: { mimeType: { in: [...PDF_IMAGE_TYPES] } }, orderBy: { createdAt: "asc" } },
+      attachments: { where: { mimeType: { in: REPORT_IMAGE_TYPES } }, orderBy: { createdAt: "asc" } },
       parts: { include: { part: { select: { name: true, sku: true, unit: true } } }, orderBy: { id: "asc" } },
       contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
     },
   });
   if (!wo) return null;
 
+  const revision = await syncReportRevision(ctx.db, wo.id);
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const load = (attId: string) => {
     const att = wo.attachments.find((a) => a.id === attId);
@@ -62,19 +63,18 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     return unit ? `${shown} ${unit}` : shown;
   };
 
-  // Client-facing time is the billed time: one line per technician, their time on this work order rounded up to
-  // the company's billing period (lib/billing-time.ts), with the dates and notes of their entries.
-  const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding));
+  // Client-facing time is the billed time: one line per technician and day, their time that day rounded up to the
+  // company's billing period (lib/billing-time.ts), with the notes of that day's entries.
+  const timeZone = ctx.organization.timezone;
+  const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding), timeZone);
   const rule = travelRuleFor(ctx.organization, wo.contract);
-  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, ctx.organization.timezone, rule.perTechnician) : 0;
+  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, timeZone, rule.perTechnician) : 0;
   const day = (d: Date) => format.dateTime(d, { dateStyle: "short" });
-  const timeRows = billed.people.map((p) => {
-    const mine = wo.timeEntries.filter((e) => (e.userId ?? "-") === p.userId);
-    const first = day(mine[0].startedAt);
-    const last = day(mine[mine.length - 1].startedAt);
+  const timeRows = [...billed.days].sort((a, b) => a.day.localeCompare(b.day)).map((p) => {
+    const mine = wo.timeEntries.filter((e) => (e.userId ?? "-") === p.userId && dayKey(e.startedAt, timeZone) === p.day);
     // Where they worked: on site, remotely, or both.
     const modes = [...new Set(mine.map((e) => e.mode))].sort().map((m) => t(`time.modes.${m}`)).join(" + ");
-    return { who: `${mine[0].user.name} (${modes})`, when: first === last ? first : `${first} – ${last}`, duration: duration(p.billed), note: mine.map((e) => e.note).filter(Boolean).join("; ") || null };
+    return { who: `${mine[0].user.name} (${modes})`, when: day(mine[0].startedAt), duration: duration(p.billed), note: mine.map((e) => e.note).filter(Boolean).join("; ") || null };
   });
 
   const signatureIds = new Set([wo.signatureUrl, ...wo.items.filter((i) => i.type === "SIGNATURE").map((i) => i.value)]);
@@ -107,7 +107,10 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   const data: ReportData = {
     labels: {
       reportTitle: t("report.title"),
+      revision: t("report.revision", { revision }),
+      revisionNote: t("report.revisionNote"),
       description: t("wo.descriptionLabel"),
+      workReport: t("workReport.title"),
       checklist: t("checklist.title"),
       time: t("time.title"),
       total: t("time.total"),
@@ -119,10 +122,12 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     },
     lh: await letterhead(ctx.organization, t("company.taxIdShort")),
     number: wo.number,
+    revision,
     title: wo.title,
     generatedAt: dt(new Date()),
     info: info.filter((x): x is [string, string] => !!x[1]),
     description: wo.description,
+    workReport: wo.workReport,
     checklist: await Promise.all(
       wo.items.map(async (i) => ({
         label: i.label,
@@ -145,5 +150,5 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   };
 
   const pdf = await renderToBuffer(createElement(ServiceReport, { d: data }) as unknown as ReactElement<DocumentProps>);
-  return { pdf, number: wo.number, title: wo.title, villa: wo.villa?.name ?? null };
+  return { pdf, number: wo.number, revision, title: wo.title, villa: wo.villa?.name ?? null };
 }

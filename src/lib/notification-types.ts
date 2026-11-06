@@ -9,6 +9,7 @@ export const NOTIFICATION_TYPES = [
   "MESSAGE",
   "REQUEST_NEW",
   "REQUEST_UPDATE",
+  "REQUEST_MESSAGE",
   "METER_ALERT",
   "LOW_STOCK",
   "PO_APPROVAL",
@@ -27,6 +28,7 @@ export const NOTIFICATION_DEFAULTS: Record<NotificationType, Channels & { inApp:
   MESSAGE: { inApp: false, email: false, push: true },
   REQUEST_NEW: { inApp: true, email: true, push: true },
   REQUEST_UPDATE: { inApp: true, email: true, push: true },
+  REQUEST_MESSAGE: { inApp: true, email: false, push: true },
   METER_ALERT: { inApp: true, email: true, push: true },
   LOW_STOCK: { inApp: true, email: false, push: true },
   PO_APPROVAL: { inApp: true, email: true, push: true },
@@ -34,7 +36,7 @@ export const NOTIFICATION_DEFAULTS: Record<NotificationType, Channels & { inApp:
 };
 
 /** Types each audience can receive, for the preferences screen. */
-export const PORTAL_TYPES: NotificationType[] = ["REQUEST_UPDATE", "WO_STATUS"];
+export const PORTAL_TYPES: NotificationType[] = ["REQUEST_UPDATE", "REQUEST_MESSAGE", "WO_STATUS"];
 
 /** A user's effective channels for a type: their saved choice, else the default. */
 export function prefsOf(stored: unknown, type: NotificationType): Channels {

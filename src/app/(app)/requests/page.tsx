@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Camera, PhoneCall } from "lucide-react";
+import { CalendarCheck, CalendarClock, Camera, PhoneCall } from "lucide-react";
 import { Card, PageHeader, Select, Table } from "@/components/ui";
 import { FilterBar, Pagination } from "@/components/list-controls";
 import { EmptyState } from "@/components/empty-state";
@@ -125,6 +125,20 @@ export default async function RequestsPage({ searchParams }: PageProps<"/request
                           <Camera className="size-3.5" />
                           {r._count.attachments}
                         </span>
+                      )}
+                      {r.scheduledFor ? (
+                        <span className="inline-flex items-center gap-0.5 text-xs text-green-700" title={t("requests.visitLabel")}>
+                          <CalendarCheck className="size-3.5" />
+                          {format.dateTime(r.scheduledFor, { dateStyle: "short", timeStyle: "short" })}
+                        </span>
+                      ) : (
+                        r.availableFrom &&
+                        r.availableTo && (
+                          <span className="inline-flex items-center gap-0.5 text-xs text-amber-700" title={t("requests.windowLabel")}>
+                            <CalendarClock className="size-3.5" />
+                            {format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "short", timeStyle: "short" })}
+                          </span>
+                        )
                       )}
                       {r.onCallUsers.length > 0 && (
                         <span className="inline-flex items-center gap-0.5 text-xs text-muted" title={t("onCall.requestOnCall")}>

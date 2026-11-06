@@ -11,8 +11,8 @@ import { FUZZY_MIN, matchRanges, searchTerms, snippet, WORD_SIMILARITY, type Ran
 // work order, not necessarily in the same note. Used by /search (web) and /api/search (field app).
 
 /** Where a match was found. "title", "asset" and "villa" only count towards the terms; the rest are listed. */
-export type HitKind = "description" | "request" | "comment" | "itemNote" | "itemAnswer" | "timeNote" | "statusNote";
-const LISTED = new Set<string>(["description", "request", "comment", "itemNote", "itemAnswer", "timeNote", "statusNote"]);
+export type HitKind = "description" | "workReport" | "request" | "comment" | "itemNote" | "itemAnswer" | "timeNote" | "statusNote";
+const LISTED = new Set<string>(["description", "workReport", "request", "comment", "itemNote", "itemAnswer", "timeNote", "statusNote"]);
 
 export type SearchHit = {
   kind: HitKind;
@@ -83,6 +83,9 @@ export async function searchWorkOrders(
       UNION ALL
       SELECT w.id, 'description', w.id, w.description, w."createdById", NULL, w."createdAt"
         FROM "WorkOrder" w JOIN wo ON wo.id = w.id WHERE w.description <> ''
+      UNION ALL
+      SELECT w.id, 'workReport', w.id, w."workReport", w."completedById", NULL, COALESCE(w."completedAt", w."updatedAt")
+        FROM "WorkOrder" w JOIN wo ON wo.id = w.id WHERE w."workReport" <> ''
       UNION ALL
       SELECT r."workOrderId", 'request', r.id, r.description, r."requesterId", r."requesterName", r."createdAt"
         FROM "Request" r JOIN wo ON wo.id = r."workOrderId" WHERE r.description <> ''

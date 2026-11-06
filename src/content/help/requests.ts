@@ -11,7 +11,7 @@ Problems reported by clients, from the client portal or by scanning a QR label o
 
 Clients don't create work orders themselves: they send a request, and your team decides what to do with it.
 
-- **Client portal**: a client with a portal account opens one of their properties, clicks **Report a problem**, picks the area and the equipment if they know it, describes the problem, says how urgent it is and can add up to 4 photos.
+- **Client portal**: a client with a portal account opens one of their properties, clicks **Report a problem**, picks the area and the equipment if they know it, describes the problem, says how urgent it is, can say **when the work can be done** (a period, optional) and can add up to 4 photos.
 - **QR label**: every asset has a QR label (see [Assets](/help/assets)). Anyone who scans it with a phone gets a short form for that equipment, without needing an account; they leave their name and contact details. Clients who are signed in go to the portal form instead, already filled in with the equipment, and staff go to the asset's page.
 
 When a request arrives, everyone who can approve requests gets a notification, and the number of pending requests appears next to **Requests** in the menu.
@@ -29,7 +29,7 @@ The tabs at the top split requests by status, with a count on each:
 - **Declined**: rejected, with the reason if one was given.
 - **All**: every request, with its status shown under the title.
 
-Each row shows the **Title** with the request number (**R12**), the system, the urgency and a camera icon with the number of photos; the **Location** (villa and asset); who it's **From** (with "via QR label" for requests sent from a label); and when it was **Received**.
+Each row shows the **Title** with the request number (**R12**), the system, the urgency and a camera icon with the number of photos; the client's availability (amber calendar) or, once confirmed, the visit date (green calendar); the **Location** (villa and asset); who it's **From** (with "via QR label" for requests sent from a label); and when it was **Received**.
 
 Use the search box to find a word in the title or description, the requester's name or an R-number, and the villa filter to see one villa.
 
@@ -38,12 +38,13 @@ Use the search box to find a word in the title or description, the requester's n
 Click a request to open it. You see:
 
 - the description and the photos the client sent (click a photo to enlarge it);
-- on the right, who sent it, with their phone and e-mail as links you can call or write to, and the villa, client, area and asset.
+- on the right, who sent it, with their phone and e-mail as links you can call or write to, and the villa, client, area and asset; and the **Client's availability**, when they gave one.
 
 ## Approving a request
 
 1. Open a pending request.
 2. In **Approve as work order**, check the **Title** and set the **Priority**, **Type**, **System** and **Due** date. The priority starts from what the client chose (or Medium).
+   If the client gave a period, set the **Confirmed visit** date and time: the request can't be approved without it. Without a period it is optional.
 3. Choose a **Team** and the people under **Assigned to**. Picking a team selects its members when nobody is assigned yet.
 4. Click **Create work order**.
 
@@ -52,6 +53,20 @@ The app creates the work order and opens it. It takes the villa, area and asset 
 From then on the request shows **Approved as work order** with a link to the job and its current status, plus, for people who can see amounts, what the job has to bill so far.
 
 > When the work order is marked done, the client is told, as long as the work order is visible to the client.
+
+## The client's availability and the confirmed visit
+
+When sending a request, the client can say **when the work can be done**: a period with a start and an end date and time (for example, "from Monday 9:00 until Wednesday 18:00"). It's optional; requests without one work as before.
+
+When a request has a period:
+
+- it shows in the list and on the request as the **Client's availability**;
+- to approve it you must set the **Confirmed visit**, the date and time your team will go. It usually falls inside the period; if you agree another time with the client, the request warns that it's **outside the client's availability**;
+- the confirmed visit becomes the work order's **start date**, and the work order shows both the availability and the confirmed visit.
+
+The client is told (in the portal, or by e-mail for QR-label requests) and sees the confirmed date and time on the request and in the list of requests for the property.
+
+To set a visit later, or move one, open the approved request and use **Confirm the visit** (or **Visit**). The client is told again. This works until the work order is done or cancelled. Moving the work order's start date in the work order itself doesn't change what the client sees.
 
 ## Declining a request
 
@@ -63,12 +78,26 @@ The client is notified the same way as for an approval. A declined request can't
 
 > If two people handle the same request at once, only the first decision counts; the second gets the message that the request has already been handled.
 
+## The conversation with the client
+
+Every request has a **conversation**: the client and your team can write to each other about it, for example to ask for a detail, agree on access or say you're on the way. It's on the request, and it carries on in the [work order](/help/work-orders) the request becomes (also in the field app), so everyone sees the same messages from start to finish.
+
+Who takes part:
+
+- the person who sent the request, and the client portal users of the villa's owner and of its property manager;
+- staff who can **talk to clients on requests** (Super Admin, Administrator and Manager, unless changed in [Roles](/help/roles));
+- the technicians assigned to the work order.
+
+Nobody else sees it, and other clients never do. Each message shows who wrote it and when; staff see a **Client** tag on messages written from the portal. The others are notified of each new message.
+
+> The conversation is a permanent record: messages can't be edited or deleted by anyone, so check before you send.
+
 ## Who can do what
 
 - **Super Admin**, **Administrator** and **Manager**: see, approve and decline requests, and get notified of new ones.
 - **Technician**, **Accountant** and **Viewer**: can see requests but not approve or decline them.
 - **Whoever is on call** that week is also notified of every new request and can approve or decline the ones that arrived during their week, whatever their role. The request shows who was on call. See [On call](/help/on-call).
-- **Clients** send requests and follow them in the client portal.
+- **Clients** send requests and follow them in the client portal. They also see and write in the conversation of their requests.
 `,
   pt: `# Pedidos
 
@@ -78,7 +107,7 @@ Problemas reportados pelos clientes, a partir do portal do cliente ou ao digital
 
 Os clientes não criam ordens de trabalho: enviam um pedido e a sua equipa decide o que fazer com ele.
 
-- **Portal do cliente**: um cliente com conta no portal abre uma das suas propriedades, clica em **Reportar um problema**, escolhe a divisão e o equipamento, se souber, descreve o problema, indica a urgência e pode juntar até 4 fotografias.
+- **Portal do cliente**: um cliente com conta no portal abre uma das suas propriedades, clica em **Reportar um problema**, escolhe a divisão e o equipamento, se souber, descreve o problema, indica a urgência, pode dizer **quando o trabalho pode ser feito** (um período, opcional) e pode juntar até 4 fotografias.
 - **Etiqueta QR**: cada equipamento tem uma etiqueta QR (veja [Equipamentos](/help/assets)). Quem a digitalizar com o telemóvel recebe um formulário curto para esse equipamento, sem precisar de conta; deixa o nome e os contactos. Os clientes com sessão iniciada vão para o formulário do portal, já preenchido com o equipamento, e os colaboradores vão para a página do equipamento.
 
 Quando chega um pedido, todas as pessoas que podem aprovar pedidos recebem uma notificação, e o número de pedidos pendentes aparece junto a **Pedidos** no menu.
@@ -96,7 +125,7 @@ Os separadores no topo dividem os pedidos por estado, com uma contagem em cada u
 - **Recusado**: rejeitado, com o motivo, se tiver sido indicado.
 - **Todos**: todos os pedidos, com o estado por baixo do título.
 
-Cada linha mostra o **Título** com o número do pedido (**R12**), o sistema, a urgência e um ícone de câmara com o número de fotografias; a **Localização** (moradia e equipamento); **De** quem é (com "via etiqueta QR" nos pedidos enviados a partir de uma etiqueta); e quando foi **Recebido**.
+Cada linha mostra o **Título** com o número do pedido (**R12**), o sistema, a urgência e um ícone de câmara com o número de fotografias; a disponibilidade do cliente (calendário laranja) ou, depois de confirmada, a data da visita (calendário verde); a **Localização** (moradia e equipamento); **De** quem é (com "via etiqueta QR" nos pedidos enviados a partir de uma etiqueta); e quando foi **Recebido**.
 
 Use a caixa de pesquisa para encontrar uma palavra no título ou na descrição, o nome de quem pediu ou um número R, e o filtro de moradia para ver só uma moradia.
 
@@ -105,12 +134,13 @@ Use a caixa de pesquisa para encontrar uma palavra no título ou na descrição,
 Clique num pedido para o abrir. Vê:
 
 - a descrição e as fotografias enviadas pelo cliente (clique numa fotografia para a ampliar);
-- à direita, quem o enviou, com o telefone e o e-mail como ligações para ligar ou escrever, e a moradia, o cliente, a divisão e o equipamento.
+- à direita, quem o enviou, com o telefone e o e-mail como ligações para ligar ou escrever, e a moradia, o cliente, a divisão e o equipamento; e a **Disponibilidade do cliente**, se a indicou.
 
 ## Aprovar um pedido
 
 1. Abra um pedido pendente.
 2. Em **Aprovar como ordem de trabalho**, confirme o **Título** e defina a **Prioridade**, o **Tipo**, o **Sistema** e o **Prazo**. A prioridade parte da que o cliente escolheu (ou Média).
+   Se o cliente indicou um período, defina a data e a hora da **Visita confirmada**: sem ela o pedido não pode ser aprovado. Sem período é opcional.
 3. Escolha uma **Equipa** e as pessoas em **Atribuída a**. Ao escolher uma equipa, os seus membros ficam selecionados se ainda não houver ninguém atribuído.
 4. Clique em **Criar ordem de trabalho**.
 
@@ -119,6 +149,20 @@ A aplicação cria a ordem de trabalho e abre-a. A moradia, a divisão e o equip
 A partir daí o pedido mostra **Aprovado como ordem de trabalho**, com uma ligação ao trabalho e o seu estado atual e, para quem pode ver valores, quanto há a faturar no trabalho até agora.
 
 > Quando a ordem de trabalho é concluída, o cliente é avisado, desde que a ordem de trabalho esteja visível para o cliente.
+
+## A disponibilidade do cliente e a visita confirmada
+
+Ao enviar um pedido, o cliente pode dizer **quando o trabalho pode ser feito**: um período com data e hora de início e de fim (por exemplo, "de segunda às 9:00 até quarta às 18:00"). É opcional; os pedidos sem período funcionam como antes.
+
+Quando um pedido tem um período:
+
+- aparece na lista e no pedido como **Disponibilidade do cliente**;
+- para o aprovar tem de definir a **Visita confirmada**, a data e a hora a que a sua equipa vai. Normalmente fica dentro do período; se combinar outra hora com o cliente, o pedido avisa que está **fora da disponibilidade do cliente**;
+- a visita confirmada passa a ser a **data de início** da ordem de trabalho, e a ordem de trabalho mostra a disponibilidade e a visita confirmada.
+
+O cliente é avisado (no portal, ou por e-mail nos pedidos de etiqueta QR) e vê a data e a hora confirmadas no pedido e na lista de pedidos da propriedade.
+
+Para definir a visita mais tarde, ou alterá-la, abra o pedido aprovado e use **Confirmar a visita** (ou **Visita**). O cliente é avisado de novo. Pode fazê-lo até a ordem de trabalho estar concluída ou cancelada. Alterar a data de início na própria ordem de trabalho não muda o que o cliente vê.
 
 ## Recusar um pedido
 
@@ -130,12 +174,26 @@ O cliente é notificado da mesma forma que numa aprovação. Um pedido recusado 
 
 > Se duas pessoas tratarem o mesmo pedido ao mesmo tempo, só conta a primeira decisão; a segunda recebe a mensagem de que o pedido já foi tratado.
 
+## A conversa com o cliente
+
+Cada pedido tem uma **conversa**: o cliente e a sua equipa podem escrever um ao outro sobre ele, por exemplo para pedir um detalhe, combinar o acesso ou avisar que vão a caminho. Está no pedido e continua na [ordem de trabalho](/help/work-orders) em que o pedido se torna (também na aplicação de campo), por isso todos veem as mesmas mensagens do início ao fim.
+
+Quem participa:
+
+- quem enviou o pedido e os utilizadores do portal do cliente do proprietário da moradia e do seu gestor de propriedade;
+- os colaboradores que podem **falar com clientes nos pedidos** (Super Admin, Administrador e Gestor, salvo alteração em [Funções](/help/roles));
+- os técnicos atribuídos à ordem de trabalho.
+
+Mais ninguém a vê, e nunca outros clientes. Cada mensagem mostra quem a escreveu e quando; os colaboradores veem a etiqueta **Cliente** nas mensagens escritas no portal. Os restantes são notificados de cada nova mensagem.
+
+> A conversa é um registo permanente: ninguém pode editar nem apagar mensagens, por isso confirme antes de enviar.
+
 ## Quem pode fazer o quê
 
 - **Super Admin**, **Administrador** e **Gestor**: veem, aprovam e recusam pedidos, e são notificados dos novos.
 - **Técnico**, **Contabilista** e **Observador**: veem os pedidos, mas não os aprovam nem recusam.
 - **Quem está de prevenção** nessa semana também é notificado de todos os novos pedidos e pode aprovar ou recusar os que chegaram durante a sua semana, seja qual for a sua função. O pedido mostra quem estava de prevenção. Veja [Prevenção](/help/on-call).
-- Os **clientes** enviam pedidos e acompanham-nos no portal do cliente.
+- Os **clientes** enviam pedidos e acompanham-nos no portal do cliente. Também veem e escrevem na conversa dos seus pedidos.
 `,
 };
 
