@@ -12,13 +12,13 @@ import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
 import { chargesTravel, countTrips, travelRuleFor } from "@/lib/travel-charge";
+import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
 // e-mailing (lib/report-email.ts). `where` scopes the work order (tenant + portal rules are the caller's);
 // `locale` renders it in another language than the current request's (e.g. the company's default).
 
 const MAX_PHOTOS = 12;
-const PDF_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
 
 function duration(min: number) {
   const h = Math.floor(min / 60);
@@ -39,13 +39,14 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       completedBy: { select: { name: true } },
       items: { orderBy: { sortOrder: "asc" } },
       timeEntries: { where: { minutes: { not: null } }, include: { user: { select: { name: true } } }, orderBy: { startedAt: "asc" } },
-      attachments: { where: { mimeType: { in: [...PDF_IMAGE_TYPES] } }, orderBy: { createdAt: "asc" } },
+      attachments: { where: { mimeType: { in: REPORT_IMAGE_TYPES } }, orderBy: { createdAt: "asc" } },
       parts: { include: { part: { select: { name: true, sku: true, unit: true } } }, orderBy: { id: "asc" } },
       contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
     },
   });
   if (!wo) return null;
 
+  const revision = await syncReportRevision(ctx.db, wo.id);
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const load = (attId: string) => {
     const att = wo.attachments.find((a) => a.id === attId);
@@ -107,6 +108,8 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   const data: ReportData = {
     labels: {
       reportTitle: t("report.title"),
+      revision: t("report.revision", { revision }),
+      revisionNote: t("report.revisionNote"),
       description: t("wo.descriptionLabel"),
       workReport: t("workReport.title"),
       checklist: t("checklist.title"),
@@ -120,6 +123,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     },
     lh: await letterhead(ctx.organization, t("company.taxIdShort")),
     number: wo.number,
+    revision,
     title: wo.title,
     generatedAt: dt(new Date()),
     info: info.filter((x): x is [string, string] => !!x[1]),
@@ -147,5 +151,5 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   };
 
   const pdf = await renderToBuffer(createElement(ServiceReport, { d: data }) as unknown as ReactElement<DocumentProps>);
-  return { pdf, number: wo.number, title: wo.title, villa: wo.villa?.name ?? null };
+  return { pdf, number: wo.number, revision, title: wo.title, villa: wo.villa?.name ?? null };
 }

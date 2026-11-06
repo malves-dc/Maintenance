@@ -478,7 +478,10 @@
     "clientVisibleHint": "Desmarque para trabalho interno que o cliente não deve ver.",
     "alreadySigned": "O cliente já assinou esta ordem de trabalho.",
     "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente.",
-    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída."
+    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída.",
+    "timeRequired": "Tempo: cada técnico atribuído tem de registar o seu tempo antes de a marcar como concluída.",
+    "noTechnician": "Técnico: atribua um técnico a esta ordem de trabalho antes de a marcar como concluída.",
+    "timeNotAssigned": "Só os técnicos atribuídos a esta ordem de trabalho podem registar tempo."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -557,7 +560,9 @@
       "ONSITE": "No local",
       "REMOTE": "Remoto"
     },
-    "switchTo": "Mudar para {mode}"
+    "switchTo": "Mudar para {mode}",
+    "missing": "Falta registar tempo: {names}",
+    "noRate": "Há tempo registado sem preço por hora, por isso não está a ser cobrado (Definições → Funções)."
   },
   "costs": {
     "title": "Valores a faturar",
@@ -620,7 +625,9 @@
     "seePhotos": "Ver fotografias",
     "service": "Serviço",
     "urgentService": "Urgente",
-    "trips": "Deslocações"
+    "trips": "Deslocações",
+    "revision": "Revisão {revision}",
+    "revisionNote": "Este relatório foi atualizado depois da conclusão e substitui as versões anteriores."
   },
   "procedures": {
     "description": "Checklists reutilizáveis que a equipa segue em obra. Use-as em ordens de trabalho e planos preventivos.",
@@ -1916,6 +1923,7 @@
     "companyEmails": "Estes endereços",
     "onePerLine": "Um por linha.",
     "subject": "Relatório de serviço n.º {number}: {title}",
+    "subjectRevision": "Relatório de serviço n.º {number} (revisão {revision}): {title}",
     "body": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\".",
     "bodyVilla": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\", na {villa}.",
     "signature": "Com os melhores cumprimentos,\n{company}",

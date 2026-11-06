@@ -76,6 +76,9 @@ export function TimeTracker({
   runningMode,
   defaultMode,
   canExecute,
+  canLog,
+  missing,
+  unrated,
   canDeleteAny,
   billed,
 }: {
@@ -86,6 +89,12 @@ export function TimeTracker({
   /** Where a new entry is worked unless changed: my last entry's mode on this work order. */
   defaultMode: WorkMode;
   canExecute: boolean;
+  /** Whether I can log time here: I'm assigned to the job (and it's open). */
+  canLog: boolean;
+  /** Technicians who still have to log time before the job can be marked done. */
+  missing: string[];
+  /** Some time on the job has no price per hour, so it isn't being charged. */
+  unrated: boolean;
   canDeleteAny: boolean;
   /** Time billed per technician (rounded up to the billing period); null when the company doesn't round. */
   billed: { block: number; total: number; people: { name: string; minutes: number; billed: number }[] } | null;
@@ -109,8 +118,9 @@ export function TimeTracker({
 
   return (
     <div className="space-y-3">
-      {canExecute && !runningSince && <ModeSwitch value={mode} onChange={setMode} />}
-      {canExecute && (
+      {canExecute && !canLog && <p className="text-sm text-muted">{t("wo.timeNotAssigned")}</p>}
+      {canLog && !runningSince && <ModeSwitch value={mode} onChange={setMode} />}
+      {(canLog || runningSince) && (
         <div className="flex items-center gap-2">
           {runningSince ? (
             <Button variant="danger" disabled={pending} onClick={() => start(() => stopTimerAction(woId))} className="flex-1">
@@ -124,12 +134,14 @@ export function TimeTracker({
               {t("time.start")}
             </Button>
           )}
-          <Button variant="secondary" onClick={() => setManual((v) => !v)}>
-            {t("time.addManual")}
-          </Button>
+          {canLog && (
+            <Button variant="secondary" onClick={() => setManual((v) => !v)}>
+              {t("time.addManual")}
+            </Button>
+          )}
         </div>
       )}
-      {manual && (
+      {canLog && manual && (
         <ActionForm action={addTimeAction.bind(null, woId)} submitLabel={t("common.add")} className="rounded-md border border-border p-3">
           <div className="grid grid-cols-2 gap-2">
             <Field label={t("time.date")}>
@@ -145,6 +157,8 @@ export function TimeTracker({
           {runningSince && <ModeSwitch value={mode} onChange={setMode} />}
         </ActionForm>
       )}
+      {missing.length > 0 && <p className="text-xs text-amber-700">{t("time.missing", { names: missing.join(", ") })}</p>}
+      {unrated && <p className="text-xs text-amber-700">{t("time.noRate")}</p>}
       {entries.length > 0 && (
         <ul className="divide-y divide-border text-sm">
           {entries.map((e) => {

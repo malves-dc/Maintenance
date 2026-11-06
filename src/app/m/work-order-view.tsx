@@ -26,6 +26,7 @@ function clock(sec: number) {
 
 export function WorkOrderView({
   wo,
+  me,
   articles,
   members,
   timer,
@@ -34,6 +35,8 @@ export function WorkOrderView({
   onBack,
 }: {
   wo: OfflineWorkOrder;
+  /** My name, as in `wo.timeMissing`. */
+  me: string;
   /** The villa's knowledge-base articles. */
   articles: OfflineArticle[];
   members: MentionMember[];
@@ -46,7 +49,7 @@ export function WorkOrderView({
   const format = useFormatter();
   const [now, setNow] = useState(() => Date.now());
   const [comment, setComment] = useState("");
-  const [blocked, setBlocked] = useState<{ items: string[]; report: boolean; signOff: boolean } | null>(null);
+  const [blocked, setBlocked] = useState<{ items: string[]; time: string[]; report: boolean; signOff: boolean } | null>(null);
   // The report being typed; queued on blur, and before "Done" so a tap straight from the box counts.
   const savedReport = wo.workReport ?? "";
   const [report, setReport] = useState(savedReport);
@@ -88,11 +91,13 @@ export function WorkOrderView({
     if (status === "DONE") {
       await saveReport();
       const items = missingRequired(wo).map((i) => i.label);
-      // The server enforces these too: the technician's report, and a signature or "client absent".
+      // The server enforces these too: everyone's time, the technician's report, and a signature or "client absent".
+      // A timer running here counts: it is stopped and queued below.
+      const time = (wo.timeMissing ?? []).filter((name) => !(runningHere && name === me));
       const needsReport = !report.trim();
       const signOff = !wo.signOff && !wo.clientAbsent;
-      if (items.length || needsReport || signOff) {
-        setBlocked({ items, report: needsReport, signOff });
+      if (items.length || time.length || needsReport || signOff) {
+        setBlocked({ items, time, report: needsReport, signOff });
         return;
       }
     }
@@ -242,6 +247,7 @@ export function WorkOrderView({
                   </ul>
                 </>
               )}
+              {blocked.time.length > 0 && <p>{t("time.missing", { names: blocked.time.join(", ") })}</p>}
               {blocked.report && <p>{t("wo.reportRequired")}</p>}
               {blocked.signOff && <p>{t("wo.signOffRequired")}</p>}
             </div>

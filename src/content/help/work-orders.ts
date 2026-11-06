@@ -142,6 +142,8 @@ The **Time** panel records who worked on the job and for how long:
 
 Forgot to start the timer? Click **Log time** and enter the **Date**, the **Minutes** and an optional note; it is saved as **On site** or **Remote**, as chosen above. The list shows each entry and the **Total**. Each entry shows **On site** or **Remote**; click it to switch. You can change and delete your own entries; managers can change and delete anyone's. Two technicians on the same job can each log their own way, for example one on site and one remotely.
 
+Only the technicians assigned to the job can log time, each their own; the company owner never does. A job can have as many entries as it takes, on site or remote. For example: the first visit, the time spent ordering a part while the job is **On hold**, and the return visit on another day, which charges another trip. **Log time** leaves a job on hold as it is; **Start timer** puts it back **In progress**. Everyone assigned must have logged time before the job can be marked **Done**; the panel shows who is missing.
+
 Below the total, **Billed** shows the time that is charged: each technician's time on the job rounded up to whole blocks (30 minutes unless your company chose otherwise in [Settings → Organization](/help/organization)). For example, 34 minutes logged by one technician bill as 1 hour. The minutes logged stay as they are.
 
 ## Photos and files
@@ -190,7 +192,7 @@ If nobody is there to sign, tick **Client absent** instead. The signature can be
 
 ## The service report
 
-**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts.
+**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts. If a completed job changes, for example it is reopened and more time is logged, the PDF shows the revision next to its number and says it replaces earlier versions. Reopening and closing a job without changing anything is not a revision.
 
 To send it, use the **E-mail the service report** panel:
 
@@ -360,6 +362,8 @@ O painel **Tempo** regista quem trabalhou no trabalho e durante quanto tempo:
 
 Esqueceu-se de iniciar o cronómetro? Clique em **Registar tempo** e indique a **Data**, os **Minutos** e uma nota opcional; fica registado como **No local** ou **Remoto**, conforme escolhido acima. A lista mostra cada registo e o **Total**. Cada registo mostra **No local** ou **Remoto**; clique para mudar. Pode alterar e eliminar os seus próprios registos; os gestores podem alterar e eliminar os de qualquer pessoa. Dois técnicos no mesmo trabalho registam cada um à sua maneira, por exemplo um no local e outro remotamente.
 
+Só os técnicos atribuídos ao trabalho podem registar tempo, cada um o seu; o proprietário da empresa nunca regista. Um trabalho pode ter os registos que forem precisos, no local ou remotos. Por exemplo: a primeira visita, o tempo a encomendar uma peça com o trabalho **Em espera** e a visita de regresso noutro dia, que cobra outra deslocação. **Registar tempo** deixa o trabalho em espera tal como está; **Iniciar cronómetro** volta a pô-lo **Em curso**. Todos os técnicos atribuídos têm de ter tempo registado antes de o trabalho poder ser marcado como **Concluída**; o painel mostra quem falta.
+
 Por baixo do total, **Faturado** mostra o tempo que é cobrado: o tempo de cada técnico no trabalho arredondado para cima a blocos inteiros (30 minutos, a não ser que a empresa tenha escolhido outro valor em [Definições → Empresa](/help/organization)). Por exemplo, 34 minutos registados por um técnico são faturados como 1 hora. Os minutos registados mantêm-se.
 
 ## Fotografias e ficheiros
@@ -408,7 +412,7 @@ Se não estiver ninguém para assinar, marque **Cliente ausente**. A assinatura 
 
 ## O relatório de serviço
 
-**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores.
+**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores. Se um trabalho concluído for alterado, por exemplo reaberto para registar mais tempo, o PDF mostra a revisão junto ao número e indica que substitui as versões anteriores. Reabrir e fechar um trabalho sem alterar nada não conta como revisão.
 
 Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 

@@ -478,7 +478,10 @@
     "clientVisibleHint": "Untick for internal work the client shouldn't see.",
     "alreadySigned": "The client has already signed this work order.",
     "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent.",
-    "reportRequired": "Report: describe the work done before marking it done."
+    "reportRequired": "Report: describe the work done before marking it done.",
+    "timeRequired": "Time: each assigned technician must log their time before marking it done.",
+    "noTechnician": "Technician: assign a technician to this work order before marking it done.",
+    "timeNotAssigned": "Only the technicians assigned to this work order can log time."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -557,7 +560,9 @@
       "ONSITE": "On site",
       "REMOTE": "Remote"
     },
-    "switchTo": "Change to {mode}"
+    "switchTo": "Change to {mode}",
+    "missing": "Time still to log: {names}",
+    "noRate": "Some time has no price per hour, so it isn't being charged (Settings → Roles)."
   },
   "costs": {
     "title": "Amounts to bill",
@@ -620,7 +625,9 @@
     "seePhotos": "See photos",
     "service": "Service",
     "urgentService": "Urgent",
-    "trips": "Trips"
+    "trips": "Trips",
+    "revision": "Revision {revision}",
+    "revisionNote": "This report was updated after completion and replaces earlier versions."
   },
   "procedures": {
     "description": "Reusable checklists your team follows on site. Use them in work orders and preventive schedules.",
@@ -1916,6 +1923,7 @@
     "companyEmails": "These addresses",
     "onePerLine": "One per line.",
     "subject": "Service report #{number}: {title}",
+    "subjectRevision": "Service report #{number} (revision {revision}): {title}",
     "body": "Please find attached the service report for work order #{number}, \"{title}\".",
     "bodyVilla": "Please find attached the service report for work order #{number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",

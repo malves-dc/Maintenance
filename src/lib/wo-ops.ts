@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
-import { changeStatus, WorkOrderError, type WoCtx } from "@/lib/work-orders";
+import { assertCanLogTime, changeStatus, WorkOrderError, type WoCtx } from "@/lib/work-orders";
+import type { AppContext } from "@/lib/context";
 import { recordReading } from "@/lib/meters";
 import { notify } from "@/lib/notify";
 import { excerpt, findMentions } from "@/lib/mentions";
@@ -84,16 +85,21 @@ export async function addComment(ctx: WoCtx, woId: string, body: string, attachm
   return comment;
 }
 
-/** A finished time interval (manual entry, or a timer run on the device while offline). */
-export async function addTimeEntry(ctx: WoCtx, woId: string, rate: unknown, startedAt: Date, endedAt: Date, note: string | null, mode: WorkMode = "ONSITE") {
+/**
+ * A finished time interval (manual entry, or a timer run on the device while offline). A job on hold stays on hold:
+ * the time of the visit, or of ordering the part, doesn't mean work has resumed. Device timers still count on a job
+ * closed since (the work happened), so only the web app refuses closed jobs.
+ */
+export async function addTimeEntry(ctx: AppContext, woId: string, rate: unknown, startedAt: Date, endedAt: Date, note: string | null, mode: WorkMode = "ONSITE") {
   const minutes = Math.round((endedAt.getTime() - startedAt.getTime()) / 60_000);
   if (minutes < 1 || minutes > 24 * 60) throw new WorkOrderError("invalidRef");
+  await assertCanLogTime(ctx, woId);
   const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { status: true } });
   if (!wo) throw new WorkOrderError("invalidRef");
   const entry = await ctx.db.timeEntry.create({
     data: { workOrderId: woId, userId: ctx.user.id, startedAt, endedAt, minutes, note: note?.slice(0, 500) || null, hourlyRate: rate as number | null, mode },
   });
-  if (wo.status === "OPEN" || wo.status === "ON_HOLD") await changeStatus(ctx, woId, "IN_PROGRESS");
+  if (wo.status === "OPEN") await changeStatus(ctx, woId, "IN_PROGRESS");
   return entry;
 }
 

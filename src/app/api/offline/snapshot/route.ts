@@ -1,5 +1,6 @@
 import { getContext } from "@/lib/context";
-import { ACTIVE_STATUSES } from "@/lib/work-orders";
+import { ACTIVE_STATUSES, jobTechnicians } from "@/lib/work-orders";
+import { canLogTime, withoutTime } from "@/lib/wo-time";
 import type { Snapshot } from "@/lib/offline-types";
 import { ARTICLE_LIST_SELECT, listedArticle } from "@/lib/knowledge-select";
 
@@ -23,11 +24,13 @@ export async function GET() {
       asset: { select: { id: true, name: true, manufacturer: true, model: true, serialNumber: true } },
       items: { orderBy: { sortOrder: "asc" }, include: { completedBy: { select: { name: true } } } },
       comments: { orderBy: { createdAt: "desc" }, take: COMMENTS, include: { user: { select: { name: true } } } },
-      timeEntries: { where: { minutes: { not: null } }, select: { minutes: true } },
+      timeEntries: { select: { userId: true, minutes: true, endedAt: true } },
+      assignees: { select: { userId: true } },
     },
     orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { priority: "desc" }, { number: "asc" }],
     take: MAX_WORK_ORDERS,
   });
+  const technicians = await jobTechnicians(ctx, [...new Set(wos.flatMap((w) => w.assignees.map((a) => a.userId)))]);
   const villaIds = [...new Set(wos.map((w) => w.villa?.id).filter((x): x is string => !!x))];
   const [assets, members, articles] = await Promise.all([
     ctx.db.asset.findMany({ where: { villaId: { in: villaIds }, archivedAt: null }, select: { id: true, name: true, qrToken: true, villa: { select: { name: true } } } }),
@@ -72,6 +75,8 @@ export async function GET() {
       })),
       comments: w.comments.reverse().map((c) => ({ id: c.id, user: c.user.name, body: c.body, at: c.createdAt.toISOString() })),
       minutesLogged: w.timeEntries.reduce((s, e) => s + (e.minutes ?? 0), 0),
+      canLogTime: canLogTime(ctx.role, true), // these are my own jobs
+      timeMissing: withoutTime(technicians.filter((t) => w.assignees.some((a) => a.userId === t.userId)), w.timeEntries).map((t) => t.name),
       signOff: w.signatureUrl && w.signedByName && w.signedAt ? { name: w.signedByName, at: w.signedAt.toISOString() } : null,
       clientAbsent: w.clientAbsent,
       workReport: w.workReport,
