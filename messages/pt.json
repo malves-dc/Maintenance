@@ -478,7 +478,10 @@
     "clientVisibleHint": "Desmarque para trabalho interno que o cliente não deve ver.",
     "alreadySigned": "O cliente já assinou esta ordem de trabalho.",
     "signOffRequired": "Assinatura do cliente: recolha a assinatura do cliente ou marque Cliente ausente.",
-    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída."
+    "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída.",
+    "timeRequired": "Tempo: cada técnico atribuído tem de registar o seu tempo antes de a marcar como concluída.",
+    "noTechnician": "Técnico: atribua um técnico a esta ordem de trabalho antes de a marcar como concluída.",
+    "timeNotAssigned": "Só os técnicos atribuídos a esta ordem de trabalho podem registar tempo."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -550,14 +553,16 @@
     "running": "a decorrer",
     "total": "Total",
     "billed": "Faturado",
-    "billedHint": "O tempo de cada técnico arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
+    "billedHint": "O tempo de cada técnico em cada dia arredondado para cima a blocos de {block} minutos (Definições → Empresa).",
     "billedFrom": "{billed} (registado {logged})",
     "mode": "Local",
     "modes": {
       "ONSITE": "No local",
       "REMOTE": "Remoto"
     },
-    "switchTo": "Mudar para {mode}"
+    "switchTo": "Mudar para {mode}",
+    "missing": "Falta registar tempo: {names}",
+    "noRate": "Há tempo registado sem preço por hora, por isso não está a ser cobrado (Definições → Funções)."
   },
   "costs": {
     "title": "Valores a faturar",
@@ -620,7 +625,9 @@
     "seePhotos": "Ver fotografias",
     "service": "Serviço",
     "urgentService": "Urgente",
-    "trips": "Deslocações"
+    "trips": "Deslocações",
+    "revision": "Revisão {revision}",
+    "revisionNote": "Este relatório foi atualizado depois da conclusão e substitui as versões anteriores."
   },
   "procedures": {
     "description": "Checklists reutilizáveis que a equipa segue em obra. Use-as em ordens de trabalho e planos preventivos.",
@@ -1353,7 +1360,7 @@
       "trips": "Deslocações"
     },
     "billedHoursCol": "Horas faturadas",
-    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho arredondado ao período de faturação. A utilização usa as horas registadas."
+    "billedHoursHint": "Horas cobradas: o tempo de cada técnico por ordem de trabalho e por dia arredondado ao período de faturação. A utilização usa as horas registadas."
   },
   "scan": {
     "title": "Ler código",
@@ -1916,6 +1923,7 @@
     "companyEmails": "Estes endereços",
     "onePerLine": "Um por linha.",
     "subject": "Relatório de serviço n.º {number}: {title}",
+    "subjectRevision": "Relatório de serviço n.º {number} (revisão {revision}): {title}",
     "body": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\".",
     "bodyVilla": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\", na {villa}.",
     "signature": "Com os melhores cumprimentos,\n{company}",
@@ -2297,7 +2305,7 @@
   "timeBilling": {
     "title": "Faturação do tempo",
     "rounding": "Faturar o tempo em blocos de",
-    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
+    "hint": "O tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros, dia a dia, quando é faturado: mão de obra e relatório de serviço (p. ex. 34 minutos num dia são faturados como 1 hora com blocos de 30 minutos). O tempo registado mantém-se tal como foi registado.",
     "none": "Sem arredondamento (minutos registados)",
     "block": "{minutes} minutos"
   },

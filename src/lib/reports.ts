@@ -256,17 +256,17 @@ export async function technicianReport(ctx: Ctx, f: ReportFilters) {
   const [withTime, completed] = await Promise.all([
     ctx.db.workOrder.findMany({
       where: { ...scope, timeEntries: { some: { startedAt: inRange(f) } } },
-      select: { timeEntries: { where: { startedAt: inRange(f), minutes: { not: null } }, select: { userId: true, minutes: true, hourlyRate: true, user: { select: { name: true } } } } },
+      select: { timeEntries: { where: { startedAt: inRange(f), minutes: { not: null } }, select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, user: { select: { name: true } } } } },
     }),
     ctx.db.workOrder.findMany({ where: { ...scope, status: "DONE", completedAt: inRange(f), completedById: { not: null } }, select: { completedById: true } }),
   ]);
   const people = new Map<string, { id: string; name: string; minutes: number; billed: number; labor: number; jobs: Set<number>; completed: number }>();
   const block = timeRoundingOf(ctx.organization.timeRounding);
   // Hours worked are the minutes logged (utilisation); labour and billed hours use each technician's time per
-  // work order rounded up to the billing period.
+  // work order and day rounded up to the billing period.
   withTime.forEach((w, i) => {
     const names = new Map(w.timeEntries.map((e) => [e.userId, e.user.name]));
-    for (const t of billedTime(w.timeEntries, block).people) {
+    for (const t of billedTime(w.timeEntries, block, ctx.organization.timezone).people) {
       const p = people.get(t.userId) ?? { id: t.userId, name: names.get(t.userId) ?? "", minutes: 0, billed: 0, labor: 0, jobs: new Set<number>(), completed: 0 };
       p.minutes += t.minutes;
       p.billed += t.billed;

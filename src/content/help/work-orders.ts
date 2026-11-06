@@ -142,7 +142,9 @@ The **Time** panel records who worked on the job and for how long:
 
 Forgot to start the timer? Click **Log time** and enter the **Date**, the **Minutes** and an optional note; it is saved as **On site** or **Remote**, as chosen above. The list shows each entry and the **Total**. Each entry shows **On site** or **Remote**; click it to switch. You can change and delete your own entries; managers can change and delete anyone's. Two technicians on the same job can each log their own way, for example one on site and one remotely.
 
-Below the total, **Billed** shows the time that is charged: each technician's time on the job rounded up to whole blocks (30 minutes unless your company chose otherwise in [Settings → Organization](/help/organization)). For example, 34 minutes logged by one technician bill as 1 hour. The minutes logged stay as they are.
+Only the technicians assigned to the job can log time, each their own; the company owner never does. A job can have as many entries as it takes, on site or remote. For example: the first visit, the time spent ordering a part while the job is **On hold**, and the return visit on another day, which charges another trip. **Log time** leaves a job on hold as it is; **Start timer** puts it back **In progress**. Everyone assigned must have logged time before the job can be marked **Done**; the panel shows who is missing.
+
+Below the total, **Billed** shows the time that is charged: each technician's time on the job, day by day, rounded up to whole blocks (30 minutes unless your company chose otherwise in [Settings → Organization](/help/organization)). For example, 15 minutes one day and 35 the next bill as 30 minutes and 1 hour, 1 h 30 in all. The minutes logged stay as they are.
 
 ## Photos and files
 
@@ -165,7 +167,7 @@ The stock goes down straight away. The serial numbers are shown under the part (
 
 The **Amounts to bill** panel adds up what the job is charged to the client:
 
-- **Labour**: the billed time (each technician's time rounded up to the company's blocks), at the price per hour of each person's role.
+- **Labour**: the billed time (each technician's time per day rounded up to the company's blocks), at the price per hour of each person's role.
 - **Parts**: the parts used, at their sale price.
 - **Trips**, for time logged on site: one trip per day on the job, per technician or for the whole job as your company chose, at the fixed fee, or the rate per km × the villa's distance when it is farther than the radius set in [Settings → Organization](/help/organization). Remote time charges no trip. When the job's contract includes trips they show as included, at no charge.
 - **Urgent fee**, on work orders with Urgent priority: the fixed amount plus the percentage of labour set in [Settings → Organization](/help/organization) or in the work order's contract.
@@ -190,7 +192,7 @@ If nobody is there to sign, tick **Client absent** instead. The signature can be
 
 ## The service report
 
-**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts.
+**Service report** opens a PDF for the client with the job details, description, the technician's report, checklist answers, the time billed per technician and day, parts used (with their serial numbers), photos and the signature (or a note that the client was absent). It never includes amounts. If a completed job changes, for example it is reopened and more time is logged, the PDF shows the revision next to its number and says it replaces earlier versions. Reopening and closing a job without changing anything is not a revision.
 
 To send it, use the **E-mail the service report** panel:
 
@@ -360,7 +362,9 @@ O painel **Tempo** regista quem trabalhou no trabalho e durante quanto tempo:
 
 Esqueceu-se de iniciar o cronómetro? Clique em **Registar tempo** e indique a **Data**, os **Minutos** e uma nota opcional; fica registado como **No local** ou **Remoto**, conforme escolhido acima. A lista mostra cada registo e o **Total**. Cada registo mostra **No local** ou **Remoto**; clique para mudar. Pode alterar e eliminar os seus próprios registos; os gestores podem alterar e eliminar os de qualquer pessoa. Dois técnicos no mesmo trabalho registam cada um à sua maneira, por exemplo um no local e outro remotamente.
 
-Por baixo do total, **Faturado** mostra o tempo que é cobrado: o tempo de cada técnico no trabalho arredondado para cima a blocos inteiros (30 minutos, a não ser que a empresa tenha escolhido outro valor em [Definições → Empresa](/help/organization)). Por exemplo, 34 minutos registados por um técnico são faturados como 1 hora. Os minutos registados mantêm-se.
+Só os técnicos atribuídos ao trabalho podem registar tempo, cada um o seu; o proprietário da empresa nunca regista. Um trabalho pode ter os registos que forem precisos, no local ou remotos. Por exemplo: a primeira visita, o tempo a encomendar uma peça com o trabalho **Em espera** e a visita de regresso noutro dia, que cobra outra deslocação. **Registar tempo** deixa o trabalho em espera tal como está; **Iniciar cronómetro** volta a pô-lo **Em curso**. Todos os técnicos atribuídos têm de ter tempo registado antes de o trabalho poder ser marcado como **Concluída**; o painel mostra quem falta.
+
+Por baixo do total, **Faturado** mostra o tempo que é cobrado: o tempo de cada técnico no trabalho, dia a dia, arredondado para cima a blocos inteiros (30 minutos, a não ser que a empresa tenha escolhido outro valor em [Definições → Empresa](/help/organization)). Por exemplo, 15 minutos num dia e 35 no dia seguinte são faturados como 30 minutos e 1 hora, 1 h 30 no total. Os minutos registados mantêm-se.
 
 ## Fotografias e ficheiros
 
@@ -383,7 +387,7 @@ O stock desce de imediato. Os números de série aparecem por baixo da peça (**
 
 O painel **Valores a faturar** soma o que é cobrado ao cliente pelo trabalho:
 
-- **Mão de obra**: o tempo faturado (o tempo de cada técnico arredondado aos blocos da empresa), ao preço por hora da função de cada pessoa.
+- **Mão de obra**: o tempo faturado (o tempo de cada técnico por dia arredondado aos blocos da empresa), ao preço por hora da função de cada pessoa.
 - **Peças**: as peças usadas, ao preço de venda.
 - **Deslocações**, pelo tempo registado no local: uma deslocação por dia no trabalho, por técnico ou para o trabalho todo conforme a empresa escolheu, ao valor fixo, ou o valor por km × a distância da moradia quando fica para lá do raio definido em [Definições → Empresa](/help/organization). O tempo remoto não cobra deslocação. Quando o contrato do trabalho inclui as deslocações, aparecem como incluídas, sem custo.
 - **Taxa de urgência**, nas ordens de trabalho com prioridade Urgente: o valor fixo mais a percentagem da mão de obra definidos em [Definições → Empresa](/help/organization) ou no contrato da ordem de trabalho.
@@ -408,7 +412,7 @@ Se não estiver ninguém para assinar, marque **Cliente ausente**. A assinatura 
 
 ## O relatório de serviço
 
-**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores.
+**Relatório de serviço** abre um PDF para o cliente com os dados do trabalho, a descrição, o relatório do técnico, as respostas da checklist, o tempo faturado de cada técnico por dia, as peças usadas (com os números de série), as fotografias e a assinatura (ou a indicação de que o cliente estava ausente). Nunca inclui valores. Se um trabalho concluído for alterado, por exemplo reaberto para registar mais tempo, o PDF mostra a revisão junto ao número e indica que substitui as versões anteriores. Reabrir e fechar um trabalho sem alterar nada não conta como revisão.
 
 Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 

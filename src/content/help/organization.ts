@@ -57,7 +57,7 @@ The company has a public privacy notice, linked from request forms, the client p
 
 ## Time billing
 
-**Bill time in blocks of** sets how work-order time is charged: each technician's time on a work order is rounded up to whole blocks of 15, 30 (the default) or 60 minutes, or not rounded. With 30-minute blocks, 34 minutes bill as 1 hour. It applies to the labour amount, billed hours in the reports and the time on the service report. The time each person logged is kept as it is and still counts for utilisation.
+**Bill time in blocks of** sets how work-order time is charged: each technician's time on a work order is rounded up to whole blocks of 15, 30 (the default) or 60 minutes, or not rounded, day by day. With 30-minute blocks, 34 minutes in a day bill as 1 hour, and 15 minutes on each of two days bill as 30 minutes each. It applies to the labour amount, billed hours in the reports and the time on the service report. The time each person logged is kept as it is and still counts for utilisation.
 
 **Urgent work orders** sets the urgent fee charged to the client on work orders with Urgent priority: a **Fixed amount** plus a **Percentage of labour**. For example, 50 + 20% on a job with 80 of labour adds 66. Leave both at 0 for no fee. A [service contract](/help/contracts) can set its own. The fee shows in the work order's amounts to bill and the billing report, and the client's service report says **Service: Urgent**, without amounts.
 
@@ -151,7 +151,7 @@ A **Conservação de dados** define durante quanto tempo se guardam os registos 
 
 ## Faturação do tempo
 
-**Faturar o tempo em blocos de** define como é cobrado o tempo das ordens de trabalho: o tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros de 15, 30 (por defeito) ou 60 minutos, ou não é arredondado. Com blocos de 30 minutos, 34 minutos são faturados como 1 hora. Aplica-se ao valor da mão de obra, às horas faturadas nos relatórios e ao tempo no relatório de serviço. O tempo que cada pessoa registou mantém-se e continua a contar para a utilização.
+**Faturar o tempo em blocos de** define como é cobrado o tempo das ordens de trabalho: o tempo de cada técnico numa ordem de trabalho é arredondado para cima a blocos inteiros de 15, 30 (por defeito) ou 60 minutos, ou não é arredondado, dia a dia. Com blocos de 30 minutos, 34 minutos num dia são faturados como 1 hora, e 15 minutos em cada um de dois dias são faturados como 30 minutos cada. Aplica-se ao valor da mão de obra, às horas faturadas nos relatórios e ao tempo no relatório de serviço. O tempo que cada pessoa registou mantém-se e continua a contar para a utilização.
 
 **Ordens de trabalho urgentes** define a taxa de urgência cobrada ao cliente nas ordens de trabalho com prioridade Urgente: um **Valor fixo** mais uma **Percentagem da mão de obra**. Por exemplo, 50 + 20% num trabalho com 80 de mão de obra acrescenta 66. Deixe ambos a 0 para não haver taxa. Cada [contrato de manutenção](/help/contracts) pode ter a sua. A taxa aparece nos valores a faturar da ordem de trabalho e no relatório de faturação, e o relatório de serviço do cliente indica **Serviço: Urgente**, sem valores.
 

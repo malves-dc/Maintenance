@@ -11,7 +11,8 @@ import { CategoryChip, PriorityText, SlaBadge, SystemBadge, WorkOrderStatusBadge
 import { slaCalendar, slaStates } from "@/lib/sla";
 import { getContext } from "@/lib/context";
 import { fileUrl } from "@/lib/storage";
-import { ACTIVE_STATUSES, workOrderCosts } from "@/lib/work-orders";
+import { ACTIVE_STATUSES, jobTechnicians, workOrderCosts } from "@/lib/work-orders";
+import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { countTrips, isFar, travelOf } from "@/lib/travel-charge";
@@ -116,6 +117,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
   // The conversation with the client on the request this job came from (participants only).
   const chat = wo.request ? await openRequestChat(ctx, { requestId: wo.request.id }) : null;
+  const canLog = canExecute && !closed && canLogTime(ctx.role, wo.assignees.some((a) => a.user.id === ctx.user.id));
+  // Who still has to log time before the job can be marked done.
+  const timeMissing = closed ? [] : withoutTime(await jobTechnicians(ctx, wo.assignees.map((a) => a.user.id)), wo.timeEntries).map((p) => p.name);
   const myRunning = wo.timeEntries.find((e) => e.userId === ctx.user.id && !e.endedAt);
   // A new entry starts where my last one was (on site / remote); entries are newest first.
   const myLastMode = wo.timeEntries.find((e) => e.userId === ctx.user.id)?.mode ?? "ONSITE";
@@ -232,6 +236,21 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
           </Card>
 
           <Card className="p-5">
+            <h2 className="mb-1 font-medium">
+              <label htmlFor="workReport">{t("workReport.title")}</label>
+            </h2>
+            {canExecute && !closed ? (
+              <ActionForm action={saveWorkReportAction.bind(null, wo.id)} successMessage={t("common.saved")}>
+                <p className="text-sm text-muted">{t("workReport.hint")}</p>
+                <Textarea id="workReport" name="workReport" defaultValue={wo.workReport ?? ""} maxLength={WORK_REPORT_MAX} rows={5} placeholder={t("workReport.placeholder")} />
+                <FieldError name="workReport" />
+              </ActionForm>
+            ) : (
+              <p className="whitespace-pre-wrap text-sm">{wo.workReport || <span className="text-muted">{t("workReport.empty")}</span>}</p>
+            )}
+          </Card>
+
+          <Card className="p-5">
             <h2 className="mb-4 font-medium">{t("activity.title")}</h2>
             <ol className="mb-5 space-y-4">
               {activity.map((a) =>
@@ -292,6 +311,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             <TimeTracker
               woId={wo.id}
               canExecute={canExecute && !closed}
+              canLog={canLog}
+              missing={timeMissing}
+              unrated={ctx.can("costs.view") && wo.timeEntries.some((e) => (e.minutes ?? 0) > 0 && e.hourlyRate === null)}
               canDeleteAny={ctx.can("workOrders.manage")}
               runningSince={myRunning?.startedAt.toISOString() ?? null}
               runningMode={myRunning?.mode ?? null}
@@ -311,7 +333,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                   ? {
                       block,
                       total: costs.billedMinutes,
-                      people: billedTime(wo.timeEntries, block).people.map((p) => ({
+                      people: billedTime(wo.timeEntries, block, ctx.organization.timezone).people.map((p) => ({
                         name: wo.timeEntries.find((e) => e.userId === p.userId)?.user.name ?? "",
                         minutes: p.minutes,
                         billed: p.billed,
@@ -394,21 +416,6 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             />
           </Card>
           )}
-
-          <Card className="p-5">
-            <h2 className="mb-1 font-medium">
-              <label htmlFor="workReport">{t("workReport.title")}</label>
-            </h2>
-            {canExecute && !closed ? (
-              <ActionForm action={saveWorkReportAction.bind(null, wo.id)} successMessage={t("common.saved")}>
-                <p className="text-sm text-muted">{t("workReport.hint")}</p>
-                <Textarea id="workReport" name="workReport" defaultValue={wo.workReport ?? ""} maxLength={WORK_REPORT_MAX} rows={5} placeholder={t("workReport.placeholder")} />
-                <FieldError name="workReport" />
-              </ActionForm>
-            ) : (
-              <p className="whitespace-pre-wrap text-sm">{wo.workReport || <span className="text-muted">{t("workReport.empty")}</span>}</p>
-            )}
-          </Card>
 
           <Card className="p-5">
             <h2 className="mb-3 font-medium">{t("signoff.title")}</h2>

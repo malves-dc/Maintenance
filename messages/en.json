@@ -478,7 +478,10 @@
     "clientVisibleHint": "Untick for internal work the client shouldn't see.",
     "alreadySigned": "The client has already signed this work order.",
     "signOffRequired": "Client sign-off: collect the client's signature, or tick Client absent.",
-    "reportRequired": "Report: describe the work done before marking it done."
+    "reportRequired": "Report: describe the work done before marking it done.",
+    "timeRequired": "Time: each assigned technician must log their time before marking it done.",
+    "noTechnician": "Technician: assign a technician to this work order before marking it done.",
+    "timeNotAssigned": "Only the technicians assigned to this work order can log time."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -550,14 +553,16 @@
     "running": "running",
     "total": "Total",
     "billed": "Billed",
-    "billedHint": "Each technician's time rounded up to blocks of {block} minutes (Settings → Organization).",
+    "billedHint": "Each technician's time on each day rounded up to blocks of {block} minutes (Settings → Organization).",
     "billedFrom": "{billed} (logged {logged})",
     "mode": "Where",
     "modes": {
       "ONSITE": "On site",
       "REMOTE": "Remote"
     },
-    "switchTo": "Change to {mode}"
+    "switchTo": "Change to {mode}",
+    "missing": "Time still to log: {names}",
+    "noRate": "Some time has no price per hour, so it isn't being charged (Settings → Roles)."
   },
   "costs": {
     "title": "Amounts to bill",
@@ -620,7 +625,9 @@
     "seePhotos": "See photos",
     "service": "Service",
     "urgentService": "Urgent",
-    "trips": "Trips"
+    "trips": "Trips",
+    "revision": "Revision {revision}",
+    "revisionNote": "This report was updated after completion and replaces earlier versions."
   },
   "procedures": {
     "description": "Reusable checklists your team follows on site. Use them in work orders and preventive schedules.",
@@ -1353,7 +1360,7 @@
       "trips": "Trips"
     },
     "billedHoursCol": "Hours billed",
-    "billedHoursHint": "Hours charged: each technician's time per work order rounded up to the billing period. Utilisation uses the hours logged."
+    "billedHoursHint": "Hours charged: each technician's time per work order and day rounded up to the billing period. Utilisation uses the hours logged."
   },
   "scan": {
     "title": "Scan",
@@ -1916,6 +1923,7 @@
     "companyEmails": "These addresses",
     "onePerLine": "One per line.",
     "subject": "Service report #{number}: {title}",
+    "subjectRevision": "Service report #{number} (revision {revision}): {title}",
     "body": "Please find attached the service report for work order #{number}, \"{title}\".",
     "bodyVilla": "Please find attached the service report for work order #{number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",
@@ -2297,7 +2305,7 @@
   "timeBilling": {
     "title": "Time billing",
     "rounding": "Bill time in blocks of",
-    "hint": "Each technician's time on a work order is rounded up to whole blocks when it is billed: labour and the service report (e.g. 34 minutes bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
+    "hint": "Each technician's time on a work order is rounded up to whole blocks, day by day, when it is billed: labour and the service report (e.g. 34 minutes in a day bill as 1 hour with 30-minute blocks). The time logged is kept as it is.",
     "none": "No rounding (minutes logged)",
     "block": "{minutes} minutes"
   },

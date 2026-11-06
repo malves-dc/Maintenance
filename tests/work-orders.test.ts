@@ -72,12 +72,31 @@ describe("work report (required to complete a job)", () => {
   function fakeCtx(wo: Record<string, unknown>) {
     const update = vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ ...wo, ...data }));
     const db = {
-      workOrder: { findUnique: async () => wo, update },
+      workOrder: { findUnique: async () => wo, update, updateMany: async () => ({ count: 1 }) },
       timeEntry: { findMany: async () => [] },
+      membership: { findMany: async () => [{ user: { id: "u", name: "Rui" } }] },
     };
     return { ctx: { db, organization: { id: "org" }, user: { id: "u", name: "Rui" } } as unknown as WoCtx, update };
   }
-  const base = { id: "w1", status: "IN_PROGRESS", items: [], signatureUrl: null, clientAbsent: true, firstResponseAt: null };
+  const base = {
+    id: "w1",
+    status: "IN_PROGRESS",
+    items: [],
+    signatureUrl: null,
+    clientAbsent: true,
+    firstResponseAt: null,
+    assignees: [{ userId: "u" }],
+    timeEntries: [{ userId: "u", minutes: 30, endedAt: new Date() }],
+  };
+
+  it("blocks Done until a technician is assigned and everyone assigned has logged time", async () => {
+    const report = { ...base, workReport: "Done." };
+    await expect(changeStatus(fakeCtx({ ...report, assignees: [] }).ctx, "w1", "DONE")).rejects.toMatchObject({ code: "noTechnician" });
+    await expect(changeStatus(fakeCtx({ ...report, timeEntries: [] }).ctx, "w1", "DONE")).rejects.toMatchObject({ code: "timeRequired" });
+    // Someone else's time (the owner's, say) doesn't count for the technician.
+    await expect(changeStatus(fakeCtx({ ...report, timeEntries: [{ userId: "owner", minutes: 17, endedAt: new Date() }] }).ctx, "w1", "DONE")).rejects.toMatchObject({ code: "timeRequired" });
+    await expect(changeStatus(fakeCtx(report).ctx, "w1", "DONE").catch((e) => e?.code)).resolves.not.toBe("timeRequired");
+  });
 
   it("blocks Done without a report, after the required checklist items", async () => {
     await expect(changeStatus(fakeCtx({ ...base, workReport: null }).ctx, "w1", "DONE")).rejects.toMatchObject({ code: "reportRequired" });

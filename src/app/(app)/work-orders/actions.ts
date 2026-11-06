@@ -6,10 +6,11 @@ import { z } from "zod";
 import { getContext, requirePermission, type AppContext } from "@/lib/context";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
 import { deleteObject } from "@/lib/storage";
-import { addComment, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
+import { addComment, addTimeEntry, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
 import { consumePart, InventoryError, returnPart } from "@/lib/inventory";
 import { contractFor } from "@/lib/contracts";
 import {
+  assertCanLogTime,
   changeStatus,
   createWorkOrder,
   myRateOn,
@@ -43,6 +44,11 @@ async function executableWorkOrder(id: string) {
   const wo = await ctx.db.workOrder.findUnique({ where: { id } });
   if (!wo) throw new Error("Not found");
   return { ctx, wo };
+}
+
+/** Time can't change on a closed job: reopen it first. */
+function assertOpenForTime(wo: { status: WorkOrderStatus }) {
+  if (wo.status === "DONE" || wo.status === "CANCELLED") throw new WorkOrderError("locked");
 }
 
 // ── Create / edit
@@ -251,6 +257,8 @@ const workMode = (v: unknown): WorkMode => (v === WorkMode.REMOTE ? WorkMode.REM
 
 export async function startTimerAction(woId: string, mode: WorkMode = WorkMode.ONSITE) {
   const { ctx, wo } = await executableWorkOrder(woId);
+  assertOpenForTime(wo);
+  await assertCanLogTime(ctx, woId);
   const running = await ctx.db.timeEntry.findFirst({ where: { workOrderId: woId, userId: ctx.user.id, endedAt: null } });
   if (!running) {
     await ctx.db.timeEntry.create({
@@ -274,36 +282,33 @@ const timeSchema = z.object({
 });
 
 export async function addTimeAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
-  const { ctx } = await executableWorkOrder(woId);
+  const { ctx, wo } = await executableWorkOrder(woId);
   const parsed = parseForm(timeSchema, form);
   if (parsed.error) return parsed.error;
   const { minutes, date, note } = parsed.data;
-  await ctx.db.timeEntry.create({
-    data: {
-      workOrderId: woId,
-      userId: ctx.user.id,
-      startedAt: date,
-      endedAt: new Date(date.getTime() + minutes * 60_000),
-      minutes,
-      note,
-      hourlyRate: await myRateOn(ctx, woId),
-      mode: workMode(form.get("mode")),
-    },
-  });
+  try {
+    assertOpenForTime(wo);
+    await addTimeEntry(ctx, woId, await myRateOn(ctx, woId), date, new Date(date.getTime() + minutes * 60_000), note, workMode(form.get("mode")));
+  } catch (e) {
+    if (e instanceof WorkOrderError) return { error: `wo.${e.code}` };
+    throw e;
+  }
   revalidatePath(path(woId));
   return { ok: true };
 }
 
 /** Corrects where a time entry was worked (on site / remote): my own entries, or anyone's with workOrders.manage. */
 export async function setTimeModeAction(woId: string, entryId: string, mode: WorkMode) {
-  const { ctx } = await executableWorkOrder(woId);
+  const { ctx, wo } = await executableWorkOrder(woId);
+  assertOpenForTime(wo);
   const own = ctx.can("workOrders.manage") ? {} : { userId: ctx.user.id };
   await ctx.db.timeEntry.updateMany({ where: { id: entryId, workOrderId: woId, ...own }, data: { mode: workMode(mode) } });
   revalidatePath(path(woId));
 }
 
 export async function deleteTimeAction(woId: string, entryId: string) {
-  const { ctx } = await executableWorkOrder(woId);
+  const { ctx, wo } = await executableWorkOrder(woId);
+  assertOpenForTime(wo);
   const own = ctx.can("workOrders.manage") ? {} : { userId: ctx.user.id };
   await ctx.db.timeEntry.deleteMany({ where: { id: entryId, workOrderId: woId, ...own } });
   revalidatePath(path(woId));

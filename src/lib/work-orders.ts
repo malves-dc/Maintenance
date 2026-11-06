@@ -9,6 +9,8 @@ import { contractFor } from "@/lib/contracts";
 import { effectivePermissions } from "@/lib/rbac";
 import { parseRoleRates, workOrderRateFor } from "@/lib/roles";
 import { billedTime, type TimeEntryLike } from "@/lib/billing-time";
+import { canLogTime, withoutTime } from "@/lib/wo-time";
+import { syncReportRevision } from "@/lib/report-revision";
 import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-surcharge";
 import { travelCharge, type TravelContext, type TripEntry } from "@/lib/travel-charge";
 import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
@@ -16,7 +18,7 @@ import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrde
 export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "IN_PROGRESS", "ON_HOLD"];
 
 export class WorkOrderError extends Error {
-  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired") {
+  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned") {
     super(code);
   }
 }
@@ -78,7 +80,7 @@ export async function resolveRefs(ctx: WoCtx, input: WorkOrderInput) {
 /** Active members who can carry out work orders (with the company's permission settings), by name: the assignee choices. */
 export async function assignableUsers(db: WoCtx["db"]) {
   const rows = await db.membership.findMany({
-    where: { active: true, role: { not: "REQUESTER" } },
+    where: { active: true, role: { notIn: ["REQUESTER", "OWNER"] } }, // the owner doesn't do field work
     select: { role: true, jobRole: { select: { permissions: true } }, organization: { select: { rolePermissions: true } }, user: { select: { id: true, name: true } } },
   });
   return rows
@@ -206,13 +208,22 @@ export function isItemComplete(item: { type: ChecklistItemType; value: string | 
 export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrderStatus, note?: string | null) {
   const wo = await ctx.db.workOrder.findUnique({
     where: { id: workOrderId },
-    include: { items: { select: { type: true, value: true, required: true } } },
+    include: {
+      items: { select: { type: true, value: true, required: true } },
+      assignees: { select: { userId: true } },
+      timeEntries: { select: { userId: true, minutes: true, endedAt: true } },
+    },
   });
   if (!wo) throw new WorkOrderError("invalidRef");
   if (wo.status === to) return wo;
 
   if (to === "DONE" && wo.items.some((i) => i.required && !isItemComplete(i))) {
     throw new WorkOrderError("requiredItems");
+  }
+  if (to === "DONE") {
+    const technicians = await jobTechnicians(ctx, wo.assignees.map((a) => a.userId));
+    if (technicians.length === 0) throw new WorkOrderError("noTechnician");
+    if (withoutTime(technicians, wo.timeEntries).length > 0) throw new WorkOrderError("timeRequired");
   }
   if (to === "DONE" && !hasWorkReport(wo)) throw new WorkOrderError("reportRequired");
   if (to === "DONE" && !isSignedOff(wo)) throw new WorkOrderError("signOffRequired");
@@ -230,8 +241,26 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       statusLogs: { create: { fromStatus: wo.status, toStatus: to, userId: ctx.user.id, note: note || null } },
     },
   });
+  if (to === "DONE") await syncReportRevision(ctx.db, workOrderId);
   await notifyStatus(ctx, updated, note);
   return updated;
+}
+
+/** The people who have to log time on a job, out of those assigned: active members, never the owner. */
+export async function jobTechnicians(ctx: Pick<WoCtx, "db">, userIds: string[]) {
+  if (userIds.length === 0) return [];
+  const rows = await ctx.db.membership.findMany({
+    where: { userId: { in: userIds }, active: true, role: { not: "OWNER" } },
+    select: { user: { select: { id: true, name: true } } },
+  });
+  return rows.map((r) => ({ userId: r.user.id, name: r.user.name }));
+}
+
+/** Time is logged by the technicians assigned to the job, each their own (lib/wo-time.ts). */
+export async function assertCanLogTime(ctx: AppContext, woId: string) {
+  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { assignees: { where: { userId: ctx.user.id }, select: { userId: true } } } });
+  if (!wo) throw new WorkOrderError("invalidRef");
+  if (!canLogTime(ctx.role, wo.assignees.length > 0)) throw new WorkOrderError("timeNotAssigned");
 }
 
 /** WO_STATUS to the creator and assignees; when a client-visible job from a request is done, the requester too. */
@@ -259,7 +288,7 @@ export async function stopRunningTimers(ctx: WoCtx, workOrderId: string, at = ne
 }
 
 /**
- * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes rounded up
+ * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes per day rounded up
  * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged.
  */
 export function workOrderCosts(
@@ -277,7 +306,7 @@ export function workOrderCosts(
   /** The company's trip charges (see lib/travel-charge.ts); none when omitted. */
   travel: TravelContext | null = null,
 ) {
-  const time = billedTime(wo.timeEntries, block);
+  const time = billedTime(wo.timeEntries, block, travel?.timeZone);
   const other = wo.otherCosts.reduce((s, c) => s + Number(c.amount), 0);
   const parts = (wo.parts ?? []).reduce((s, p) => s + Number(p.quantity) * Number(p.unitCost), 0);
   const urgent = urgentSurcharge(wo.priority, time.labor, urgentRule);

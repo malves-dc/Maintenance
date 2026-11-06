@@ -33,6 +33,10 @@ export type OfflineWorkOrder = {
   items: OfflineItem[];
   comments: { id: string; user: string; body: string; at: string }[];
   minutesLogged: number;
+  /** Whether I can log time here. Optional, like the next one: older snapshots lack them. */
+  canLogTime?: boolean;
+  /** Who still has to log time before the job can be marked done. */
+  timeMissing?: string[];
   /** Client sign-off: who signed and when (pending = captured on the device, not yet uploaded). */
   signOff: { name: string; at: string; pending?: boolean } | null;
   clientAbsent: boolean;

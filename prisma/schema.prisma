@@ -746,6 +746,8 @@ model WorkOrder {
   workReport       String?
   reportSentAt     DateTime? // last time the service report was e-mailed
   reportSentTo     String[]        @default([])
+  reportRevision   Int             @default(0) // the service report's revision: see lib/report-revision.ts
+  reportFingerprint String? // hash of the report's content when last checked
   clientVisible    Boolean         @default(true)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
