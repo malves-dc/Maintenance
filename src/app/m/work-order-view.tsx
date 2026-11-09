@@ -190,11 +190,11 @@ export function WorkOrderView({
         <section className="space-y-3 border-b border-border bg-surface px-4 py-3">
           <div className="grid grid-cols-2 gap-2">
             {wo.status === "OPEN" && (
-              <Button variant="secondary" onClick={() => setStatus("RECEIVED")} className="h-12">
-                {t("woStatus.RECEIVED")}
+              <Button variant="secondary" onClick={() => setStatus("EN_ROUTE")} className="h-12">
+                {t("woStatus.EN_ROUTE")}
               </Button>
             )}
-            {(wo.status === "OPEN" || wo.status === "RECEIVED") && (
+            {(wo.status === "OPEN" || wo.status === "EN_ROUTE") && (
               <Button onClick={() => setStatus("IN_PROGRESS")} className={wo.status === "OPEN" ? "h-12" : "col-span-2 h-12"}>
                 {t("field.start")}
               </Button>
@@ -292,7 +292,7 @@ export function WorkOrderView({
                 onClick={async () => {
                   if (timer) await stopTimer(); // one timer at a time
                   await setTimer({ woId: wo.id, startedAt: new Date().toISOString(), mode });
-                  if (wo.status === "OPEN" || wo.status === "RECEIVED" || wo.status === "ON_HOLD") await enqueue({ kind: "status", woId: wo.id, status: "IN_PROGRESS" });
+                  if (wo.status === "OPEN" || wo.status === "EN_ROUTE" || wo.status === "ON_HOLD") await enqueue({ kind: "status", woId: wo.id, status: "IN_PROGRESS" });
                 }}
               >
                 {timer ? <CirclePause className="size-4" /> : <CirclePlay className="size-4" />}

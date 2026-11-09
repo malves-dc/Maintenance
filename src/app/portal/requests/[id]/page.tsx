@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
 import { docRef } from "@/lib/series";
+import type { WorkOrderStatus } from "@/generated/prisma/enums";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -35,6 +36,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           signedByName: true,
           workReport: true,
           assignees: { select: { user: { select: { name: true } } } },
+          statusLogs: { where: { toStatus: "ON_HOLD" }, orderBy: { createdAt: "desc" }, take: 1, select: { note: true } },
         },
       },
     },
@@ -45,7 +47,10 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
 
-  // Simple progress timeline for the client.
+  // Progress for the client: received → scheduled → technician on the way → technician working (or on hold, with the reason) → done.
+  const reached = (statuses: WorkOrderStatus[]) => !!wo && statuses.includes(wo.status);
+  const holdReason = wo?.status === "ON_HOLD" ? wo.statusLogs[0]?.note : null;
+  const technicians = wo?.assignees.map((a) => a.user.name).join(", ") || null;
   const steps = [
     { done: true, label: t("portal.stepReceived"), detail: dt(r.createdAt) },
     r.status === "DECLINED"
@@ -63,7 +68,12 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
         },
     ...(r.status !== "DECLINED"
       ? [
-          { done: wo?.status === "IN_PROGRESS" || wo?.status === "DONE", label: t("portal.stepInProgress"), detail: wo?.assignees.map((a) => a.user.name).join(", ") || null },
+          { done: reached(["EN_ROUTE", "IN_PROGRESS", "ON_HOLD", "DONE"]), label: t("portal.stepOnTheWay"), detail: technicians },
+          {
+            done: reached(["IN_PROGRESS", "ON_HOLD", "DONE"]),
+            label: t("portal.stepInProgress"),
+            detail: wo?.status === "ON_HOLD" ? (holdReason ? t("portal.onHoldReason", { reason: holdReason }) : t("woStatus.ON_HOLD")) : null,
+          },
           { done: wo?.status === "DONE", label: t("portal.stepDone"), detail: wo?.completedAt ? dt(wo.completedAt) : null },
         ]
       : []),

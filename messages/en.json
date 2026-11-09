@@ -493,7 +493,7 @@
   },
   "woStatus": {
     "OPEN": "Open",
-    "RECEIVED": "Received",
+    "EN_ROUTE": "On the way",
     "IN_PROGRESS": "In progress",
     "ON_HOLD": "On hold",
     "DONE": "Done",
@@ -830,7 +830,9 @@
     "stepScheduled": "Scheduled",
     "stepDeclined": "Not scheduled",
     "plannedFor": "Planned for {date}",
+    "stepOnTheWay": "Technician on the way",
     "stepInProgress": "Technician on it",
+    "onHoldReason": "On hold: {reason}",
     "stepDone": "Completed",
     "downloadReport": "Download service report",
     "pickVilla": "Choose a property to report a problem or see earlier requests and their reports.",
@@ -1052,7 +1054,7 @@
       "body": "{title} · by {actor}"
     },
     "WO_STATUS": {
-      "title": "Work order {number} {status, select, CREATED {was opened} OPEN {was reopened} RECEIVED {was received} IN_PROGRESS {is in progress} ON_HOLD {is on hold} DONE {is done} CANCELLED {was cancelled} other {was updated}}",
+      "title": "Work order {number} {status, select, CREATED {was opened} OPEN {was reopened} EN_ROUTE {has a technician on the way} IN_PROGRESS {is in progress} ON_HOLD {is on hold} DONE {is done} CANCELLED {was cancelled} other {was updated}}",
       "body": "{title} · {actor} {note}"
     },
     "WO_COMMENT": {

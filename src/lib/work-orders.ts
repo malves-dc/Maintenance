@@ -16,10 +16,10 @@ import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-sur
 import { travelCharge, type TravelContext, type TripEntry } from "@/lib/travel-charge";
 import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
 
-export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "RECEIVED", "IN_PROGRESS", "ON_HOLD"];
+export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGRESS", "ON_HOLD"];
 
-/** Work hasn't started: a first step, time entry or timer moves the job to In progress. */
-export const notStarted = (status: WorkOrderStatus) => status === "OPEN" || status === "RECEIVED";
+/** Work hasn't started (open, or the technician is on the way): a first step, time entry or timer moves the job to In progress. */
+export const notStarted = (status: WorkOrderStatus) => status === "OPEN" || status === "EN_ROUTE";
 
 export class WorkOrderError extends Error {
   constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned") {
@@ -247,7 +247,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       status: to,
       completedAt: to === "DONE" ? now : null,
       completedById: to === "DONE" ? ctx.user.id : null,
-      firstResponseAt: wo.firstResponseAt ?? (to === "RECEIVED" || to === "IN_PROGRESS" || to === "DONE" ? now : null),
+      firstResponseAt: wo.firstResponseAt ?? (to === "EN_ROUTE" || to === "IN_PROGRESS" || to === "DONE" ? now : null),
       statusLogs: { create: { fromStatus: wo.status, toStatus: to, userId: ctx.user.id, note: note || null } },
     },
   });
@@ -282,19 +282,21 @@ async function notifyStatus(
   const assignees = await ctx.db.workOrderAssignee.findMany({ where: { workOrderId: wo.id }, select: { userId: true } });
   const data = { number: docRef(wo), title: wo.title, status: wo.status, actor: ctx.user.name, note: note ?? "" };
   await notify(ctx, [wo.createdById, ...assignees.map((a) => a.userId)], { type: "WO_STATUS", data, link: `/work-orders/${wo.id}` });
-  await notifyClients(ctx, wo, wo.status);
+  // The client sees why a job is on hold; other staff notes stay internal.
+  await notifyClients(ctx, wo, wo.status, null, wo.status === "ON_HOLD" ? (note ?? "") : "");
 }
 
 /**
  * WO_STATUS to the client of a client-visible job: portal users of the villa's owner and of its property manager, and
  * whoever asked for it. Each one's preferences decide push and e-mail. Someone who asked through a QR label has no
- * account, so they only get an e-mail when the job is done. "CREATED" = the job has just been opened.
+ * account, so they only get an e-mail when the job is done. "CREATED" = the job has just been opened. `note` = the reason for a hold.
  */
 export async function notifyClients(
   ctx: WoCtx,
   wo: { id: string; year: number; number: number; title: string; clientVisible: boolean; villaId: string | null },
   status: WorkOrderStatus | "CREATED",
   except?: string | null,
+  note = "",
 ) {
   if (!wo.clientVisible) return;
   const [req, villa] = await Promise.all([
@@ -303,7 +305,7 @@ export async function notifyClients(
   ]);
   const clientIds = [villa?.clientId, villa?.managerId].filter((id): id is string => !!id);
   const members = clientIds.length ? await ctx.db.membership.findMany({ where: { active: true, role: "REQUESTER", clientId: { in: clientIds } }, select: { userId: true } }) : [];
-  const data = { number: docRef(wo), title: wo.title, status, actor: ctx.user.name, note: "" };
+  const data = { number: docRef(wo), title: wo.title, status, actor: ctx.user.name, note };
   const link = req ? `/portal/requests/${req.id}` : wo.villaId ? `/portal/villas/${wo.villaId}/requests` : "/portal";
   await notify(ctx, [req?.requesterId, ...members.map((m) => m.userId)].filter((id) => id !== except), { type: "WO_STATUS", data, link });
   if (status === "DONE" && req && !req.requesterId) await notifyExternal(ctx.organization, req.requesterEmail, ctx.organization.defaultLocale, "WO_STATUS", data);

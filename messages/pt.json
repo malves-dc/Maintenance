@@ -493,7 +493,7 @@
   },
   "woStatus": {
     "OPEN": "Aberta",
-    "RECEIVED": "Recebida",
+    "EN_ROUTE": "A caminho",
     "IN_PROGRESS": "Em curso",
     "ON_HOLD": "Em espera",
     "DONE": "Concluída",
@@ -830,7 +830,9 @@
     "stepScheduled": "Agendado",
     "stepDeclined": "Não agendado",
     "plannedFor": "Previsto para {date}",
+    "stepOnTheWay": "Técnico a caminho",
     "stepInProgress": "Técnico a tratar",
+    "onHoldReason": "Em espera: {reason}",
     "stepDone": "Concluído",
     "downloadReport": "Descarregar relatório de serviço",
     "pickVilla": "Escolha uma propriedade para reportar um problema ou ver os pedidos anteriores e os seus relatórios.",
@@ -1052,7 +1054,7 @@
       "body": "{title} · por {actor}"
     },
     "WO_STATUS": {
-      "title": "Ordem de trabalho {number} {status, select, CREATED {foi aberta} OPEN {foi reaberta} RECEIVED {foi recebida} IN_PROGRESS {está em curso} ON_HOLD {está em espera} DONE {está concluída} CANCELLED {foi cancelada} other {foi atualizada}}",
+      "title": "Ordem de trabalho {number} {status, select, CREATED {foi aberta} OPEN {foi reaberta} EN_ROUTE {tem o técnico a caminho} IN_PROGRESS {está em curso} ON_HOLD {está em espera} DONE {está concluída} CANCELLED {foi cancelada} other {foi atualizada}}",
       "body": "{title} · {actor} {note}"
     },
     "WO_COMMENT": {

@@ -54,7 +54,7 @@ The buttons above the filters switch between **List**, **Board** and **Calendar*
 
 ![The board: one column per status](work-orders-board)
 
-- **Board** shows a column per status: **Open**, **Received**, **In progress**, **On hold** and **Done** (jobs finished in the last 14 days). Drag a card to another column to change its status. The same rules apply as on the work order page: a job can't be dropped in **Done** until its required checklist steps and the client sign-off are complete, and an error appears at the top if it can't move.
+- **Board** shows a column per status: **Open**, **On the way**, **In progress**, **On hold** and **Done** (jobs finished in the last 14 days). Drag a card to another column to change its status. The same rules apply as on the work order page: a job can't be dropped in **Done** until its required checklist steps and the client sign-off are complete, and an error appears at the top if it can't move.
 - **Calendar** shows a month of work orders, coloured by status (cancelled jobs are left out). A job with a start date appears on every day from its start to its due date; otherwise on its due date. The first day shows its time. Technicians see their own jobs first (**Assigned to me**); choose **Anyone** to see everyone's. To have your jobs in Google Calendar, Outlook or your phone, subscribe to your calendar link in [Profile](/help/profile). Preventive maintenance visits that are planned but not yet generated appear with a dashed outline and open the schedule. Use the arrows to move between months.
 
 ## Creating a work order
@@ -97,13 +97,13 @@ Your time on the job is charged at the price of the role you take on it, includi
 The status buttons at the top of the page move the job along:
 
 - **Open**: created, nobody has started yet.
-- **Received**: the company has taken the job on and will deal with it. For the client this is the first reply, and it counts as the first response for the [contract](/help/contracts).
+- **On the way**: the technician marks it when leaving for the villa. The client sees "Technician on the way". It counts as the first response for the [contract](/help/contracts).
 - **In progress**: someone is working on it. This happens on its own when someone starts the timer, logs time or answers the first checklist step.
 - **On hold**: waiting for something. The app asks why (for example "waiting for parts"); the reason appears in the activity.
 - **Done**: finished. All required checklist steps must be answered and the client sign-off must be done first.
 - **Cancelled**: use **Cancel work order** under the status buttons when the job is no longer needed.
 
-To reopen a finished job, click **Open** or **In progress** again. Running timers stop automatically when a job is marked done or cancelled. The creator and the people assigned are notified of every status change. So is the client, when the job is visible to them: the portal users of the villa's owner and property manager and whoever made the request, by push notification if they turned it on, when the job is opened and at each change. The reason for putting a job on hold is not sent to them.
+To reopen a finished job, click **Open** or **In progress** again. Running timers stop automatically when a job is marked done or cancelled. The creator and the people assigned are notified of every status change. So is the client, when the job is visible to them: the portal users of the villa's owner and property manager and whoever made the request, by push notification if they turned it on, when the job is opened and at each change. They also see the reason when a job is put on hold; other notes stay internal. In the portal a request goes through **Request received**, **Scheduled**, **Technician on the way**, **Technician working** (or **On hold** with the reason) and **Done**.
 
 > A done or cancelled work order is closed: its checklist can't be answered or edited, and the time and sign-off panels are locked. Reopen it to make changes.
 
@@ -285,7 +285,7 @@ Os botões acima dos filtros alternam entre **Lista**, **Quadro** e **Calendári
 
 ![O quadro: uma coluna por estado](work-orders-board)
 
-- O **Quadro** mostra uma coluna por estado: **Aberta**, **Recebida**, **Em curso**, **Em espera** e **Concluída** (trabalhos terminados nos últimos 14 dias). Arraste um cartão para outra coluna para mudar o estado. Aplicam-se as mesmas regras da página da ordem de trabalho: um trabalho não pode ir para **Concluída** sem os passos obrigatórios da checklist e a aprovação do cliente, e aparece um erro no topo se não puder ser movido.
+- O **Quadro** mostra uma coluna por estado: **Aberta**, **A caminho**, **Em curso**, **Em espera** e **Concluída** (trabalhos terminados nos últimos 14 dias). Arraste um cartão para outra coluna para mudar o estado. Aplicam-se as mesmas regras da página da ordem de trabalho: um trabalho não pode ir para **Concluída** sem os passos obrigatórios da checklist e a aprovação do cliente, e aparece um erro no topo se não puder ser movido.
 - O **Calendário** mostra um mês de ordens de trabalho, com a cor do estado (as canceladas não aparecem). Um trabalho com data de início aparece em todos os dias, do início ao prazo; senão, no dia do prazo. O primeiro dia mostra a hora. Os técnicos veem primeiro os seus trabalhos (**Atribuídas a mim**); escolha **Qualquer pessoa** para ver os de todos. Para ter os seus trabalhos no Google Calendar, no Outlook ou no telemóvel, subscreva o seu link de calendário no [Perfil](/help/profile). As visitas de manutenção preventiva planeadas mas ainda não geradas aparecem com contorno tracejado e abrem o plano. Use as setas para mudar de mês.
 
 ## Criar uma ordem de trabalho
@@ -328,13 +328,13 @@ O seu tempo no trabalho é cobrado ao preço da função que tem nele, incluindo
 Os botões de estado no topo da página fazem avançar o trabalho:
 
 - **Aberta**: criada, ninguém começou ainda.
-- **Recebida**: a empresa ficou com o trabalho e vai tratar dele. Para o cliente é a primeira resposta, e conta como primeira resposta para o [contrato](/help/contracts).
+- **A caminho**: o técnico marca-o quando sai para a moradia. O cliente vê "Técnico a caminho". Conta como primeira resposta para o [contrato](/help/contracts).
 - **Em curso**: alguém está a trabalhar nela. Acontece sozinho quando alguém inicia o cronómetro, regista tempo ou responde ao primeiro passo da checklist.
 - **Em espera**: à espera de alguma coisa. A aplicação pergunta porquê (por exemplo, "a aguardar material"); o motivo aparece na atividade.
 - **Concluída**: terminada. Antes disso, todos os passos obrigatórios da checklist têm de estar respondidos e a aprovação do cliente feita.
 - **Cancelada**: use **Cancelar ordem de trabalho**, por baixo dos botões de estado, quando o trabalho já não é necessário.
 
-Para reabrir um trabalho terminado, clique de novo em **Aberta** ou **Em curso**. Os cronómetros a decorrer param automaticamente quando um trabalho é concluído ou cancelado. Quem criou a ordem de trabalho e as pessoas atribuídas são notificadas de cada mudança de estado. O cliente também, quando o trabalho lhe é visível: os utilizadores do portal do proprietário e do gestor da moradia e quem fez o pedido, por notificação push se a tiverem ligado, quando o trabalho é aberto e em cada mudança. O motivo de pôr um trabalho em espera não lhes é enviado.
+Para reabrir um trabalho terminado, clique de novo em **Aberta** ou **Em curso**. Os cronómetros a decorrer param automaticamente quando um trabalho é concluído ou cancelado. Quem criou a ordem de trabalho e as pessoas atribuídas são notificadas de cada mudança de estado. O cliente também, quando o trabalho lhe é visível: os utilizadores do portal do proprietário e do gestor da moradia e quem fez o pedido, por notificação push se a tiverem ligado, quando o trabalho é aberto e em cada mudança. Também veem o motivo quando um trabalho é posto em espera; as outras notas ficam internas. No portal, um pedido passa por **Pedido recebido**, **Agendado**, **Técnico a caminho**, **Técnico a tratar** (ou **Em espera** com o motivo) e **Concluído**.
 
 > Uma ordem de trabalho concluída ou cancelada está fechada: a checklist não pode ser respondida nem editada, e os painéis de tempo e de aprovação ficam bloqueados. Reabra-a para fazer alterações.
 

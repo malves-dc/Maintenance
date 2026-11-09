@@ -21,7 +21,7 @@ type Card = {
   assignees: string[];
 };
 
-const COLUMNS: WorkOrderStatus[] = ["OPEN", "RECEIVED", "IN_PROGRESS", "ON_HOLD", "DONE"];
+const COLUMNS: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGRESS", "ON_HOLD", "DONE"];
 
 /** Kanban by status. Drag a card to another column to change its status. */
 export function BoardView({ workOrders, canExecute }: { workOrders: Card[]; canExecute: boolean }) {

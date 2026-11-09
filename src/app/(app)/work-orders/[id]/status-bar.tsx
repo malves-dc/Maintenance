@@ -2,14 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, CircleCheck, CirclePause, CirclePlay, CircleDot, CircleX } from "lucide-react";
+import { Car, CheckCircle2, CirclePause, CirclePlay, CircleDot, CircleX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WorkOrderStatus } from "@/generated/prisma/enums";
 import { setStatusAction } from "../actions";
 
 const STATUSES: { status: WorkOrderStatus; icon: typeof CircleDot; active: string }[] = [
   { status: "OPEN", icon: CircleDot, active: "border-sky-300 bg-sky-50 text-sky-800" },
-  { status: "RECEIVED", icon: CircleCheck, active: "border-violet-300 bg-violet-50 text-violet-800" },
+  { status: "EN_ROUTE", icon: Car, active: "border-violet-300 bg-violet-50 text-violet-800" },
   { status: "IN_PROGRESS", icon: CirclePlay, active: "border-indigo-300 bg-indigo-50 text-indigo-800" },
   { status: "ON_HOLD", icon: CirclePause, active: "border-amber-300 bg-amber-50 text-amber-800" },
   { status: "DONE", icon: CheckCircle2, active: "border-green-300 bg-green-50 text-green-800" },

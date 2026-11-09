@@ -1,5 +1,5 @@
--- Work order status "Received"
-ALTER TYPE "WorkOrderStatus" ADD VALUE 'RECEIVED' AFTER 'OPEN';
+-- Work order status "On the way"
+ALTER TYPE "WorkOrderStatus" ADD VALUE 'EN_ROUTE' AFTER 'OPEN';
 
 -- Yearly series shared by requests and work orders. Existing records keep their number, under the year
 -- they were created (in the company's time zone).

@@ -83,7 +83,7 @@ enum ClientType {
 
 enum WorkOrderStatus {
   OPEN
-  RECEIVED // the company has taken the job on, not started yet
+  EN_ROUTE // the technician is on the way (set by hand); the client sees "Technician on the way"
   ON_HOLD
   IN_PROGRESS
   DONE
