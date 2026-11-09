@@ -252,7 +252,7 @@ export function FieldApp({ user, org, logo, theme }: { user: { id: string; name:
               const wo = workOrders.find((w) => w.id === i.woId);
               return (
                 <li key={i.id}>
-                  {wo ? `#${wo.number} · ` : ""}
+                  {wo ? `${wo.number} · ` : ""}
                   {t(`field.kind.${i.kind}` as never)}: {t.has(i.error as never) ? t(i.error as never) : t("common.somethingWrong")}
                 </li>
               );
@@ -342,7 +342,7 @@ function WorkOrderCard({ wo, running, onOpen }: { wo: OfflineWorkOrder; running:
     <button onClick={onOpen} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface p-4 text-left active:bg-gray-50">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted">#{wo.number}</span>
+          <span className="text-xs text-muted">{wo.number}</span>
           <WorkOrderStatusBadge status={wo.status} />
           <PriorityText priority={wo.priority} />
           {running && <span className="size-2 animate-pulse rounded-full bg-red-500" aria-label={t("field.timerRunning")} />}

@@ -483,10 +483,17 @@
     "reportRequired": "Relatório: descreva o trabalho realizado antes de a marcar como concluída.",
     "timeRequired": "Tempo: cada técnico atribuído tem de registar o seu tempo antes de a marcar como concluída.",
     "noTechnician": "Técnico: atribua um técnico a esta ordem de trabalho antes de a marcar como concluída.",
-    "timeNotAssigned": "Só os técnicos atribuídos a esta ordem de trabalho podem registar tempo."
+    "timeNotAssigned": "Só os técnicos atribuídos a esta ordem de trabalho podem registar tempo.",
+    "related": "Ordens de trabalho relacionadas",
+    "relatedHint": "Está relacionada com outra ordem de trabalho, por exemplo um problema recorrente? Escreva o número dela. Fica visível nas duas ordens de trabalho e no relatório de serviço.",
+    "relatedNumber": "Número da ordem de trabalho",
+    "relatedRemove": "Remover a ligação",
+    "linkNotFound": "Não existe nenhuma ordem de trabalho com esse número.",
+    "linkSelf": "Esse é o número desta ordem de trabalho."
   },
   "woStatus": {
     "OPEN": "Aberta",
+    "EN_ROUTE": "A caminho",
     "IN_PROGRESS": "Em curso",
     "ON_HOLD": "Em espera",
     "DONE": "Concluída",
@@ -823,14 +830,16 @@
     "stepScheduled": "Agendado",
     "stepDeclined": "Não agendado",
     "plannedFor": "Previsto para {date}",
+    "stepOnTheWay": "Técnico a caminho",
     "stepInProgress": "Técnico a tratar",
+    "onHoldReason": "Em espera: {reason}",
     "stepDone": "Concluído",
     "downloadReport": "Descarregar relatório de serviço",
     "pickVilla": "Escolha uma propriedade para reportar um problema ou ver os pedidos anteriores e os seus relatórios.",
     "pastRequests": "Pedidos anteriores",
     "pastRequestsHint": "O que pediu e os trabalhos feitos, com os relatórios de serviço.",
     "noPastRequests": "Ainda não há nada aqui.",
-    "requestNumber": "Pedido R{number}",
+    "requestNumber": "Pedido {number}",
     "visitConfirmed": "Visita confirmada para {date}",
     "visitConfirmedTitle": "Visita confirmada",
     "yourWindow": "Tem disponibilidade {window}. Vamos confirmar a data e a hora.",
@@ -1031,19 +1040,25 @@
     "available": "{qty} disponíveis aqui",
     "noParts": "Ainda não há peças no catálogo.",
     "return": "Devolver ao stock",
-    "returnConfirm": "Retirar esta peça da ordem de trabalho e devolvê-la ao stock?"
+    "returnConfirm": "Retirar esta peça da ordem de trabalho e devolvê-la ao stock?",
+    "addManual": "Adicionar manualmente",
+    "model": "Modelo",
+    "description": "Descrição",
+    "unitCost": "Custo unitário (opcional)",
+    "remove": "Remover",
+    "removeConfirm": "Remover esta peça da ordem de trabalho?"
   },
   "notify": {
     "WO_ASSIGNED": {
-      "title": "Ordem de trabalho #{number} atribuída a si",
+      "title": "Ordem de trabalho {number} atribuída a si",
       "body": "{title} · por {actor}"
     },
     "WO_STATUS": {
-      "title": "Ordem de trabalho #{number} {status, select, OPEN {foi reaberta} IN_PROGRESS {está em curso} ON_HOLD {está em espera} DONE {está concluída} CANCELLED {foi cancelada} other {foi atualizada}}",
+      "title": "Ordem de trabalho {number} {status, select, CREATED {foi aberta} OPEN {foi reaberta} EN_ROUTE {tem o técnico a caminho} IN_PROGRESS {está em curso} ON_HOLD {está em espera} DONE {está concluída} CANCELLED {foi cancelada} other {foi atualizada}}",
       "body": "{title} · {actor} {note}"
     },
     "WO_COMMENT": {
-      "title": "{actor} comentou na #{number}",
+      "title": "{actor} comentou na {number}",
       "body": "{excerpt}"
     },
     "MENTION": {
@@ -1055,16 +1070,16 @@
       "body": "{actor}: {excerpt}"
     },
     "REQUEST_NEW": {
-      "title": "Novo pedido R{number}: {title}",
+      "title": "Novo pedido {number}: {title}",
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {O seu pedido R{number} foi aceite} SCHEDULED {O seu pedido R{number} foi aceite: visita a {when}} RESCHEDULED {A visita do seu pedido R{number} passou para {when}} other {O seu pedido R{number} foi recusado}}",
+      "title": "{status, select, APPROVED {O seu pedido {number} foi aceite} SCHEDULED {O seu pedido {number} foi aceite: visita a {when}} RESCHEDULED {A visita do seu pedido {number} passou para {when}} other {O seu pedido {number} foi recusado}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
       "title": "{asset}: {meter} fora dos limites",
-      "body": "Leitura {value} {unit} · aberta a ordem de trabalho #{number}"
+      "body": "Leitura {value} {unit} · aberta a ordem de trabalho {number}"
     },
     "LOW_STOCK": {
       "title": "Stock baixo: {part}",
@@ -1079,7 +1094,7 @@
       "body": "{vendor} · {actor}"
     },
     "REQUEST_MESSAGE": {
-      "title": "Nova mensagem no pedido R{number}: {title}",
+      "title": "Nova mensagem no pedido {number}: {title}",
       "body": "{actor}: {excerpt}"
     }
   },
@@ -1872,8 +1887,12 @@
     },
     "billing": {
       "manage": {
-        "label": "Faturação",
-        "hint": "Faturação. Reservada para o módulo de faturação e a integração com a contabilidade (ainda sem ecrãs)."
+        "label": "Marcar como faturada",
+        "hint": "Marcar ordens de trabalho como faturadas e indicar o número da fatura."
+      },
+      "view": {
+        "label": "Ver a faturação",
+        "hint": "Se uma ordem de trabalho foi faturada e o número da fatura."
       }
     },
     "audit": {
@@ -2548,7 +2567,7 @@
     "empty": "Ainda sem relatório."
   },
   "requestChat": {
-    "title": "Conversa sobre o R{number}",
+    "title": "Conversa sobre o {number}",
     "permanent": "Fica guardada com o pedido. As mensagens não podem ser editadas nem apagadas.",
     "noMessages": "Ainda não há mensagens. Escreva aqui ao cliente ou à equipa.",
     "you": "Eu",
@@ -2559,5 +2578,16 @@
     "emptyMessage": "Escreva primeiro uma mensagem.",
     "tooLong": "A mensagem é demasiado longa.",
     "forbidden": "Não pode participar nesta conversa."
+  },
+  "billing": {
+    "title": "Faturação",
+    "invoiced": "Faturada",
+    "invoicedAs": "Faturada: {number}",
+    "notInvoiced": "Por faturar",
+    "any": "Faturada ou não",
+    "invoiceNumber": "Número da fatura",
+    "mark": "Marcar como faturada",
+    "undo": "Anular: por faturar",
+    "undoConfirm": "Marcar esta ordem de trabalho como por faturar? O número da fatura é removido."
   }
 }

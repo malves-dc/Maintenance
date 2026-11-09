@@ -5,7 +5,8 @@ import type { Role } from "@/generated/prisma/enums";
 
 export const PERMISSIONS = {
   "org.manage": ["OWNER", "ADMIN"],
-  "billing.manage": ["OWNER", "ACCOUNTANT"], // invoicing (no screens yet; for a future billing module / Odoo)
+  "billing.view": ["OWNER", "ADMIN", "MANAGER", "ACCOUNTANT"], // whether a work order was invoiced, and the invoice number
+  "billing.manage": ["OWNER", "ACCOUNTANT"], // mark work orders as invoiced
   "costs.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"], // labour, parts and totals, contract fees
   "users.manage": ["OWNER", "ADMIN"],
   "audit.view": ["OWNER", "ADMIN"], // Settings → Audit log: who did what, from where
@@ -52,7 +53,7 @@ export const PERMISSION_GROUPS: { key: string; permissions: Permission[] }[] = [
   { key: "sites", permissions: ["clients.manage", "contracts.manage", "assets.manage", "secrets.view", "knowledge.manage"] },
   { key: "supply", permissions: ["inventory.use", "inventory.manage", "vendors.manage", "purchasing.manage", "purchasing.approve"] },
   { key: "insights", permissions: ["reports.view"] },
-  { key: "finance", permissions: ["costs.view", "billing.manage"] },
+  { key: "finance", permissions: ["costs.view", "billing.view", "billing.manage"] },
 ];
 export const GRANTABLE: Permission[] = PERMISSION_GROUPS.flatMap((g) => g.permissions);
 

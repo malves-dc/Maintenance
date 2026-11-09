@@ -9,6 +9,7 @@ import { urgentRuleFor } from "@/lib/urgent-surcharge";
 import { travelOf } from "@/lib/travel-charge";
 import { csvResponse, money, moneyColumns, toCsv, type Cell, type Column } from "@/lib/csv";
 import { villaClient } from "@/lib/villa-client";
+import { docRef } from "@/lib/series";
 
 const r2 = (n: number | null) => (n === null ? null : Math.round(n * 100) / 100);
 
@@ -32,6 +33,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
   let rows: Cell[][];
   switch (kind) {
     case "work-orders": {
+      const billing = ctx.can("billing.view") || ctx.can("billing.manage");
       const wos = await ctx.db.workOrder.findMany({
         where: { ...woScope(f), createdAt: { gte: f.from, lte: f.to } },
         include: {
@@ -43,22 +45,24 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
           parts: { select: { quantity: true, unitCost: true } },
           otherCosts: { select: { amount: true } },
         },
-        orderBy: { number: "asc" },
+        orderBy: [{ year: "asc" }, { number: "asc" }],
       });
       header = [
         t("reports.csv.number"), t("wo.title"), t("wo.type"), t("common.status"), t("wo.priority"), t("assets.system"),
         t("villas.client"), t("assets.villa"), t("wo.asset"), t("wo.createdAt"), t("reports.csv.firstResponse"), t("wo.completedAt"),
         t("contracts.contract"), t("contracts.responseShort"), t("contracts.resolutionShort"), t("reports.csv.minutes"), t("reports.csv.billedMinutes"),
         money(t("costs.labor")), money(t("costs.parts")), money(t("reports.otherCosts")), money(t("costs.urgent")), t("reports.csv.trips"), money(t("costs.travel")), money(t("costs.total")),
+        ...(billing ? [t("billing.title")] : []),
       ];
       rows = wos.map((w) => {
         const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract));
         const s = w.contract ? slaStates(w, w.contract, now, slaCalendar(ctx.organization)) : null;
         return [
-          w.number, w.title, t(`woType.${w.type}`), t(`woStatus.${w.status}`), t(`priority.${w.priority}`), sys(w.system),
+          docRef(w), w.title, t(`woType.${w.type}`), t(`woStatus.${w.status}`), t(`priority.${w.priority}`), sys(w.system),
           w.villa && villaClient(w.villa)?.name, w.villa?.name, w.asset?.name, when(w.createdAt), when(w.firstResponseAt), when(w.completedAt),
           w.contract?.name, s && s.response !== "na" ? t(`sla.${s.response}`) : null, s && s.resolution !== "na" ? t(`sla.${s.resolution}`) : null,
           c.minutes, c.billedMinutes, r2(c.labor), r2(c.parts), r2(c.other), r2(c.urgent), c.trips, r2(c.travel), r2(c.total),
+          ...(billing ? [w.invoicedAt ? w.invoiceNumber || "✓" : null] : []),
         ];
       });
       break;
@@ -67,7 +71,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
       const s = await slaReport(ctx, f, now);
       header = [t("reports.csv.number"), t("wo.title"), t("contracts.contract"), t("villas.client"), t("assets.villa"), t("wo.createdAt"), t("contracts.respondBy"), t("reports.csv.firstResponse"), t("contracts.responseShort"), t("contracts.resolveBy"), t("wo.completedAt"), t("contracts.resolutionShort")];
       rows = s.judged.map((w) => [
-        w.number, w.title, w.contract!.name, w.contract!.client.name, w.villa?.name, when(w.createdAt),
+        docRef(w), w.title, w.contract!.name, w.contract!.client.name, w.villa?.name, when(w.createdAt),
         when(w.sla.responseDue), when(w.firstResponseAt), w.sla.response === "na" ? null : t(`sla.${w.sla.response}`),
         when(w.sla.resolutionDue), when(w.completedAt), w.sla.resolution === "na" ? null : t(`sla.${w.sla.resolution}`),
       ]);

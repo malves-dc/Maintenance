@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { RequestStatus } from "@/generated/prisma/enums";
 import type { Prisma } from "@/generated/prisma/client";
 import { titled } from "@/lib/metadata";
+import { docRef } from "@/lib/series";
 
 export const generateMetadata = titled("nav.requests");
 
@@ -113,7 +114,7 @@ export default async function RequestsPage({ searchParams }: PageProps<"/request
                 <tr key={r.id} className="hover:bg-gray-50">
                   <td>
                     <Link href={`/requests/${r.id}`} className="font-medium hover:text-brand">
-                      <span className="mr-1.5 font-mono text-xs text-muted">R{r.number}</span>
+                      <span className="mr-1.5 font-mono text-xs text-muted">{docRef(r)}</span>
                       {r.title}
                     </Link>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2">

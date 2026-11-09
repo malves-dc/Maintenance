@@ -8,6 +8,7 @@ import { WorkOrderStatusBadge } from "@/components/badges";
 import { RequestStatusBadge } from "@/components/request-badge";
 import { getPortalContext } from "@/lib/portal";
 import type { RequestStatus, WorkOrderStatus } from "@/generated/prisma/enums";
+import { docRef } from "@/lib/series";
 
 const LIMIT = 100;
 
@@ -40,7 +41,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
   const [requests, jobs] = await Promise.all([
     ctx.db.request.findMany({
       where: { ...ctx.requestWhere, villaId: villa.id },
-      select: { id: true, number: true, title: true, status: true, createdAt: true, scheduledFor: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true, workReport: true } } },
+      select: { id: true, year: true, number: true, title: true, status: true, createdAt: true, scheduledFor: true, workOrder: { select: { id: true, status: true, clientVisible: true, completedAt: true, workReport: true } } },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
     }),
@@ -59,7 +60,7 @@ export default async function PortalVillaRequestsPage({ params }: PageProps<"/po
         key: `r:${r.id}`,
         title: r.title,
         at: wo?.completedAt ?? r.createdAt,
-        kind: t("portal.requestNumber", { number: r.number }),
+        kind: t("portal.requestNumber", { number: docRef(r) }),
         href: `/portal/requests/${r.id}`,
         visit: r.status === "APPROVED" && r.workOrder?.status !== "DONE" && r.workOrder?.status !== "CANCELLED" ? r.scheduledFor : null,
         request: r.status,

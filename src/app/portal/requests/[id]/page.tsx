@@ -10,6 +10,8 @@ import { fileUrl } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
+import { docRef } from "@/lib/series";
+import type { WorkOrderStatus } from "@/generated/prisma/enums";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -26,7 +28,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
       workOrder: {
         select: {
           id: true,
-          number: true,
+          year: true, number: true,
           status: true,
           clientVisible: true,
           dueDate: true,
@@ -34,6 +36,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           signedByName: true,
           workReport: true,
           assignees: { select: { user: { select: { name: true } } } },
+          statusLogs: { where: { toStatus: "ON_HOLD" }, orderBy: { createdAt: "desc" }, take: 1, select: { note: true } },
         },
       },
     },
@@ -44,7 +47,10 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const clientWindow = r.availableFrom && r.availableTo ? format.dateTimeRange(r.availableFrom, r.availableTo, { dateStyle: "medium", timeStyle: "short" }) : null;
 
-  // Simple progress timeline for the client.
+  // Progress for the client: received → scheduled → technician on the way → technician working (or on hold, with the reason) → done.
+  const reached = (statuses: WorkOrderStatus[]) => !!wo && statuses.includes(wo.status);
+  const holdReason = wo?.status === "ON_HOLD" ? wo.statusLogs[0]?.note : null;
+  const technicians = wo?.assignees.map((a) => a.user.name).join(", ") || null;
   const steps = [
     { done: true, label: t("portal.stepReceived"), detail: dt(r.createdAt) },
     r.status === "DECLINED"
@@ -62,7 +68,12 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
         },
     ...(r.status !== "DECLINED"
       ? [
-          { done: wo?.status === "IN_PROGRESS" || wo?.status === "DONE", label: t("portal.stepInProgress"), detail: wo?.assignees.map((a) => a.user.name).join(", ") || null },
+          { done: reached(["EN_ROUTE", "IN_PROGRESS", "ON_HOLD", "DONE"]), label: t("portal.stepOnTheWay"), detail: technicians },
+          {
+            done: reached(["IN_PROGRESS", "ON_HOLD", "DONE"]),
+            label: t("portal.stepInProgress"),
+            detail: wo?.status === "ON_HOLD" ? (holdReason ? t("portal.onHoldReason", { reason: holdReason }) : t("woStatus.ON_HOLD")) : null,
+          },
           { done: wo?.status === "DONE", label: t("portal.stepDone"), detail: wo?.completedAt ? dt(wo.completedAt) : null },
         ]
       : []),
@@ -73,7 +84,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
       {r.villa ? <BackLink href={`/portal/villas/${r.villa.id}/requests`} label={t("portal.pastRequests")} /> : <BackLink href="/portal" label={t("portal.yourVillas")} />}
       <h1 className="text-xl font-semibold">{r.title}</h1>
       <p className="mb-5 mt-1 text-sm text-muted">
-        R{r.number} · {r.villa?.name}
+        {docRef(r)} · {r.villa?.name}
         {r.asset && ` · ${r.asset.name}`}
       </p>
       {r.status === "APPROVED" && r.scheduledFor && wo?.status !== "DONE" && wo?.status !== "CANCELLED" && (
@@ -135,7 +146,7 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
           </ol>
           {wo && (
             <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm">
-              <span className="text-muted">#{wo.number}</span>
+              <span className="text-muted">{docRef(wo)}</span>
               <WorkOrderStatusBadge status={wo.status} />
             </div>
           )}

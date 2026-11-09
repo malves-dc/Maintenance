@@ -11,7 +11,7 @@ import { setStatusAction } from "./actions";
 
 type Card = {
   id: string;
-  number: number;
+  number: string;
   title: string;
   status: WorkOrderStatus;
   priority: Priority;
@@ -21,7 +21,7 @@ type Card = {
   assignees: string[];
 };
 
-const COLUMNS: WorkOrderStatus[] = ["OPEN", "IN_PROGRESS", "ON_HOLD", "DONE"];
+const COLUMNS: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGRESS", "ON_HOLD", "DONE"];
 
 /** Kanban by status. Drag a card to another column to change its status. */
 export function BoardView({ workOrders, canExecute }: { workOrders: Card[]; canExecute: boolean }) {
@@ -41,14 +41,14 @@ export function BoardView({ workOrders, canExecute }: { workOrders: Card[]; canE
     start(async () => {
       moveCard({ id, status });
       const res = await setStatusAction(id, status);
-      if (res.error) setError(`#${card.number}: ${t(res.error as never)}`);
+      if (res.error) setError(`${card.number}: ${t(res.error as never)}`);
     });
   }
 
   return (
     <>
       {error && <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-danger">{error}</p>}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         {COLUMNS.map((status) => {
           const list = cards.filter((c) => c.status === status);
           return (
@@ -78,7 +78,7 @@ export function BoardView({ workOrders, canExecute }: { workOrders: Card[]; canE
                   >
                     <div className="flex items-start justify-between gap-2">
                       <span className="font-medium leading-snug">{c.title}</span>
-                      <span className="font-mono text-xs text-muted">#{c.number}</span>
+                      <span className="font-mono text-xs text-muted">{c.number}</span>
                     </div>
                     {c.villa && <div className="mt-1 text-xs text-muted">{c.villa}</div>}
                     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">

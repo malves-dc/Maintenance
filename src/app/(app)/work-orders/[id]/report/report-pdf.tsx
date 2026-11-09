@@ -8,7 +8,7 @@ import type { Letterhead } from "@/lib/letterhead";
 export type ReportData = {
   labels: Record<string, string>;
   lh: Letterhead;
-  number: number;
+  number: string;
   /** The report's revision: 0 until the completed job changes. */
   revision: number;
   title: string;
@@ -17,6 +17,7 @@ export type ReportData = {
   description: string | null;
   /** The technician's report: what was done. */
   workReport: string | null;
+  related: string[];
   checklist: { label: string; heading: boolean; answer: string; note: string | null; image: Buffer | null }[];
   time: { who: string; when: string; duration: string; note: string | null }[];
   totalTime: string;
@@ -43,9 +44,9 @@ const s = StyleSheet.create({
 export function ServiceReport({ d }: { d: ReportData }) {
   const L = d.labels;
   return (
-    <Document title={`${L.reportTitle} #${d.number}`} author={d.lh.name}>
+    <Document title={`${L.reportTitle} ${d.number}`} author={d.lh.name}>
       <Page size="A4" style={s.page}>
-        <PdfHeader lh={d.lh} title={L.reportTitle} reference={d.revision ? `#${d.number} · ${L.revision}` : `#${d.number}`} date={d.generatedAt} />
+        <PdfHeader lh={d.lh} title={L.reportTitle} reference={d.revision ? `${d.number} · ${L.revision}` : `${d.number}`} date={d.generatedAt} />
 
         <Text style={{ fontSize: 12, fontFamily: "Helvetica-Bold", marginBottom: 8 }}>{d.title}</Text>
         {d.revision > 0 && <Text style={{ fontSize: 9, color: "#666666", marginBottom: 8 }}>{L.revisionNote}</Text>}
@@ -69,6 +70,15 @@ export function ServiceReport({ d }: { d: ReportData }) {
           <>
             <Text style={s.h2}>{L.workReport}</Text>
             <Text>{d.workReport}</Text>
+          </>
+        )}
+
+        {d.related.length > 0 && (
+          <>
+            <Text style={s.h2}>{L.related}</Text>
+            {d.related.map((r, i) => (
+              <Text key={i}>{r}</Text>
+            ))}
           </>
         )}
 
@@ -153,7 +163,7 @@ export function ServiceReport({ d }: { d: ReportData }) {
           </View>
         )}
 
-        <PdfFooter lh={d.lh} label={`${L.reportTitle} #${d.number}`} />
+        <PdfFooter lh={d.lh} label={`${L.reportTitle} ${d.number}`} />
       </Page>
     </Document>
   );

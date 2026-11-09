@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getContext, requirePermission, type AppContext } from "@/lib/context";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
 import { deleteObject } from "@/lib/storage";
+import { parseDocRef, seriesYear } from "@/lib/series";
 import { addComment, addTimeEntry, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
 import { consumePart, InventoryError, returnPart } from "@/lib/inventory";
 import { contractFor } from "@/lib/contracts";
@@ -21,6 +22,7 @@ import {
   validateAssignees,
   validateCategories,
   WorkOrderError,
+  notStarted,
 } from "@/lib/work-orders";
 import { ChecklistItemType, Priority, SystemType, WorkMode, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
 import { emailConfigured } from "@/lib/email";
@@ -265,7 +267,7 @@ export async function startTimerAction(woId: string, mode: WorkMode = WorkMode.O
       data: { workOrderId: woId, userId: ctx.user.id, startedAt: new Date(), hourlyRate: await myRateOn(ctx, woId), mode: workMode(mode) },
     });
   }
-  if (wo.status === "OPEN" || wo.status === "ON_HOLD") await changeStatus(ctx, woId, "IN_PROGRESS");
+  if (notStarted(wo.status) || wo.status === "ON_HOLD") await changeStatus(ctx, woId, "IN_PROGRESS");
   revalidatePath(path(woId));
 }
 
@@ -380,10 +382,83 @@ export async function addPartAction(woId: string, _: FormResult, form: FormData)
   return { ok: true };
 }
 
+const manualPartSchema = z.object({
+  quantity: z.coerce.number().finite().positive().max(100_000),
+  model: optStr(120),
+  description: str(300),
+  unitCost: optNumber(),
+});
+
+/** A part that isn't in the catalogue (bought on the spot, the client's own…): typed by hand, no stock moves. */
+export async function addManualPartAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const { ctx } = await executableWorkOrder(woId);
+  if (!ctx.can("inventory.use")) throw new Error("Forbidden");
+  const parsed = parseForm(manualPartSchema, form);
+  if (parsed.error) return parsed.error;
+  const { quantity, model, description, unitCost } = parsed.data;
+  const cost = ctx.can("costs.view") ? Math.max(0, unitCost ?? 0) : 0;
+  await ctx.db.workOrderPart.create({ data: { workOrderId: woId, quantity, model, description, unitCost: cost } });
+  revalidatePath(path(woId));
+  return { ok: true };
+}
+
 export async function returnPartAction(woId: string, workOrderPartId: string) {
   const { ctx } = await executableWorkOrder(woId);
   if (!ctx.can("inventory.use")) throw new Error("Forbidden");
   await returnPart(ctx, woId, workOrderPartId);
+  revalidatePath(path(woId));
+}
+
+// ── Billing
+
+const invoiceSchema = z.object({ invoiceNumber: optStr(60) });
+
+/** Marks the job as invoiced, or changes the invoice number of one that already is. */
+export async function saveInvoiceAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const ctx = await requirePermission("billing.manage");
+  const parsed = parseForm(invoiceSchema, form);
+  if (parsed.error) return parsed.error;
+  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { invoicedAt: true } });
+  if (!wo) throw new Error("Not found");
+  await ctx.db.workOrder.update({
+    where: { id: woId },
+    data: { invoiceNumber: parsed.data.invoiceNumber, ...(wo.invoicedAt ? {} : { invoicedAt: new Date(), invoicedById: ctx.user.id }) },
+  });
+  revalidatePath(path(woId));
+  revalidatePath("/work-orders");
+  return { ok: true };
+}
+
+export async function clearInvoiceAction(woId: string) {
+  const ctx = await requirePermission("billing.manage");
+  await ctx.db.workOrder.update({ where: { id: woId }, data: { invoicedAt: null, invoiceNumber: null, invoicedById: null } });
+  revalidatePath(path(woId));
+  revalidatePath("/work-orders");
+}
+
+// ── Related work orders
+
+const linkSchema = z.object({ ref: str(30) });
+
+/** Links this job to another one, typed as 2026-12 (a bare 12 = this year). One row per pair: it shows on both. */
+export async function addWorkOrderLinkAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const { ctx } = await executableWorkOrder(woId);
+  const parsed = parseForm(linkSchema, form);
+  if (parsed.error) return parsed.error;
+  const ref = parseDocRef(parsed.data.ref, seriesYear(ctx.organization.timezone));
+  const other = ref && (await ctx.db.workOrder.findFirst({ where: ref, select: { id: true } }));
+  if (!other) return { error: "wo.linkNotFound" };
+  if (other.id === woId) return { error: "wo.linkSelf" };
+  const [fromId, toId] = [woId, other.id].sort();
+  await ctx.db.workOrderLink.upsert({ where: { fromId_toId: { fromId, toId } }, create: { fromId, toId, createdById: ctx.user.id }, update: {} });
+  revalidatePath(path(woId));
+  revalidatePath(path(other.id));
+  return { ok: true };
+}
+
+export async function removeWorkOrderLinkAction(woId: string, linkId: string) {
+  const { ctx } = await executableWorkOrder(woId);
+  await ctx.db.workOrderLink.deleteMany({ where: { id: linkId, OR: [{ fromId: woId }, { toId: woId }] } });
   revalidatePath(path(woId));
 }
 

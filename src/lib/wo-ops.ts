@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
-import { assertCanLogTime, changeStatus, WorkOrderError, type WoCtx } from "@/lib/work-orders";
+import { assertCanLogTime, changeStatus, notStarted, WorkOrderError, type WoCtx } from "@/lib/work-orders";
+import { docRef } from "@/lib/series";
 import type { AppContext } from "@/lib/context";
 import { recordReading } from "@/lib/meters";
 import { notify } from "@/lib/notify";
@@ -57,7 +58,7 @@ export async function answerItem(ctx: WoCtx, woId: string, itemId: string, value
     await recordReading(ctx, item.meterId, Number(v), woId);
   }
   // Starting the checklist on an open WO counts as starting work.
-  if (v && wo.status === "OPEN") await changeStatus(ctx, woId, "IN_PROGRESS");
+  if (v && notStarted(wo.status)) await changeStatus(ctx, woId, "IN_PROGRESS");
   return "applied" as const;
 }
 
@@ -65,7 +66,7 @@ export async function answerItem(ctx: WoCtx, woId: string, itemId: string, value
 export async function addComment(ctx: WoCtx, woId: string, body: string, attachmentIds: string[] = [], at = new Date()) {
   const text = z.string().trim().max(5000).parse(body);
   if (!text && attachmentIds.length === 0) return null;
-  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { number: true, title: true, createdById: true, assignees: { select: { userId: true } } } });
+  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { year: true, number: true, title: true, createdById: true, assignees: { select: { userId: true } } } });
   if (!wo) throw new WorkOrderError("invalidRef");
   const comment = await ctx.db.workOrderComment.create({ data: { workOrderId: woId, userId: ctx.user.id, body: text, createdAt: at } });
   if (attachmentIds.length) {
@@ -78,7 +79,7 @@ export async function addComment(ctx: WoCtx, woId: string, body: string, attachm
   // @mentioned staff get MENTION; the WO's creator and assignees get WO_COMMENT.
   const staff = await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } });
   const mentioned = findMentions(text, staff.map((m) => m.user));
-  const data = { number: wo.number, title: wo.title, actor: ctx.user.name, excerpt: excerpt(text), where: `#${wo.number}` };
+  const data = { number: docRef(wo), title: wo.title, actor: ctx.user.name, excerpt: excerpt(text), where: docRef(wo) };
   const link = `/work-orders/${woId}`;
   await notify(ctx, mentioned, { type: "MENTION", data, link });
   await notify(ctx, [wo.createdById, ...wo.assignees.map((a) => a.userId)].filter((u) => !mentioned.includes(u)), { type: "WO_COMMENT", data, link });
@@ -99,7 +100,7 @@ export async function addTimeEntry(ctx: AppContext, woId: string, rate: unknown,
   const entry = await ctx.db.timeEntry.create({
     data: { workOrderId: woId, userId: ctx.user.id, startedAt, endedAt, minutes, note: note?.slice(0, 500) || null, hourlyRate: rate as number | null, mode },
   });
-  if (wo.status === "OPEN") await changeStatus(ctx, woId, "IN_PROGRESS");
+  if (notStarted(wo.status)) await changeStatus(ctx, woId, "IN_PROGRESS");
   return entry;
 }
 

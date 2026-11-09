@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { urgentRuleFor, type UrgentRule } from "@/lib/urgent-surcharge";
 import { deleteContractAction } from "../actions";
 import { ContractStatusBadge } from "../status-badge";
+import { docRef } from "@/lib/series";
 
 const WINDOW_DAYS = 90;
 
@@ -34,7 +35,7 @@ export default async function ContractPage({ params }: PageProps<"/contracts/[id
   const [recent, visits, linkedTotal] = await Promise.all([
     ctx.db.workOrder.findMany({
       where: { contractId: id },
-      select: { id: true, number: true, title: true, status: true, system: true, createdAt: true, firstResponseAt: true, completedAt: true, villa: { select: { name: true } }, statusLogs: SLA_STATUS_LOGS },
+      select: { id: true, year: true, number: true, title: true, status: true, system: true, createdAt: true, firstResponseAt: true, completedAt: true, villa: { select: { name: true } }, statusLogs: SLA_STATUS_LOGS },
       orderBy: { createdAt: "desc" },
       take: 200,
     }),
@@ -169,7 +170,7 @@ export default async function ContractPage({ params }: PageProps<"/contracts/[id
                     <tr key={w.id}>
                       <td>
                         <Link href={`/work-orders/${w.id}`} className="font-medium hover:text-brand">
-                          #{w.number} · {w.title}
+                          {docRef(w)} · {w.title}
                         </Link>
                         <div className="text-xs text-muted">
                           {dt(w.createdAt)}

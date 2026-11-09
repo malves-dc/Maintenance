@@ -120,12 +120,14 @@ async function main() {
   });
 
   // Work orders.
-  const counter = await prisma.counter.findUnique({ where: { organizationId_key: { organizationId: org.id, key: "workOrder" } } });
+  const year = new Date().getFullYear();
+  const key = `series:${year}`;
+  const counter = await prisma.counter.findUnique({ where: { organizationId_key: { organizationId: org.id, key } } });
   let n = counter?.value ?? 0;
   type WO = Parameters<typeof prisma.workOrder.create>[0]["data"];
-  const wo = async (data: Omit<WO, "organizationId" | "number" | "createdById"> & { createdById?: string }, assignees: string[] = []) => {
+  const wo = async (data: Omit<WO, "organizationId" | "year" | "number" | "createdById"> & { createdById?: string }, assignees: string[] = []) => {
     const w = await prisma.workOrder.create({
-      data: { ...o, number: ++n, createdById: manager.id, contractId: contract?.id ?? null, ...data, assignees: { create: assignees.map((userId) => ({ userId })) } } as WO,
+      data: { ...o, year, number: ++n, createdById: manager.id, contractId: contract?.id ?? null, ...data, assignees: { create: assignees.map((userId) => ({ userId })) } } as WO,
     });
     await prisma.workOrderStatusLog.create({ data: { workOrderId: w.id, toStatus: "OPEN", userId: manager.id, createdAt: w.createdAt } });
     return w;
@@ -235,24 +237,18 @@ async function main() {
   );
   await wo({ title: "Install outdoor access point by the pool", status: "OPEN", priority: "LOW", type: "INSTALLATION", system: "NETWORK", villaId: villa2.id, dueDate: ahead(14), createdAt: ago(0, 5) }, [rui.id]);
   await wo({ title: "Annual electrical inspection", status: "OPEN", priority: "MEDIUM", type: "INSPECTION", system: "ELECTRICAL", villaId: villa2.id, dueDate: ahead(21), createdAt: ago(0, 1) }, [daniel.id]);
-  await prisma.counter.upsert({
-    where: { organizationId_key: { organizationId: org.id, key: "workOrder" } },
-    create: { organizationId: org.id, key: "workOrder", value: n },
-    update: { value: n },
-  });
 
   // Requests: one pending from the portal, one from a QR label, one approved, one declined.
-  let r = 0;
-  const req = (data: Omit<Parameters<typeof prisma.request.create>[0]["data"], "organizationId" | "number">) =>
-    prisma.request.create({ data: { ...o, number: ++r, ...data } as Parameters<typeof prisma.request.create>[0]["data"] });
+  const req = (data: Omit<Parameters<typeof prisma.request.create>[0]["data"], "organizationId" | "year" | "number">) =>
+    prisma.request.create({ data: { ...o, year, number: ++n, ...data } as Parameters<typeof prisma.request.create>[0]["data"] });
   await req({ title: "TV in the master bedroom has no signal", description: "Since this morning the TV shows 'no signal' on every input.", priority: "MEDIUM", system: "AV", villaId: villa.id, requesterId: client.id, createdAt: ago(0, 3) });
   await req({ title: "Camera at the gate is offline", priority: "HIGH", system: "CCTV", villaId: villa.id, assetId: nvr.id, requesterName: "Maria Santos", requesterEmail: "maria@whitmore.test", createdAt: ago(0, 6) });
   await req({ title: "Wi-Fi drops in the cinema room", status: "APPROVED", priority: "HIGH", system: "NETWORK", villaId: villa.id, requesterId: client.id, workOrderId: done.id, createdAt: ago(12, 1) });
   await req({ title: "Please add a socket in the garage", status: "DECLINED", declineReason: "This is new installation work, not maintenance. We'll send you a quote.", villaId: villa.id, requesterId: client.id, createdAt: ago(5) });
   await prisma.counter.upsert({
-    where: { organizationId_key: { organizationId: org.id, key: "request" } },
-    create: { organizationId: org.id, key: "request", value: r },
-    update: { value: r },
+    where: { organizationId_key: { organizationId: org.id, key } },
+    create: { organizationId: org.id, key, value: n },
+    update: { value: n },
   });
 
   // Chat: a group conversation and a direct message.

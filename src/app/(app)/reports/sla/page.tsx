@@ -5,6 +5,7 @@ import { StatTile } from "@/components/charts/stat-tile";
 import { SlaBadge } from "@/components/badges";
 import { slaReport } from "@/lib/reports";
 import { ExportLink, loadReport, Section } from "../common";
+import { docRef } from "@/lib/series";
 
 export default async function SlaReportPage({ searchParams }: PageProps<"/reports/sla">) {
   const { ctx, f, t, pct, day, format } = await loadReport(searchParams);
@@ -86,7 +87,7 @@ export default async function SlaReportPage({ searchParams }: PageProps<"/report
                 <tr key={w.id}>
                   <td>
                     <Link href={`/work-orders/${w.id}`} className="font-medium hover:text-brand">
-                      #{w.number} · {w.title}
+                      {docRef(w)} · {w.title}
                     </Link>
                     <div className="text-xs text-muted">
                       {dt(w.createdAt)} · {w.contract!.name}

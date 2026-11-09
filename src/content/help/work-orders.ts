@@ -20,7 +20,7 @@ Every piece of work goes through a work order, whatever started it:
 - approved from a client [request](/help/requests), which turns into a work order with the client's photos;
 - generated automatically by a [preventive maintenance](/help/preventive) schedule or a [meter](/help/meters) alert.
 
-Each work order gets a number (**#12**) that never changes. If the villa is covered by a [service contract](/help/contracts), the work order is linked to it automatically and shows its response and resolution deadlines.
+Each work order gets a number (**2026-12**: the year and a sequence) that never changes. Requests and work orders share the same yearly series, and a work order made from a request keeps the request's number. If the villa is covered by a [service contract](/help/contracts), the work order is linked to it automatically and shows its response and resolution deadlines.
 
 ## The work orders list
 
@@ -40,7 +40,7 @@ The most urgent jobs come first: sorted by due date (jobs without a due date las
 
 By default the list shows only active jobs (**Open & in progress**, which also includes jobs on hold). Use the filters at the top to narrow it down:
 
-- the search box finds a word in the title or description, or a number such as **#12**;
+- the search box finds a word in the title or description, or a number such as **2026-12**;
 - status (**All statuses** includes done and cancelled jobs);
 - **Assigned to me**, **Unassigned** or a specific person;
 - villa, system, priority and category;
@@ -54,7 +54,7 @@ The buttons above the filters switch between **List**, **Board** and **Calendar*
 
 ![The board: one column per status](work-orders-board)
 
-- **Board** shows a column per status: **Open**, **In progress**, **On hold** and **Done** (jobs finished in the last 14 days). Drag a card to another column to change its status. The same rules apply as on the work order page: a job can't be dropped in **Done** until its required checklist steps and the client sign-off are complete, and an error appears at the top if it can't move.
+- **Board** shows a column per status: **Open**, **On the way**, **In progress**, **On hold** and **Done** (jobs finished in the last 14 days). Drag a card to another column to change its status. The same rules apply as on the work order page: a job can't be dropped in **Done** until its required checklist steps and the client sign-off are complete, and an error appears at the top if it can't move.
 - **Calendar** shows a month of work orders, coloured by status (cancelled jobs are left out). A job with a start date appears on every day from its start to its due date; otherwise on its due date. The first day shows its time. Technicians see their own jobs first (**Assigned to me**); choose **Anyone** to see everyone's. To have your jobs in Google Calendar, Outlook or your phone, subscribe to your calendar link in [Profile](/help/profile). Preventive maintenance visits that are planned but not yet generated appear with a dashed outline and open the schedule. Use the arrows to move between months.
 
 ## Creating a work order
@@ -97,12 +97,13 @@ Your time on the job is charged at the price of the role you take on it, includi
 The status buttons at the top of the page move the job along:
 
 - **Open**: created, nobody has started yet.
+- **On the way**: the technician marks it when leaving for the villa. The client sees "Technician on the way". It counts as the first response for the [contract](/help/contracts).
 - **In progress**: someone is working on it. This happens on its own when someone starts the timer, logs time or answers the first checklist step.
 - **On hold**: waiting for something. The app asks why (for example "waiting for parts"); the reason appears in the activity.
 - **Done**: finished. All required checklist steps must be answered and the client sign-off must be done first.
 - **Cancelled**: use **Cancel work order** under the status buttons when the job is no longer needed.
 
-To reopen a finished job, click **Open** or **In progress** again. Running timers stop automatically when a job is marked done or cancelled. The creator and the people assigned are notified of every status change, and when a job from a client request is done and visible to the client, the client is told too.
+To reopen a finished job, click **Open** or **In progress** again. Running timers stop automatically when a job is marked done or cancelled. The creator and the people assigned are notified of every status change. So is the client, when the job is visible to them: the portal users of the villa's owner and property manager and whoever made the request, by push notification if they turned it on, when the job is opened and at each change. They also see the reason when a job is put on hold; other notes stay internal. In the portal a request goes through **Request received**, **Scheduled**, **Technician on the way**, **Technician working** (or **On hold** with the reason) and **Done**.
 
 > A done or cancelled work order is closed: its checklist can't be answered or edited, and the time and sign-off panels are locked. Reopen it to make changes.
 
@@ -163,6 +164,8 @@ The **Parts used** panel takes parts out of stock for the job:
 
 The stock goes down straight away. The serial numbers are shown under the part (**S/N**) on the work order and in the service report. If a part wasn't used after all, the return button (**Return to stock**) puts it back. People who can place purchase orders also see **Order parts**, which starts a purchase order for this job. See [Parts](/help/parts) and [Purchase orders](/help/purchase-orders).
 
+A part that isn't in the catalogue goes in with **Add by hand**: quantity, model and description, plus a unit cost if it should count in the amounts. It takes nothing from stock and appears in the service report like the others.
+
 ## Amounts to bill
 
 The **Amounts to bill** panel adds up what the job is charged to the client:
@@ -179,6 +182,14 @@ These amounts stay internal: they are never shown to the client or printed on th
 ## Report
 
 Under **Report**, the technician describes the work done: what was found, what was changed, anything still to do. Click **Save** to keep it. A job can't be marked done without a report, and once it's done or cancelled the report can't be changed (reopen the job first). The client sees it in the service report and in the client portal.
+
+### Related work orders
+
+Under the report, **Related work orders** links this job to another one, for example when a problem keeps coming back. Type the other job's number (**2026-12**; recent jobs at the same villa are suggested) and click **Add**. The link shows on both work orders. The service report lists the related jobs the client can see.
+
+## Billing
+
+The **Billing** card shows whether the job has been invoiced. The accountant fills in the invoice number, which is optional, and clicks **Mark as invoiced**. Accountants, managers and administrators see it; technicians and clients don't. In the list, those who see it can filter by **Invoiced** or **Not invoiced**, and the work orders CSV has the invoice number.
 
 ## Client sign-off
 
@@ -240,7 +251,7 @@ Todo o trabalho passa por uma ordem de trabalho, seja qual for a origem:
 - aprovada a partir de um [pedido](/help/requests) do cliente, que se transforma numa ordem de trabalho com as fotografias do cliente;
 - gerada automaticamente por um plano de [manutenção preventiva](/help/preventive) ou por um alerta de [contador](/help/meters).
 
-Cada ordem de trabalho recebe um número (**#12**) que nunca muda. Se a moradia estiver abrangida por um [contrato de manutenção](/help/contracts), a ordem de trabalho fica ligada a ele automaticamente e mostra os prazos de resposta e de resolução.
+Cada ordem de trabalho recebe um número (**2026-12**: o ano e uma sequência) que nunca muda. Os pedidos e as ordens de trabalho partilham a mesma série anual, e uma ordem de trabalho criada a partir de um pedido fica com o número do pedido. Se a moradia estiver abrangida por um [contrato de manutenção](/help/contracts), a ordem de trabalho fica ligada a ele automaticamente e mostra os prazos de resposta e de resolução.
 
 ## A lista de ordens de trabalho
 
@@ -260,7 +271,7 @@ Os trabalhos mais urgentes aparecem primeiro: ordenados pelo prazo (os que não 
 
 Por defeito a lista mostra apenas os trabalhos ativos (**Abertas e em curso**, que inclui também as que estão em espera). Use os filtros no topo para restringir a lista:
 
-- a caixa de pesquisa encontra uma palavra no título ou na descrição, ou um número como **#12**;
+- a caixa de pesquisa encontra uma palavra no título ou na descrição, ou um número como **2026-12**;
 - estado (**Todos os estados** inclui as concluídas e as canceladas);
 - **Atribuídas a mim**, **Sem atribuição** ou uma pessoa em concreto;
 - moradia, sistema, prioridade e categoria;
@@ -274,7 +285,7 @@ Os botões acima dos filtros alternam entre **Lista**, **Quadro** e **Calendári
 
 ![O quadro: uma coluna por estado](work-orders-board)
 
-- O **Quadro** mostra uma coluna por estado: **Aberta**, **Em curso**, **Em espera** e **Concluída** (trabalhos terminados nos últimos 14 dias). Arraste um cartão para outra coluna para mudar o estado. Aplicam-se as mesmas regras da página da ordem de trabalho: um trabalho não pode ir para **Concluída** sem os passos obrigatórios da checklist e a aprovação do cliente, e aparece um erro no topo se não puder ser movido.
+- O **Quadro** mostra uma coluna por estado: **Aberta**, **A caminho**, **Em curso**, **Em espera** e **Concluída** (trabalhos terminados nos últimos 14 dias). Arraste um cartão para outra coluna para mudar o estado. Aplicam-se as mesmas regras da página da ordem de trabalho: um trabalho não pode ir para **Concluída** sem os passos obrigatórios da checklist e a aprovação do cliente, e aparece um erro no topo se não puder ser movido.
 - O **Calendário** mostra um mês de ordens de trabalho, com a cor do estado (as canceladas não aparecem). Um trabalho com data de início aparece em todos os dias, do início ao prazo; senão, no dia do prazo. O primeiro dia mostra a hora. Os técnicos veem primeiro os seus trabalhos (**Atribuídas a mim**); escolha **Qualquer pessoa** para ver os de todos. Para ter os seus trabalhos no Google Calendar, no Outlook ou no telemóvel, subscreva o seu link de calendário no [Perfil](/help/profile). As visitas de manutenção preventiva planeadas mas ainda não geradas aparecem com contorno tracejado e abrem o plano. Use as setas para mudar de mês.
 
 ## Criar uma ordem de trabalho
@@ -317,12 +328,13 @@ O seu tempo no trabalho é cobrado ao preço da função que tem nele, incluindo
 Os botões de estado no topo da página fazem avançar o trabalho:
 
 - **Aberta**: criada, ninguém começou ainda.
+- **A caminho**: o técnico marca-o quando sai para a moradia. O cliente vê "Técnico a caminho". Conta como primeira resposta para o [contrato](/help/contracts).
 - **Em curso**: alguém está a trabalhar nela. Acontece sozinho quando alguém inicia o cronómetro, regista tempo ou responde ao primeiro passo da checklist.
 - **Em espera**: à espera de alguma coisa. A aplicação pergunta porquê (por exemplo, "a aguardar material"); o motivo aparece na atividade.
 - **Concluída**: terminada. Antes disso, todos os passos obrigatórios da checklist têm de estar respondidos e a aprovação do cliente feita.
 - **Cancelada**: use **Cancelar ordem de trabalho**, por baixo dos botões de estado, quando o trabalho já não é necessário.
 
-Para reabrir um trabalho terminado, clique de novo em **Aberta** ou **Em curso**. Os cronómetros a decorrer param automaticamente quando um trabalho é concluído ou cancelado. Quem criou a ordem e as pessoas atribuídas são notificados de cada mudança de estado e, quando um trabalho vindo de um pedido de cliente é concluído e está visível para o cliente, o cliente também é avisado.
+Para reabrir um trabalho terminado, clique de novo em **Aberta** ou **Em curso**. Os cronómetros a decorrer param automaticamente quando um trabalho é concluído ou cancelado. Quem criou a ordem de trabalho e as pessoas atribuídas são notificadas de cada mudança de estado. O cliente também, quando o trabalho lhe é visível: os utilizadores do portal do proprietário e do gestor da moradia e quem fez o pedido, por notificação push se a tiverem ligado, quando o trabalho é aberto e em cada mudança. Também veem o motivo quando um trabalho é posto em espera; as outras notas ficam internas. No portal, um pedido passa por **Pedido recebido**, **Agendado**, **Técnico a caminho**, **Técnico a tratar** (ou **Em espera** com o motivo) e **Concluído**.
 
 > Uma ordem de trabalho concluída ou cancelada está fechada: a checklist não pode ser respondida nem editada, e os painéis de tempo e de aprovação ficam bloqueados. Reabra-a para fazer alterações.
 
@@ -383,6 +395,8 @@ O painel **Peças usadas** retira peças do stock para o trabalho:
 
 O stock desce de imediato. Os números de série aparecem por baixo da peça (**N/S**) na ordem de trabalho e no relatório de serviço. Se afinal uma peça não foi usada, o botão de devolução (**Devolver ao stock**) repõe-na. Quem pode fazer encomendas vê também **Encomendar peças**, que inicia uma encomenda para este trabalho. Veja [Peças](/help/parts) e [Encomendas](/help/purchase-orders).
 
+Uma peça que não está no catálogo entra por **Adicionar manualmente**: quantidade, modelo e descrição, e um custo unitário se deve contar nos valores. Não tira nada do stock e aparece no relatório de serviço como as outras.
+
 ## Valores a faturar
 
 O painel **Valores a faturar** soma o que é cobrado ao cliente pelo trabalho:
@@ -399,6 +413,14 @@ Estes valores são internos: nunca são mostrados ao cliente nem impressos no re
 ## Relatório
 
 Em **Relatório**, o técnico descreve o trabalho realizado: o que encontrou, o que mudou e o que ficou por fazer. Clique em **Guardar** para o gravar. Um trabalho não pode ser concluído sem relatório e, depois de concluído ou cancelado, o relatório já não pode ser alterado (reabra o trabalho primeiro). O cliente vê-o no relatório de serviço e no portal do cliente.
+
+### Ordens de trabalho relacionadas
+
+Por baixo do relatório, **Ordens de trabalho relacionadas** liga este trabalho a outro, por exemplo quando um problema se repete. Escreva o número do outro trabalho (**2026-12**; são sugeridos os trabalhos recentes da mesma moradia) e clique em **Adicionar**. A ligação aparece nas duas ordens de trabalho. O relatório de serviço indica as relacionadas que o cliente pode ver.
+
+## Faturação
+
+O cartão **Faturação** mostra se o trabalho já foi faturado. A contabilista indica o número da fatura, que é opcional, e clica em **Marcar como faturada**. Contabilistas, gestores e administradores veem esta informação; técnicos e clientes não. Na lista, quem a vê pode filtrar por **Faturada** ou **Por faturar**, e o CSV das ordens de trabalho inclui o número da fatura.
 
 ## Aprovação do cliente
 

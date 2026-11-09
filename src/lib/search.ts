@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import type { Priority, SystemType, WorkOrderStatus } from "@/generated/prisma/enums";
 import type { TenantDb } from "@/lib/db/tenant";
 import { FUZZY_MIN, matchRanges, searchTerms, snippet, WORD_SIMILARITY, type Range, type Snippet } from "@/lib/search-text";
+import { docRef } from "@/lib/series";
 
 // Fuzzy search over everything written on work orders: title, description, the request it came from,
 // comments, checklist notes and text answers, time-entry notes and status-change notes. Matching is case-
@@ -26,7 +27,7 @@ export type SearchHit = {
 
 export type SearchResult = {
   id: string;
-  number: number;
+  number: string;
   title: string;
   titleMarks: Range[];
   status: WorkOrderStatus;
@@ -145,7 +146,7 @@ export async function searchWorkOrders(
       where: { id: { in: top.map(([id]) => id) } },
       select: {
         id: true,
-        number: true,
+        year: true, number: true,
         title: true,
         status: true,
         priority: true,
@@ -169,7 +170,7 @@ export async function searchWorkOrders(
     return [
       {
         id: w.id,
-        number: w.number,
+        number: docRef(w),
         title: w.title,
         titleMarks: matchRanges(w.title, terms),
         status: w.status,

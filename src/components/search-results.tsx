@@ -56,7 +56,7 @@ export function SearchResults({
         <li key={r.id} className="rounded-lg border border-border bg-surface">
           <a href={linkFor(r.id)} className="block rounded-t-lg px-4 pb-2 pt-3 hover:bg-gray-50">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted">#{r.number}</span>
+              <span className="text-xs text-muted">{r.number}</span>
               <WorkOrderStatusBadge status={r.status} />
               {!compact && r.system && <SystemBadge system={r.system} />}
               <span className="ml-auto text-xs text-muted">{r.completedAt ? t("completedOn", { date: date(r.completedAt) }) : t("openedOn", { date: date(r.createdAt) })}</span>

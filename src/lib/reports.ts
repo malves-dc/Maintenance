@@ -142,7 +142,7 @@ export async function slaReport(ctx: Ctx, f: ReportFilters, now = new Date()) {
     where: { ...woScope(f), createdAt: inRange(f), contractId: { not: null } },
     select: {
       id: true,
-      number: true,
+      year: true, number: true,
       title: true,
       status: true,
       createdAt: true,
@@ -184,7 +184,7 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
       where: { ...woScope(f), createdAt: inRange(f) },
       select: {
         id: true,
-        number: true,
+        year: true, number: true,
         title: true,
         system: true,
         ...costSelect,

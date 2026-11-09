@@ -483,10 +483,17 @@
     "reportRequired": "Report: describe the work done before marking it done.",
     "timeRequired": "Time: each assigned technician must log their time before marking it done.",
     "noTechnician": "Technician: assign a technician to this work order before marking it done.",
-    "timeNotAssigned": "Only the technicians assigned to this work order can log time."
+    "timeNotAssigned": "Only the technicians assigned to this work order can log time.",
+    "related": "Related work orders",
+    "relatedHint": "Is this related to another job, such as a recurring problem? Type its number. It shows on both work orders and in the service report.",
+    "relatedNumber": "Work order number",
+    "relatedRemove": "Remove the link",
+    "linkNotFound": "There is no work order with that number.",
+    "linkSelf": "That is this work order."
   },
   "woStatus": {
     "OPEN": "Open",
+    "EN_ROUTE": "On the way",
     "IN_PROGRESS": "In progress",
     "ON_HOLD": "On hold",
     "DONE": "Done",
@@ -823,14 +830,16 @@
     "stepScheduled": "Scheduled",
     "stepDeclined": "Not scheduled",
     "plannedFor": "Planned for {date}",
+    "stepOnTheWay": "Technician on the way",
     "stepInProgress": "Technician on it",
+    "onHoldReason": "On hold: {reason}",
     "stepDone": "Completed",
     "downloadReport": "Download service report",
     "pickVilla": "Choose a property to report a problem or see earlier requests and their reports.",
     "pastRequests": "Earlier requests",
     "pastRequestsHint": "What you asked for and the work done, with the service reports.",
     "noPastRequests": "Nothing here yet.",
-    "requestNumber": "Request R{number}",
+    "requestNumber": "Request {number}",
     "visitConfirmed": "Visit confirmed for {date}",
     "visitConfirmedTitle": "Visit confirmed",
     "yourWindow": "You're available {window}. We'll confirm a date and time.",
@@ -1031,19 +1040,25 @@
     "available": "{qty} available here",
     "noParts": "No parts in the catalogue yet.",
     "return": "Return to stock",
-    "returnConfirm": "Remove this part from the work order and put it back into stock?"
+    "returnConfirm": "Remove this part from the work order and put it back into stock?",
+    "addManual": "Add by hand",
+    "model": "Model",
+    "description": "Description",
+    "unitCost": "Unit cost (optional)",
+    "remove": "Remove",
+    "removeConfirm": "Remove this part from the work order?"
   },
   "notify": {
     "WO_ASSIGNED": {
-      "title": "Work order #{number} assigned to you",
+      "title": "Work order {number} assigned to you",
       "body": "{title} · by {actor}"
     },
     "WO_STATUS": {
-      "title": "Work order #{number} {status, select, OPEN {was reopened} IN_PROGRESS {is in progress} ON_HOLD {is on hold} DONE {is done} CANCELLED {was cancelled} other {was updated}}",
+      "title": "Work order {number} {status, select, CREATED {was opened} OPEN {was reopened} EN_ROUTE {has a technician on the way} IN_PROGRESS {is in progress} ON_HOLD {is on hold} DONE {is done} CANCELLED {was cancelled} other {was updated}}",
       "body": "{title} · {actor} {note}"
     },
     "WO_COMMENT": {
-      "title": "{actor} commented on #{number}",
+      "title": "{actor} commented on {number}",
       "body": "{excerpt}"
     },
     "MENTION": {
@@ -1055,16 +1070,16 @@
       "body": "{actor}: {excerpt}"
     },
     "REQUEST_NEW": {
-      "title": "New request R{number}: {title}",
+      "title": "New request {number}: {title}",
       "body": "{place}"
     },
     "REQUEST_UPDATE": {
-      "title": "{status, select, APPROVED {Your request R{number} was accepted} SCHEDULED {Your request R{number} was accepted: visit on {when}} RESCHEDULED {Visit for your request R{number} moved to {when}} other {Your request R{number} was declined}}",
+      "title": "{status, select, APPROVED {Your request {number} was accepted} SCHEDULED {Your request {number} was accepted: visit on {when}} RESCHEDULED {Visit for your request {number} moved to {when}} other {Your request {number} was declined}}",
       "body": "{detail}"
     },
     "METER_ALERT": {
       "title": "{asset}: {meter} out of range",
-      "body": "Reading {value} {unit} · work order #{number} opened"
+      "body": "Reading {value} {unit} · work order {number} opened"
     },
     "LOW_STOCK": {
       "title": "Low stock: {part}",
@@ -1079,7 +1094,7 @@
       "body": "{vendor} · {actor}"
     },
     "REQUEST_MESSAGE": {
-      "title": "New message on request R{number}: {title}",
+      "title": "New message on request {number}: {title}",
       "body": "{actor}: {excerpt}"
     }
   },
@@ -1872,8 +1887,12 @@
     },
     "billing": {
       "manage": {
-        "label": "Billing",
-        "hint": "Invoicing. Reserved for the billing module and accounting integration (no screens yet)."
+        "label": "Mark as invoiced",
+        "hint": "Mark work orders as invoiced and give the invoice number."
+      },
+      "view": {
+        "label": "See invoicing",
+        "hint": "Whether a work order was invoiced and its invoice number."
       }
     },
     "audit": {
@@ -1924,10 +1943,10 @@
     "companyPeople": "These people",
     "companyEmails": "These addresses",
     "onePerLine": "One per line.",
-    "subject": "Service report #{number}: {title}",
-    "subjectRevision": "Service report #{number} (revision {revision}): {title}",
-    "body": "Please find attached the service report for work order #{number}, \"{title}\".",
-    "bodyVilla": "Please find attached the service report for work order #{number}, \"{title}\", at {villa}.",
+    "subject": "Service report {number}: {title}",
+    "subjectRevision": "Service report {number} (revision {revision}): {title}",
+    "body": "Please find attached the service report for work order {number}, \"{title}\".",
+    "bodyVilla": "Please find attached the service report for work order {number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",
     "privacy": "Privacy notice"
   },
@@ -2548,7 +2567,7 @@
     "empty": "No report yet."
   },
   "requestChat": {
-    "title": "Conversation about R{number}",
+    "title": "Conversation about {number}",
     "permanent": "Kept with the request. Messages can't be edited or deleted.",
     "noMessages": "No messages yet. Write to the client or the team here.",
     "you": "You",
@@ -2559,5 +2578,16 @@
     "emptyMessage": "Write a message first.",
     "tooLong": "That message is too long.",
     "forbidden": "You can't take part in this conversation."
+  },
+  "billing": {
+    "title": "Billing",
+    "invoiced": "Invoiced",
+    "invoicedAs": "Invoiced: {number}",
+    "notInvoiced": "Not invoiced",
+    "any": "Invoiced or not",
+    "invoiceNumber": "Invoice number",
+    "mark": "Mark as invoiced",
+    "undo": "Undo: not invoiced",
+    "undoConfirm": "Mark this work order as not invoiced? The invoice number is removed."
   }
 }

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db/client";
 import { buildCalendar, eventTimes, type IcsEvent } from "@/lib/ics";
 import { appOrigin } from "@/lib/qr";
+import { docRef } from "@/lib/series";
 
 // Personal calendar feed: /api/calendar/<token>.ics, subscribed to in Google Calendar, Outlook or Apple Calendar.
 // The secret token in the URL is the only credential (calendar apps can't sign in); the user can replace it from
@@ -29,7 +30,7 @@ export async function GET(_req: Request, { params }: RouteContext<"/api/calendar
     },
     select: {
       id: true,
-      number: true,
+      year: true, number: true,
       title: true,
       description: true,
       status: true,
@@ -56,7 +57,7 @@ export async function GET(_req: Request, { params }: RouteContext<"/api/calendar
     events.push({
       uid: `wo-${w.id}@villaops`,
       ...slot,
-      summary: `${w.status === "DONE" ? "✓ " : ""}#${w.number} ${w.title}${w.villa ? ` — ${w.villa.name}` : ""}`,
+      summary: `${w.status === "DONE" ? "✓ " : ""}${docRef(w)} ${w.title}${w.villa ? ` — ${w.villa.name}` : ""}`,
       location: place,
       description: [
         `${t(`woStatus.${w.status}`)} · ${t(`priority.${w.priority}`)}`,

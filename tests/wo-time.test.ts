@@ -53,7 +53,7 @@ describe("report fingerprint (the service report's revision)", () => {
   });
 
   it("names the PDF after the revision", () => {
-    expect(reportFilename(4, 0)).toBe("WO-4.pdf");
-    expect(reportFilename(4, 2)).toBe("WO-4-rev2.pdf");
+    expect(reportFilename("2026-4", 0)).toBe("WO-2026-4.pdf");
+    expect(reportFilename("2026-4", 2)).toBe("WO-2026-4-rev2.pdf");
   });
 });

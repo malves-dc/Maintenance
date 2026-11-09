@@ -83,6 +83,7 @@ enum ClientType {
 
 enum WorkOrderStatus {
   OPEN
+  EN_ROUTE // the technician is on the way (set by hand); the client sees "Technician on the way"
   ON_HOLD
   IN_PROGRESS
   DONE
@@ -216,6 +217,8 @@ model User {
   assignedWOs        WorkOrderAssignee[]
   createdWOs         WorkOrder[]          @relation("WOCreatedBy")
   completedWOs       WorkOrder[]          @relation("WOCompletedBy")
+  invoicedWOs        WorkOrder[]          @relation("WOInvoicedBy")
+  workOrderLinks     WorkOrderLink[]
   woComments         WorkOrderComment[]
   timeEntries        TimeEntry[]
   statusLogs         WorkOrderStatusLog[]
@@ -735,6 +738,7 @@ model Category {
 model WorkOrder {
   id               String          @id @default(cuid())
   organizationId   String
+  year             Int // the series: shown as year-number (lib/series.ts); a request's work order keeps its year and number
   number           Int
   title            String
   description      String?
@@ -770,6 +774,10 @@ model WorkOrder {
   reportRevision   Int             @default(0) // the service report's revision: see lib/report-revision.ts
   reportFingerprint String? // hash of the report's content when last checked
   clientVisible    Boolean         @default(true)
+  // Billing, seen with billing.view and set with billing.manage (never client-facing, not in the service report).
+  invoicedAt       DateTime?
+  invoiceNumber    String?
+  invoicedById     String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -784,6 +792,7 @@ model WorkOrder {
   alertMeter     Meter?               @relation("MeterAlerts", fields: [alertMeterId], references: [id], onDelete: SetNull)
   createdBy      User                 @relation("WOCreatedBy", fields: [createdById], references: [id])
   completedBy    User?                @relation("WOCompletedBy", fields: [completedById], references: [id])
+  invoicedBy     User?                @relation("WOInvoicedBy", fields: [invoicedById], references: [id], onDelete: SetNull)
   assignees      WorkOrderAssignee[]
   categories     Category[]           @relation("WOCategories")
   items          WorkOrderItem[]
@@ -798,8 +807,10 @@ model WorkOrder {
   stockMovements StockMovement[]
   purchaseOrders PurchaseOrder[]
   conversation   Conversation?
+  linksFrom      WorkOrderLink[]      @relation("WOLinkFrom")
+  linksTo        WorkOrderLink[]      @relation("WOLinkTo")
 
-  @@unique([organizationId, number])
+  @@unique([organizationId, year, number])
   @@index([organizationId, status])
   @@index([organizationId, dueDate])
   @@index([organizationId, villaId])
@@ -882,15 +893,33 @@ model TimeEntry {
 model WorkOrderPart {
   id              String  @id @default(cuid())
   workOrderId     String
-  partId          String
+  partId          String? // null = typed by hand (model + description): not from stock
   stockLocationId String?
   quantity        Decimal @db.Decimal(12, 3)
   unitCost        Decimal @db.Decimal(12, 2)
   serialNumbers   String[] @default([]) // of the units installed (scanned or typed), up to the quantity
+  model           String?
+  description     String?
 
   workOrder     WorkOrder      @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
-  part          Part           @relation(fields: [partId], references: [id])
+  part          Part?          @relation(fields: [partId], references: [id], onDelete: Restrict)
   stockLocation StockLocation? @relation(fields: [stockLocationId], references: [id], onDelete: SetNull)
+}
+
+// "This job is related to that one" (a recurring problem), one row per pair, shown on both. fromId < toId.
+model WorkOrderLink {
+  id          String   @id @default(cuid())
+  fromId      String
+  toId        String
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  from      WorkOrder @relation("WOLinkFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        WorkOrder @relation("WOLinkTo", fields: [toId], references: [id], onDelete: Cascade)
+  createdBy User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([fromId, toId])
+  @@index([toId])
 }
 
 model WorkOrderCost {
@@ -922,7 +951,8 @@ model WorkOrderStatusLog {
 model Request {
   id             String        @id @default(cuid())
   organizationId String
-  number         Int
+  year           Int
+  number         Int // same series as work orders: the work order made from it gets this year and number
   title          String
   description    String?
   priority       Priority      @default(NONE)
@@ -958,7 +988,7 @@ model Request {
   // The chat with the client, kept on the request and shown on the work order it becomes (lib/request-chat.ts).
   messages     RequestMessage[]
 
-  @@unique([organizationId, number])
+  @@unique([organizationId, year, number])
   @@index([organizationId, status])
 }
 

@@ -15,6 +15,7 @@ import { woFilter, WO_ORDER } from "./filter";
 import { BoardView } from "./board";
 import { CalendarView } from "./calendar";
 import { titled } from "@/lib/metadata";
+import { docRef } from "@/lib/series";
 
 export const generateMetadata = titled("nav.workOrders");
 
@@ -32,6 +33,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
   const format = await getFormatter();
   const raw = await searchParams;
   const view = sp(raw, "view") ?? "list";
+  const billing = ctx.can("billing.view") || ctx.can("billing.manage");
   // The calendar opens on the technician's own jobs; managers see everyone's. "all" keeps an explicit "anyone".
   const mineByDefault = view === "calendar" && !ctx.can("workOrders.manage");
   const params = !sp(raw, "assignee") && mineByDefault ? { ...raw, assignee: "me" } : raw;
@@ -51,7 +53,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
 
   let content: React.ReactNode;
   if (view === "board") {
-    const where = woFilter(params, ctx.user.id, { ignoreStatus: true });
+    const where = woFilter(params, ctx.user.id, { ignoreStatus: true, billing });
     const recentDone = new Date(now.getTime() - 14 * 86_400_000);
     const wos = await ctx.db.workOrder.findMany({
       where: { ...where, OR: [{ status: { in: ACTIVE_STATUSES } }, { status: "DONE", completedAt: { gte: recentDone } }], AND: where.OR ? [{ OR: where.OR }] : [] },
@@ -64,7 +66,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
         canExecute={ctx.can("workOrders.execute")}
         workOrders={wos.map((w) => ({
           id: w.id,
-          number: w.number,
+          number: docRef(w),
           title: w.title,
           status: w.status,
           priority: w.priority,
@@ -78,7 +80,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
   } else if (view === "calendar") {
     content = <CalendarView ctx={ctx} params={params} />;
   } else {
-    const where = woFilter(params, ctx.user.id);
+    const where = woFilter(params, ctx.user.id, { billing });
     const { page, skip, take } = pageOf(params);
     const [wos, total] = await Promise.all([
       ctx.db.workOrder.findMany({ where, include: WO_LIST_INCLUDE, orderBy: WO_ORDER, skip, take }),
@@ -107,7 +109,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
                     <tr key={w.id} className="hover:bg-gray-50">
                       <td>
                         <Link href={`/work-orders/${w.id}`} className="font-medium hover:text-brand">
-                          <span className="mr-1.5 font-mono text-xs text-muted">#{w.number}</span>
+                          <span className="mr-1.5 font-mono text-xs text-muted">{docRef(w)}</span>
                           {w.title}
                         </Link>
                         <div className="mt-0.5 flex flex-wrap items-center gap-2">
@@ -116,6 +118,11 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
                           {w.categories.map((c) => (
                             <CategoryChip key={c.id} name={c.name} color={c.color} />
                           ))}
+                          {billing && w.invoicedAt && (
+                            <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                              {w.invoiceNumber ? t("billing.invoicedAs", { number: w.invoiceNumber }) : t("billing.invoiced")}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td>
@@ -240,6 +247,13 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
           <option value="">{t("wo.anyDue")}</option>
           <option value="1">{t("wo.overdueOnly")}</option>
         </Select>
+        {billing && (
+          <Select name="invoiced" defaultValue={sp(params, "invoiced") ?? ""}>
+            <option value="">{t("billing.any")}</option>
+            <option value="no">{t("billing.notInvoiced")}</option>
+            <option value="yes">{t("billing.invoiced")}</option>
+          </Select>
+        )}
       </FilterBar>
       {content}
     </>

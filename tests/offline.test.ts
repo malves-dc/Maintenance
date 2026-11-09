@@ -23,7 +23,7 @@ const item = (id: string, type: OfflineItem["type"], required = false): OfflineI
 
 const wo: OfflineWorkOrder = {
   id: "w1",
-  number: 7,
+  number: "2026-7",
   title: "Replace AP",
   description: null,
   status: "OPEN",

@@ -11,6 +11,7 @@ import { recurrenceOf } from "@/lib/pm";
 import { occurrencesBetween } from "@/lib/pm-schedule";
 import { SystemType } from "@/generated/prisma/enums";
 import { dayKey, scheduleDays, scheduledAt } from "@/lib/wo-schedule";
+import { docRef } from "@/lib/series";
 
 /**
  * Month grid (Monday first) of work orders in the organization's time zone: each job on the days from its start
@@ -47,7 +48,7 @@ export async function CalendarView({ ctx, params }: { ctx: AppContext; params: R
         },
       ],
     },
-    select: { id: true, number: true, title: true, status: true, startDate: true, dueDate: true },
+    select: { id: true, year: true, number: true, title: true, status: true, startDate: true, dueDate: true },
     orderBy: [{ startDate: { sort: "asc", nulls: "last" } }, { dueDate: "asc" }],
     take: 1000,
   });
@@ -143,7 +144,7 @@ export async function CalendarView({ ctx, params }: { ctx: AppContext; params: R
                     )}
                   >
                     {w.time && <span className="mr-1 font-medium tabular-nums">{w.time}</span>}
-                    {w.continued && "↳ "}#{w.number} {w.title}
+                    {w.continued && "↳ "}{docRef(w)} {w.title}
                   </Link>
                 ))}
                 {list.length > 4 && <div className="px-1 text-muted">+{list.length - 4}</div>}

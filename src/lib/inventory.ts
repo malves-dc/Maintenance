@@ -228,8 +228,8 @@ export async function returnPart(ctx: WoCtx, workOrderId: string, workOrderPartI
   const row = await ctx.db.workOrderPart.findFirst({ where: { id: workOrderPartId, workOrderId } });
   if (!row) throw new InventoryError("invalidRef");
   await ctx.db.$transaction(async (tx) => {
-    // The location may have been deleted since (archived ones still take the stock back).
-    if (row.stockLocationId) {
+    // The location may have been deleted since (archived ones still take the stock back). Parts typed by hand have no stock.
+    if (row.partId && row.stockLocationId) {
       await move(tx, ctx, {
         partId: row.partId,
         locationId: row.stockLocationId,

@@ -21,6 +21,7 @@ import { ApproveFields } from "./approve-fields";
 import { villaClient } from "@/lib/villa-client";
 import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
+import { docRef } from "@/lib/series";
 
 export default async function RequestPage({ params }: PageProps<"/requests/[id]">) {
   const { id } = await params;
@@ -40,7 +41,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
       workOrder: {
         select: {
           id: true,
-          number: true,
+          year: true, number: true,
           status: true,
           priority: true,
           contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
@@ -78,7 +79,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   return (
     <>
       <BackLink href="/requests" label={t("nav.requests")} />
-      <PageHeader title={`R${r.number} · ${r.title}`} />
+      <PageHeader title={`${docRef(r)} · ${r.title}`} />
       <div className="-mt-3 mb-5 flex flex-wrap items-center gap-2">
         <RequestStatusBadge status={r.status} />
         {r.system && <SystemBadge system={r.system} />}
@@ -106,7 +107,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
             <Card className="flex items-center justify-between gap-3 p-5 text-sm">
               <span>{t("requests.approvedAs")}</span>
               <Link href={`/work-orders/${r.workOrder.id}`} className="flex items-center gap-2 font-medium hover:text-brand">
-                #{r.workOrder.number}
+                {docRef(r.workOrder)}
                 <WorkOrderStatusBadge status={r.workOrder.status} />
               </Link>
             </Card>
