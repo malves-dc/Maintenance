@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
-import { cleanFolder, cloudReady, DEFAULT_BACKUP_COPIES, emailPlan, normalizeBackupCopies } from "@/lib/backup-copies-settings";
+import { cleanFolder, cloudPlan, cloudReady, DEFAULT_BACKUP_COPIES, emailPlan, normalizeBackupCopies } from "@/lib/backup-copies-settings";
 import { onedriveAuthorizeUrl, onedriveTarget } from "@/lib/cloud/onedrive";
 import { driveQuote, gdriveAuthorizeUrl, gdriveConnect, gdriveTarget } from "@/lib/cloud/gdrive";
 import { webdavTarget } from "@/lib/cloud/webdav";
@@ -51,6 +51,18 @@ describe("backup copy settings", () => {
     expect(emailPlan(e, { kind: "monthly", size: 1000, encrypted: true })).toBe("skip"); // kind not chosen
     expect(emailPlan(e, { kind: "pre-restore", size: 1000, encrypted: true })).toBe("skip"); // never sent
     expect(emailPlan({ ...e, enabled: false }, { kind: "daily", size: 1000, encrypted: true })).toBe("skip");
+  });
+
+  it("uploads only encrypted backups to the cloud by default", () => {
+    const c = { ...DEFAULT_BACKUP_COPIES.cloud, kinds: ["daily" as const] };
+    expect(c.encryptedOnly).toBe(true);
+    expect(normalizeBackupCopies({ cloud: {} }).cloud.encryptedOnly).toBe(true); // settings saved before the option
+    expect(normalizeBackupCopies({ cloud: { encryptedOnly: false } }).cloud.encryptedOnly).toBe(false);
+    expect(cloudPlan(c, { kind: "daily", encrypted: true })).toBe("upload");
+    expect(cloudPlan(c, { kind: "daily", encrypted: false })).toBe("notEncrypted");
+    expect(cloudPlan({ ...c, encryptedOnly: false }, { kind: "daily", encrypted: false })).toBe("upload");
+    expect(cloudPlan(c, { kind: "monthly", encrypted: true })).toBe("skip");
+    expect(cloudPlan(c, { kind: "pre-restore", encrypted: true })).toBe("skip");
   });
 
   it("needs a connected account for OneDrive / Google Drive", () => {

@@ -53,6 +53,11 @@ export async function eraseMember(ctx: AppContext, membershipId: string, placeho
   await audit(ctx, "user.erased", "User", userId);
 }
 
+/** What anonymising a client writes: every field that can identify or reach the person is cleared. */
+export function anonymizedClientData(placeholder: string, now = new Date()) {
+  return { name: placeholder, email: null, phone: null, taxId: null, billingAddress: null, notes: null, reportEmails: [] as string[], anonymizedAt: now };
+}
+
 /** Removes an archived client's contact details and contacts; its villas and jobs stay. */
 export async function anonymizeClient(ctx: AppContext, clientId: string, placeholder: string) {
   const client = await ctx.db.client.findFirst({ where: { id: clientId }, include: { portalUsers: { where: { active: true }, select: { id: true } } } });
@@ -64,7 +69,7 @@ export async function anonymizeClient(ctx: AppContext, clientId: string, placeho
     prisma.clientContact.deleteMany({ where: { clientId } }),
     prisma.client.update({
       where: { id: clientId, organizationId: ctx.organization.id },
-      data: { name: placeholder, email: null, phone: null, taxId: null, billingAddress: null, notes: null, anonymizedAt: new Date() },
+      data: anonymizedClientData(placeholder),
     }),
   ]);
   await audit(ctx, "client.anonymized", "Client", clientId);

@@ -16,6 +16,7 @@ export type CopiesFormValues = {
     provider: CloudProvider;
     kinds: CopyKind[];
     folder: string;
+    encryptedOnly: boolean;
     mirrorDeletes: boolean;
     onedrive: { tenant: string; clientId: string; hasSecret: boolean; siteUrl: string; account: string | null; connected: boolean };
     gdrive: { clientId: string; hasSecret: boolean; account: string | null; connected: boolean };
@@ -42,6 +43,7 @@ export function BackupCopiesForm({
   const [provider, setProvider] = useState<CloudProvider>(values.cloud.provider);
   const [emailOn, setEmailOn] = useState(values.email.enabled);
   const [encryptedOnly, setEncryptedOnly] = useState(values.email.encryptedOnly);
+  const [cloudEncryptedOnly, setCloudEncryptedOnly] = useState(values.cloud.encryptedOnly);
   const [state, submit, pending] = useActionForm(saveBackupCopiesAction);
   const [disconnecting, startDisconnect] = useTransition();
   const error = state?.error && state.error !== "validation" ? `${tr.has(state.error) ? tr(state.error) : tr("common.somethingWrong")}${state.detail ? ` ${state.detail}` : ""}` : null;
@@ -137,6 +139,16 @@ export function BackupCopiesForm({
                 <div className="mb-1.5 text-sm font-medium">{t("whichBackups")}</div>
                 {kindBoxes("cloudKinds", values.cloud.kinds)}
               </div>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" name="cloudEncryptedOnly" checked={cloudEncryptedOnly} onChange={(e) => setCloudEncryptedOnly(e.target.checked)} className="mt-0.5 size-4 accent-brand" />
+                <span>
+                  {t("cloudEncryptedOnly")}
+                  <span className="block text-xs text-muted">{t("cloudEncryptedOnlyHint")}</span>
+                </span>
+              </label>
+              {!backupsEncrypted && (
+                <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">{cloudEncryptedOnly ? t("cloudNotEncryptedWillSkip") : t("cloudNotEncryptedWarning")}</p>
+              )}
               <label className="flex items-start gap-2 text-sm">
                 <input type="checkbox" name="mirrorDeletes" defaultChecked={values.cloud.mirrorDeletes} className="mt-0.5 size-4 accent-brand" />
                 <span>
@@ -256,6 +268,7 @@ export function BackupCopiesForm({
                 <input key={k} type="hidden" name="cloudKinds" value={k} />
               ))}
               {values.cloud.mirrorDeletes && <input type="hidden" name="mirrorDeletes" value="on" />}
+              {values.cloud.encryptedOnly && <input type="hidden" name="cloudEncryptedOnly" value="on" />}
             </>
           )}
         </section>

@@ -1674,6 +1674,10 @@
         "title": "Who receives it",
         "body": "Only our staff who need it for their work, and service providers that host the system or deliver e-mails on our behalf under a data processing agreement. We do not sell your data or use it for advertising."
       },
+      "transfers": {
+        "title": "Transfers outside the EU",
+        "body": "Some of these providers, such as the e-mail delivery service or the cloud storage where encrypted backup copies are kept, may be based outside the European Economic Area (for example in the United States). Any such transfer relies on an adequacy decision of the European Commission (including the EU–US Data Privacy Framework) or on the Commission's standard contractual clauses. You can ask us for a list of these providers and a copy of the safeguards."
+      },
       "retention": {
         "title": "How long we keep it",
         "body": "For as long as we provide services to you and afterwards for the periods required by law (for example, accounting records). Data no longer needed is deleted or anonymised."
@@ -1962,6 +1966,10 @@
     "encryptedOnlyHint": "A backup holds all data and the encryption keys. Unencrypted, it can be read by anyone who gets the e-mail.",
     "notEncryptedWillSkip": "Backups on this server aren't encrypted (BACKUP_PASSWORD isn't set), so with this option only a notice is e-mailed, without the file.",
     "notEncryptedWarning": "Backups on this server aren't encrypted: e-mailed copies can be read by anyone who gets them. Set BACKUP_PASSWORD to encrypt them.",
+    "cloudEncryptedOnly": "Only copy encrypted backups",
+    "cloudEncryptedOnlyHint": "A backup holds all data and the encryption keys. Unencrypted, the cloud provider and anyone with access to the folder can read it.",
+    "cloudNotEncryptedWillSkip": "Backups on this server aren't encrypted (BACKUP_PASSWORD isn't set), so with this option none are copied to the cloud.",
+    "cloudNotEncryptedWarning": "Backups on this server aren't encrypted: cloud copies can be read by the provider and anyone with access to the folder. Set BACKUP_PASSWORD to encrypt them.",
     "maxMb": "Largest attachment (MB)",
     "maxMbHint": "Bigger backups are not attached: a notice is sent instead. Most mail servers accept 20–35 MB.",
     "testEmail": "Send test e-mail",

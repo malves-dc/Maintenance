@@ -1674,6 +1674,10 @@
         "title": "Quem os recebe",
         "body": "Apenas os nossos colaboradores que deles precisam para o seu trabalho, e prestadores de serviços que alojam o sistema ou enviam e-mails em nosso nome, ao abrigo de um acordo de tratamento de dados. Não vendemos os seus dados nem os usamos para publicidade."
       },
+      "transfers": {
+        "title": "Transferências para fora da UE",
+        "body": "Alguns destes prestadores, como o serviço de envio de e-mails ou o armazenamento na cloud onde ficam as cópias de segurança encriptadas, podem estar fora do Espaço Económico Europeu (por exemplo, nos Estados Unidos). Essas transferências baseiam-se numa decisão de adequação da Comissão Europeia (incluindo o Quadro de Privacidade de Dados UE-EUA) ou nas cláusulas contratuais-tipo da Comissão. Pode pedir-nos a lista destes prestadores e uma cópia das garantias."
+      },
       "retention": {
         "title": "Durante quanto tempo os guardamos",
         "body": "Enquanto lhe prestarmos serviços e, depois, pelos prazos exigidos por lei (por exemplo, registos contabilísticos). Os dados que deixem de ser necessários são apagados ou anonimizados."
@@ -1962,6 +1966,10 @@
     "encryptedOnlyHint": "Um backup tem todos os dados e as chaves de encriptação. Sem encriptação, qualquer pessoa que receba o e-mail o pode ler.",
     "notEncryptedWillSkip": "Os backups deste servidor não estão encriptados (BACKUP_PASSWORD não está definida), por isso com esta opção só é enviado um aviso, sem o ficheiro.",
     "notEncryptedWarning": "Os backups deste servidor não estão encriptados: as cópias enviadas por e-mail podem ser lidas por quem as receber. Defina BACKUP_PASSWORD para os encriptar.",
+    "cloudEncryptedOnly": "Copiar só backups encriptados",
+    "cloudEncryptedOnlyHint": "Um backup tem todos os dados e as chaves de encriptação. Sem encriptação, o fornecedor da cloud e quem aceder à pasta o podem ler.",
+    "cloudNotEncryptedWillSkip": "Os backups deste servidor não estão encriptados (BACKUP_PASSWORD não está definida), por isso com esta opção nenhum é copiado para a cloud.",
+    "cloudNotEncryptedWarning": "Os backups deste servidor não estão encriptados: as cópias na cloud podem ser lidas pelo fornecedor e por quem aceder à pasta. Defina BACKUP_PASSWORD para os encriptar.",
     "maxMb": "Anexo máximo (MB)",
     "maxMbHint": "Backups maiores não são anexados: é enviado um aviso. A maioria dos servidores de correio aceita 20–35 MB.",
     "testEmail": "Enviar e-mail de teste",
