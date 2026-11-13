@@ -15,8 +15,11 @@ function useErrorText(state: FormState) {
 
 export function LoginForm({ next, reset, factory, canFactoryReset, canSignUp }: { next?: string; reset?: boolean; factory?: boolean; canFactoryReset?: boolean; canSignUp?: boolean }) {
   const t = useTranslations("auth");
+  const tf = useTranslations("twoFactor");
   const [state, action, pending] = useActionForm(loginAction);
   const error = useErrorText(state);
+  // Two-factor accounts: the password was right, now the code (the e-mail and password fields keep their values).
+  const askCode = state?.error === "twoFactorRequired" || state?.error === "twoFactorInvalid";
   return (
     <Card className="p-6">
       <h1 className="mb-5 text-lg font-semibold">{t("signInTitle")}</h1>
@@ -35,7 +38,12 @@ export function LoginForm({ next, reset, factory, canFactoryReset, canSignUp }: 
             {t("forgot")}
           </Link>
         </p>
-        <FormError message={error} />
+        {askCode && (
+          <Field label={tf("codeOrRecovery")} hint={tf("codeHint")}>
+            <Input name="code" autoComplete="one-time-code" maxLength={20} required autoFocus />
+          </Field>
+        )}
+        <FormError message={state?.error === "twoFactorRequired" ? null : error} />
         <Button className="w-full" disabled={pending}>
           {t("signIn")}
         </Button>

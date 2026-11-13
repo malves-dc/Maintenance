@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db/client";
 import { tenantDb } from "@/lib/db/tenant";
 import { requestIp } from "@/lib/audit";
 import { effectivePermissions, type Permission } from "@/lib/rbac";
+import { needsTwoFactor } from "@/lib/two-factor-rules";
 import { hourlyRateFor, parseRoleRates } from "@/lib/roles";
 import { touchLastSeen } from "@/lib/online-users";
 
@@ -42,6 +43,8 @@ export const getContext = cache(async () => {
   await touchLastSeen(membership);
   // The company's permission settings (Settings → Roles) applied to this member's role / custom role.
   const permissions = effectivePermissions(membership.role, membership.organization.rolePermissions, membership.jobRole?.permissions);
+  // Admins and people who can open access codes must have two-factor sign-in on first (Settings → Organization).
+  if (!user.totpEnabledAt && needsTwoFactor(membership.organization.require2fa, membership.role, permissions)) redirect("/two-factor");
 
   return {
     user,

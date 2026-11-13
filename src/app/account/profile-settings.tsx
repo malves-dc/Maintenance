@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Download } from "lucide-react";
 import { ActionForm, FieldError } from "@/components/action-form";
-import { Card, Field, Input } from "@/components/ui";
+import { Button, Card, Field, Input } from "@/components/ui";
+import { twoFactorRequiredFor } from "@/lib/two-factor";
+import { TwoFactorManage } from "@/app/(auth)/two-factor/forms";
 import { PasswordInput } from "@/components/password-input";
 import { requireUser } from "@/lib/context";
 import { vapidPublicKey } from "@/lib/push";
@@ -20,6 +22,8 @@ import { getTheme } from "@/lib/theme-server";
 export async function ProfileSettings({ portal = false, org }: { portal?: boolean; org: { slug: string } }) {
   const user = await requireUser();
   const t = await getTranslations();
+  const format = await getFormatter();
+  const twoFactorRequired = await twoFactorRequiredFor(user.id);
   const types = portal ? PORTAL_TYPES : NOTIFICATION_TYPES.filter((x) => x !== "REQUEST_UPDATE");
   const prefs = Object.fromEntries(types.map((type) => [type, prefsOf(user.notificationPrefs, type)])) as Record<string, Channels>;
 
@@ -74,6 +78,27 @@ export async function ProfileSettings({ portal = false, org }: { portal?: boolea
               <FieldError name="confirm" />
             </Field>
           </ActionForm>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="mb-1 font-medium">{t("twoFactor.title")}</h2>
+          {user.totpEnabledAt ? (
+            <>
+              <p className="mb-3 text-sm text-muted">
+                {t("twoFactor.on", { date: format.dateTime(user.totpEnabledAt, { dateStyle: "medium" }) })} {twoFactorRequired && t("twoFactor.required")}
+              </p>
+              <TwoFactorManage canTurnOff={!twoFactorRequired} />
+            </>
+          ) : (
+            <>
+              <p className="mb-3 text-sm text-muted">{t("twoFactor.off")}</p>
+              <Link href="/two-factor">
+                <Button size="sm" variant="secondary">
+                  {t("twoFactor.setUp")}
+                </Button>
+              </Link>
+            </>
+          )}
         </Card>
       </div>
 

@@ -209,6 +209,13 @@ model User {
   calendarToken     String?  @unique
   // Last successful sign-in, shown in "Who is online" (lib/online-users).
   lastSignInAt      DateTime?
+  // Two-factor sign-in (lib/two-factor.ts): the TOTP secret (encryptField), set when setup starts; on once
+  // totpEnabledAt is set. totpLastStep is the last accepted 30-second step (a code works once).
+  // totpRecovery: SHA-256 hashes of the unused one-time recovery codes.
+  totpSecretEnc     String?
+  totpEnabledAt     DateTime?
+  totpLastStep      Int?
+  totpRecovery      String[] @default([])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -285,6 +292,8 @@ model Organization {
   // Who also gets e-mailed service reports: {"userIds": […], "roles": ["ACCOUNTANT", "job:<id>"], "emails": […]}.
   reportRecipients Json?
   privacyNotice String? // custom privacy notice (plain text) shown at /privacy/<slug>; null = built-in template
+  // Staff who can see access codes (secrets.view) and admins must sign in with a second factor (lib/two-factor.ts).
+  require2fa    Boolean  @default(true)
   // Cost per hour of the built-in roles, e.g. {"TECHNICIAN": 45}; custom roles carry their own (JobRole).
   roleRates     Json?
   timezone      String   @default("Europe/Lisbon")
@@ -339,6 +348,11 @@ model Membership {
   // In the on-call team: can be given on-call weeks (OnCallWeek). Staff only (not clients or viewers).
   onCall         Boolean  @default(false)
   active         Boolean  @default(true)
+  // When it was last deactivated: ex-members are flagged for erasure after the retention period (lib/retention).
+  deactivatedAt  DateTime?
+  // This company erased the person's data (GDPR art. 17) while they still belonged to another company; the account
+  // itself is erased once no company still needs it (lib/erasure.ts).
+  erasedAt       DateTime?
   // Last request made in this company, for "Who is online": stamped at most once a minute (lib/online-users),
   // cleared on sign-out.
   lastSeenAt     DateTime?

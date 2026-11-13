@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Mail, Pencil, Phone, Plus } from "lucide-react";
+import { Download, Mail, Pencil, Phone, Plus } from "lucide-react";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
 import { ActionForm, FieldError } from "@/components/action-form";
@@ -47,6 +47,15 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
         actions={
           canManage && (
             <>
+              {!client.anonymizedAt && (
+                // A plain link: the route answers with a file download (and logs it).
+                <a href={`/api/export/client/${client.id}`} title={t("gdprExport.clientHint")}>
+                  <Button variant="ghost">
+                    <Download className="size-4" />
+                    {t("gdprExport.client")}
+                  </Button>
+                </a>
+              )}
               {client.archivedAt && !client.anonymizedAt && <AnonymizeClientButton clientId={client.id} />}
               <ArchiveButton archived={!!client.archivedAt} action={setClientArchivedAction.bind(null, client.id)} />
               <Link href={`/clients/${client.id}/edit`}>

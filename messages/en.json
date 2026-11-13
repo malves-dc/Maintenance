@@ -77,7 +77,9 @@
     "factoryResetConfirm": "Erase ALL data on this server and restore the demo? This cannot be undone.",
     "factoryResetDone": "The server was reset to the demo data. Sign in with owner@demo.test / demo1234.",
     "wrongResetPassword": "Wrong reset password.",
-    "tooManyAttempts": "Too many failed sign-in attempts. Wait 15 minutes and try again, or reset your password."
+    "tooManyAttempts": "Too many failed sign-in attempts. Wait 15 minutes and try again, or reset your password.",
+    "twoFactorRequired": "Type the code from your authenticator app.",
+    "twoFactorInvalid": "Wrong or expired code."
   },
   "onboarding": {
     "title": "Create your organization",
@@ -1666,6 +1668,10 @@
         "title": "What we collect",
         "body": "Contact details (name, e-mail, phone) of clients, villa contacts, staff and people who report a fault; addresses and access notes of the properties we maintain; maintenance requests, work orders, photos, client signatures and messages; for staff, time logged on jobs; and technical records such as sign-in and security logs."
       },
+      "sources": {
+        "title": "Where it comes from",
+        "body": "Mostly from you. Some of it comes from others: the details of villa contacts (house managers, family members, staff) are given to us by the villa's owner or managing company; a person who reports a fault may give us their own details on our request form; and our technicians record the work they do, the photos they take and who signed for it. If we hold your details because someone else gave them to us, this notice applies to you too."
+      },
       "purposes": {
         "title": "Why we use it",
         "body": "To provide the maintenance services agreed with our clients (performance of a contract), to answer requests and faults reported to us, to plan and document our work, to meet legal obligations such as invoicing and record keeping, and to keep the system secure (legitimate interest)."
@@ -1674,9 +1680,19 @@
         "title": "Who receives it",
         "body": "Only our staff who need it for their work, and service providers that host the system or deliver e-mails on our behalf under a data processing agreement. We do not sell your data or use it for advertising."
       },
+      "transfers": {
+        "title": "Transfers outside the EU",
+        "body": "Some of these providers, such as the e-mail delivery service or the cloud storage where encrypted backup copies are kept, may be based outside the European Economic Area (for example in the United States). Any such transfer relies on an adequacy decision of the European Commission (including the EU–US Data Privacy Framework) or on the Commission's standard contractual clauses. You can ask us for a list of these providers and a copy of the safeguards."
+      },
       "retention": {
         "title": "How long we keep it",
-        "body": "For as long as we provide services to you and afterwards for the periods required by law (for example, accounting records). Data no longer needed is deleted or anonymised."
+        "body": "For as long as we provide services to you and afterwards for the periods required by law (for example, accounting records). Data no longer needed is deleted or anonymised.",
+        "periods": "In particular, the system deletes automatically:",
+        "notificationsDays": "in-app notifications, after {n, plural, one {# day} other {# days}};",
+        "auditMonths": "the security log, after {n, plural, one {# month} other {# months}};",
+        "requestersMonths": "the name, e-mail and phone given on our request form, {n, plural, one {# month} other {# months}} after the request is decided;",
+        "chatMonths": "chat messages between staff, after {n, plural, one {# month} other {# months}};",
+        "pushDays": "the devices registered for notifications, once their user has no access left or hasn't used the app for {n, plural, one {# day} other {# days}}."
       },
       "security": {
         "title": "How we protect it",
@@ -1694,7 +1710,52 @@
     "notificationsDays": "Notifications (days)",
     "auditMonths": "Security log (months)",
     "requestersMonths": "QR requester contact details (months after the decision)",
-    "chatMonths": "Chat messages (months)"
+    "chatMonths": "Chat messages (months)",
+    "formerMonths": "Former members and archived clients: remind to erase after (months)",
+    "formerDue": "Past this period, review them and erase their data if nothing still needs it:",
+    "formerMembersDue": "{n, plural, one {# former member} other {# former members}}",
+    "formerClientsDue": "{n, plural, one {# archived client} other {# archived clients}}"
+  },
+  "gdprExport": {
+    "client": "Export data",
+    "clientHint": "Download this client's personal data (JSON): details, contacts, villas, jobs and requests. For when the client asks for a copy of their data.",
+    "requesterTitle": "Data of someone who made a request",
+    "requesterHint": "For people without an account who reported a fault by QR code and ask for a copy of their data: everything they typed under this e-mail address (JSON).",
+    "download": "Download"
+  },
+  "twoFactor": {
+    "title": "Two-factor sign-in",
+    "orgSetting": "Require two-factor sign-in for admins and for staff who can see access codes",
+    "orgSettingHint": "They'll be asked to set it up on their next visit, with an authenticator app (Microsoft Authenticator, Google Authenticator, 1Password…).",
+    "on": "On since {date}.",
+    "off": "Off. Each sign-in asks only for your password.",
+    "required": "Your company requires it for your role.",
+    "setUp": "Set up",
+    "turnOff": "Turn off",
+    "turnOffConfirm": "Turn off two-factor sign-in? Signing in will ask only for your password.",
+    "newCodes": "New recovery codes",
+    "newCodesConfirm": "Make new recovery codes? The old ones stop working.",
+    "codeLabel": "Code from the app",
+    "codeOrRecovery": "Code from the app, or a recovery code",
+    "codeHint": "6 digits. Lost your phone? Type one of your recovery codes.",
+    "invalidCode": "Wrong or expired code.",
+    "setupTitle": "Set up two-factor sign-in",
+    "setupIntro": "Your company asks for a second step when you sign in, because your account can see villa access codes or manage the company. You need an authenticator app on your phone.",
+    "setupIntroOptional": "Signing in will ask for a code from an authenticator app on your phone, as well as your password.",
+    "step1": "1. In the authenticator app, add an account and scan this code.",
+    "manualKey": "Can't scan it? Type this key:",
+    "step2": "2. Type the 6-digit code the app shows.",
+    "confirm": "Turn on",
+    "recoveryTitle": "Save your recovery codes",
+    "recoveryIntro": "Each code works once, in place of the app's code, if you lose your phone. Keep them somewhere safe (a password manager, or printed). They won't be shown again.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "done": "Done, continue",
+    "reset": "Reset two-factor",
+    "resetUnavailable": "This person hasn't turned on two-factor sign-in, so there is nothing to reset.",
+    "resetConfirm": "Reset this person's two-factor sign-in? They'll sign in with their password only and, if their role requires it, be asked to set it up again.",
+    "notAllowed": "Your company requires two-factor sign-in for your role.",
+    "signOut": "Sign out"
   },
   "erasure": {
     "formerUser": "Former user",
@@ -1705,9 +1766,9 @@
     "eraseConfirm": "Erase this person's personal data? Their name, e-mail, phone, password and notifications are removed for good, and they can no longer sign in. Jobs and time they logged stay, under \"Former user\". This can't be undone.",
     "anonymize": "Erase personal data",
     "anonymizeHint": "Remove this client's name, contact details, tax number, notes and contacts; villas and jobs stay.",
-    "anonymizeConfirm": "Erase this client's personal data? The name, e-mail, phone, tax number, billing address, notes and all contacts are removed for good. Villas, jobs and contracts stay, under \"Former client\". This can't be undone.",
+    "anonymizeConfirm": "Erase this client's personal data? The name, e-mail, phone, tax number, billing address, notes and all contacts are removed for good, as are their addresses on sent reports, the names of whoever signed for jobs at their villas and the details typed on QR requests there. On their villas that are archived, the access notes, access codes and photos go too. Villas, jobs and contracts stay, under \"Former client\". This can't be undone.",
     "deactivateFirst": "Deactivate the member first.",
-    "otherCompanies": "This person also belongs to another company, so the account can't be erased from here. Deactivating them removes their access to this company.",
+    "erasedHere": "Erased from this company. This person also works for another company, so their account stays there; their name stays on your past jobs until that account is erased too.",
     "archiveFirst": "Archive the client first.",
     "portalUsers": "This client still has active portal users. Deactivate and erase them first."
   },
@@ -1962,6 +2023,10 @@
     "encryptedOnlyHint": "A backup holds all data and the encryption keys. Unencrypted, it can be read by anyone who gets the e-mail.",
     "notEncryptedWillSkip": "Backups on this server aren't encrypted (BACKUP_PASSWORD isn't set), so with this option only a notice is e-mailed, without the file.",
     "notEncryptedWarning": "Backups on this server aren't encrypted: e-mailed copies can be read by anyone who gets them. Set BACKUP_PASSWORD to encrypt them.",
+    "cloudEncryptedOnly": "Only copy encrypted backups",
+    "cloudEncryptedOnlyHint": "A backup holds all data and the encryption keys. Unencrypted, the cloud provider and anyone with access to the folder can read it.",
+    "cloudNotEncryptedWillSkip": "Backups on this server aren't encrypted (BACKUP_PASSWORD isn't set), so with this option none are copied to the cloud.",
+    "cloudNotEncryptedWarning": "Backups on this server aren't encrypted: cloud copies can be read by the provider and anyone with access to the folder. Set BACKUP_PASSWORD to encrypt them.",
     "maxMb": "Largest attachment (MB)",
     "maxMbHint": "Bigger backups are not attached: a notice is sent instead. Most mail servers accept 20–35 MB.",
     "testEmail": "Send test e-mail",
@@ -2148,7 +2213,13 @@
         "passwordChangeFailed": "Password change failed (wrong current password)",
         "passwordResetRequested": "Asked for a password reset link",
         "passwordReset": "Reset their password with a link",
-        "calendarLink": "Created a new calendar link"
+        "calendarLink": "Created a new calendar link",
+        "twoFactorEnabled": "Turned on two-factor sign-in",
+        "twoFactorDisabled": "Turned off two-factor sign-in",
+        "twoFactorCodes": "Made new recovery codes",
+        "twoFactorFailed": "Sign-in failed (wrong two-factor code)",
+        "twoFactorRecoveryUsed": "Signed in with a recovery code",
+        "twoFactorReset": "Had their two-factor sign-in reset by an admin"
       },
       "server": {
         "unlock": "Unlocked Settings → Server",
@@ -2190,10 +2261,21 @@
         }
       },
       "user": {
-        "erased": "Erased a person's data"
+        "erased": "Erased a person's data",
+        "erasedHere": "Erased a person's data in this company (they still work for another one)"
       },
       "client": {
-        "anonymized": "Anonymised a client"
+        "anonymized": "Anonymised a client",
+        "export": "Exported a client's personal data"
+      },
+      "requester": {
+        "export": "Exported the personal data of someone who made requests by QR code"
+      },
+      "account": {
+        "export": "Downloaded their personal data"
+      },
+      "audit": {
+        "export": "Exported the audit log"
       },
       "workOrder": {
         "reportSent": "E-mailed the service report"
@@ -2204,6 +2286,9 @@
       }
     },
     "fields": {
+      "rows": "Rows",
+      "villas": "Villas",
+      "photos": "Photos",
       "name": "Name",
       "title": "Title",
       "description": "Description",

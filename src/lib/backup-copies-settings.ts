@@ -14,6 +14,8 @@ export type BackupCopies = {
     kinds: CopyKind[];
     /** Folder path inside the drive / WebDAV root, e.g. "Backups/Maintenance". */
     folder: string;
+    /** Upload only encrypted backups (an unencrypted one holds every record and the keys). */
+    encryptedOnly: boolean;
     /** Delete from the cloud the backups the schedule removes here. */
     mirrorDeletes: boolean;
     onedrive: { tenant: string; clientId: string; clientSecretEnc: string | null; siteUrl: string; refreshTokenEnc: string | null; account: string | null };
@@ -31,6 +33,7 @@ export const DEFAULT_BACKUP_COPIES: BackupCopies = {
     provider: "off",
     kinds: DEFAULT_KINDS,
     folder: "Maintenance backups",
+    encryptedOnly: true,
     mirrorDeletes: true,
     onedrive: { tenant: "common", clientId: "", clientSecretEnc: null, siteUrl: "", refreshTokenEnc: null, account: null },
     gdrive: { clientId: "", clientSecretEnc: null, refreshTokenEnc: null, account: null, folderId: null, folderPath: null },
@@ -74,6 +77,7 @@ export function normalizeBackupCopies(raw: unknown): BackupCopies {
       provider: (CLOUD_PROVIDERS as readonly unknown[]).includes(c.provider) ? (c.provider as CloudProvider) : "off",
       kinds: kinds(c.kinds, d.cloud.kinds),
       folder: cleanFolder(str(c.folder)) || d.cloud.folder,
+      encryptedOnly: c.encryptedOnly !== false,
       mirrorDeletes: c.mirrorDeletes !== false,
       onedrive: {
         tenant: str(od.tenant, 100) || "common",
@@ -105,6 +109,12 @@ export function cloudReady(c: BackupCopies["cloud"]) {
   if (c.provider === "gdrive") return !!c.gdrive.clientId && !!c.gdrive.refreshTokenEnc;
   if (c.provider === "webdav") return /^https?:\/\/\S+$/i.test(c.webdav.url);
   return false;
+}
+
+/** Cloud decision for one backup: upload it, refuse it (not encrypted while only encrypted ones may leave), or skip this kind. */
+export function cloudPlan(c: BackupCopies["cloud"], b: { kind: string; encrypted: boolean }): "upload" | "notEncrypted" | "skip" {
+  if (!isCopyKind(b.kind) || !c.kinds.includes(b.kind)) return "skip";
+  return c.encryptedOnly && !b.encrypted ? "notEncrypted" : "upload";
 }
 
 /** E-mail decision for one backup: send it, send only a notice (too big / not encrypted), or skip this kind. */
