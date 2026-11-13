@@ -53,6 +53,10 @@ Once a person is deactivated, an **Erase data** button appears. It removes their
 
 > Erasing can't be undone. If the person also belongs to another company on this server, their account can't be erased from here: deactivating them removes their access to your company.
 
+## Changing someone's name
+
+Click the pencil next to a person's name, type the new name and click the tick (or press Enter; Esc cancels). The account is the person's own, so the new name also shows in any other company they belong to. Erased people can't be renamed, and only the Super Admin can rename the Super Admin. Each change is kept in the [Audit log](/help/audit). People change their own name in [My profile](/help/profile).
+
 ## What you can't change
 
 - The Super Admin's row has no controls: the Super Admin's role can't be changed and they can't be deactivated.
@@ -112,6 +116,10 @@ Quando alguém sai, clique em **Desativar** na sua linha. A pessoa deixa de pode
 Depois de a pessoa estar desativada, aparece o botão **Apagar dados**. Remove definitivamente o nome, e-mail, telefone, palavra-passe e notificações, e a pessoa deixa de poder iniciar sessão. Os trabalhos e o tempo ficam, como "Antigo utilizador". Use-o quando alguém pede que os seus dados pessoais sejam apagados.
 
 > Apagar os dados não pode ser desfeito. Se a pessoa pertencer também a outra empresa neste servidor, a conta não pode ser apagada aqui: desativá-la remove o acesso à sua empresa.
+
+## Mudar o nome de uma pessoa
+
+Clique no lápis junto ao nome da pessoa, escreva o novo nome e clique no visto (ou prima Enter; Esc cancela). A conta é da própria pessoa, por isso o novo nome aparece também noutras empresas a que ela pertença. Não é possível mudar o nome de pessoas cujos dados foram apagados, e só o Super Admin pode mudar o nome do Super Admin. Cada alteração fica no [Registo de auditoria](/help/audit). Cada pessoa muda o seu próprio nome em [O meu perfil](/help/profile).
 
 ## O que não pode alterar
 

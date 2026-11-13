@@ -11,7 +11,7 @@ Problems reported by clients, from the client portal or by scanning a QR label o
 
 Clients don't create work orders themselves: they send a request, and your team decides what to do with it.
 
-- **Client portal**: a client with a portal account opens one of their properties, clicks **Report a problem**, picks the area and the equipment if they know it, describes the problem, says how urgent it is, can say **when the work can be done** (a period, optional) and can add up to 4 photos.
+- **Client portal**: a client with a portal account opens one of their properties, clicks **Report a problem**, picks the area and the equipment if they know it, describes the problem, says how urgent it is, can say **when the work can be done** (a period, optional) and can add up to 4 photos. Counters under **What's the problem?** (200 characters) and **Details** (5,000) show how much is left; text past the limit turns red and the request can't be sent until it is shortened. After sending, the client can add more photos to the request from its page in the portal, at any stage (up to 20 in all).
 - **QR label**: every asset has a QR label (see [Assets](/help/assets)). Anyone who scans it with a phone gets a short form for that equipment, without needing an account; they leave their name and contact details. Clients who are signed in go to the portal form instead, already filled in with the equipment, and staff go to the asset's page.
 
 When a request arrives, everyone who can approve requests gets a notification, and the number of pending requests appears next to **Requests** in the menu.
@@ -38,6 +38,7 @@ Use the search box to find a word in the title or description, the requester's n
 Click a request to open it. You see:
 
 - the description and the photos the client sent (click a photo to enlarge it);
+- photos the client added later, also after the request was approved or declined. You and the people assigned to its work order are notified. They stay on the request: unlike the photos sent with it, they aren't copied to the work order, so a finished job's service report doesn't change;
 - on the right, who sent it, with their phone and e-mail as links you can call or write to, and the villa, client, area and asset; and the **Client's availability**, when they gave one.
 
 ## Approving a request
@@ -107,7 +108,7 @@ Problemas reportados pelos clientes, a partir do portal do cliente ou ao digital
 
 Os clientes não criam ordens de trabalho: enviam um pedido e a sua equipa decide o que fazer com ele.
 
-- **Portal do cliente**: um cliente com conta no portal abre uma das suas propriedades, clica em **Reportar um problema**, escolhe a divisão e o equipamento, se souber, descreve o problema, indica a urgência, pode dizer **quando o trabalho pode ser feito** (um período, opcional) e pode juntar até 4 fotografias.
+- **Portal do cliente**: um cliente com conta no portal abre uma das suas propriedades, clica em **Reportar um problema**, escolhe a divisão e o equipamento, se souber, descreve o problema, indica a urgência, pode dizer **quando o trabalho pode ser feito** (um período, opcional) e pode juntar até 4 fotografias. Os contadores por baixo de **Qual é o problema?** (200 caracteres) e **Detalhes** (5000) mostram quanto falta; o texto acima do limite fica a vermelho e o pedido só pode ser enviado depois de encurtado. Depois de enviado, o cliente pode juntar mais fotografias a partir da página do pedido no portal, em qualquer fase (até 20 no total).
 - **Etiqueta QR**: cada equipamento tem uma etiqueta QR (veja [Equipamentos](/help/assets)). Quem a digitalizar com o telemóvel recebe um formulário curto para esse equipamento, sem precisar de conta; deixa o nome e os contactos. Os clientes com sessão iniciada vão para o formulário do portal, já preenchido com o equipamento, e os colaboradores vão para a página do equipamento.
 
 Quando chega um pedido, todas as pessoas que podem aprovar pedidos recebem uma notificação, e o número de pedidos pendentes aparece junto a **Pedidos** no menu.
@@ -134,6 +135,7 @@ Use a caixa de pesquisa para encontrar uma palavra no título ou na descrição,
 Clique num pedido para o abrir. Vê:
 
 - a descrição e as fotografias enviadas pelo cliente (clique numa fotografia para a ampliar);
+- as fotografias que o cliente juntou depois, mesmo com o pedido já aprovado ou recusado. É avisado, tal como as pessoas atribuídas à ordem de trabalho. Ficam no pedido: ao contrário das fotografias enviadas com ele, não são copiadas para a ordem de trabalho, por isso o relatório de serviço de um trabalho concluído não muda;
 - à direita, quem o enviou, com o telefone e o e-mail como ligações para ligar ou escrever, e a moradia, o cliente, a divisão e o equipamento; e a **Disponibilidade do cliente**, se a indicou.
 
 ## Aprovar um pedido

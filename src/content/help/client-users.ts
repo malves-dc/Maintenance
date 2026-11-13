@@ -29,6 +29,10 @@ The person receives an e-mail with a link to join, also shown on the page with a
 
 A client user sees the villas their client **owns**, and the villas their client **manages** as property manager, with the requests and client-visible work orders there. They never see the staff app. See [Requests](/help/requests).
 
+## Changing a name
+
+Click the pencil next to a client user's name to correct it, then click the tick. The change is kept in the [Audit log](/help/audit).
+
 ## Deactivating and erasing
 
 **Deactivate** removes their access; **Reactivate** gives it back. Once deactivated, **Erase data** deletes their personal data for good, as for staff.
@@ -62,6 +66,10 @@ A pessoa recebe um e-mail com uma ligação para entrar, que também aparece na 
 ## O que os utilizadores clientes veem
 
 Um utilizador cliente vê as vilas que o seu cliente **possui** e as vilas que o seu cliente **gere** como property manager, com os pedidos e as ordens de trabalho visíveis ao cliente. Nunca vê a aplicação da equipa. Veja [Pedidos](/help/requests).
+
+## Mudar o nome
+
+Clique no lápis junto ao nome de um utilizador cliente para o corrigir e depois no visto. A alteração fica no [Registo de auditoria](/help/audit).
 
 ## Desativar e apagar dados
 

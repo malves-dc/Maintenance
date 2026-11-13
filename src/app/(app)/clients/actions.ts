@@ -94,3 +94,22 @@ export async function setContactReportsAction(clientId: string, contactId: strin
   await ctx.db.clientContact.updateMany({ where: { id: contactId, clientId }, data: { receivesReports } });
   revalidatePath(`/clients/${clientId}`);
 }
+
+/** Edits a contact in place. Marking one primary unmarks the client's other contacts. */
+export async function updateContactAction(clientId: string, contactId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const ctx = await requirePermission("clients.manage");
+  await assertOwned(ctx.db, "client", [clientId]);
+  const parsed = parseForm(contactSchema, form);
+  if (parsed.error) return parsed.error;
+  // ClientContact has no organizationId: it is reached through its client, checked above.
+  const contact = await ctx.db.clientContact.findFirst({ where: { id: contactId, clientId }, select: { id: true } });
+  if (!contact) return { error: "somethingWrong" };
+  const isPrimary = form.get("isPrimary") === "on";
+  const data = { ...parsed.data, receivesReports: form.get("receivesReports") === "on", isPrimary };
+  await ctx.db.$transaction([
+    ...(isPrimary ? [ctx.db.clientContact.updateMany({ where: { clientId, id: { not: contactId }, isPrimary: true }, data: { isPrimary: false } })] : []),
+    ctx.db.clientContact.update({ where: { id: contactId }, data }),
+  ]);
+  revalidatePath(`/clients/${clientId}`);
+  return { ok: true };
+}

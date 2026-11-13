@@ -8,6 +8,7 @@ import { ActionForm, FieldError } from "@/components/action-form";
 import { Field, Input } from "@/components/ui";
 import { ArchiveButton } from "@/components/archive-button";
 import { AnonymizeClientButton, ContactReportsToggle, DeleteContactButton } from "./client";
+import { EditableContact } from "./contact-editor";
 import { ContractStatusBadge } from "../../contracts/status-badge";
 import { getContext } from "@/lib/context";
 import { addContactAction, setClientArchivedAction } from "../actions";
@@ -189,8 +190,8 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
           <Card className="p-5">
             <h2 className="mb-3 font-medium">{t("clients.contacts")}</h2>
             <ul className="mb-4 space-y-3">
-              {client.contacts.map((c) => (
-                <li key={c.id} className="flex items-start justify-between gap-2 text-sm">
+              {client.contacts.map((c) => {
+                const view = (
                   <div>
                     <div className="font-medium">
                       {c.name} {c.isPrimary && <Badge className="ml-1">{t("clients.primary")}</Badge>}
@@ -209,9 +210,19 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
                     {c.email && canManage && <ContactReportsToggle clientId={client.id} contactId={c.id} on={c.receivesReports} />}
                     {c.email && !canManage && c.receivesReports && <div className="text-xs text-muted">{t("reportEmail.contactOn")}</div>}
                   </div>
-                  {canManage && <DeleteContactButton clientId={client.id} contactId={c.id} />}
-                </li>
-              ))}
+                );
+                return (
+                  <li key={c.id} className="text-sm">
+                    {canManage ? (
+                      <EditableContact clientId={client.id} contact={c} actions={<DeleteContactButton clientId={client.id} contactId={c.id} />}>
+                        {view}
+                      </EditableContact>
+                    ) : (
+                      view
+                    )}
+                  </li>
+                );
+              })}
               {client.contacts.length === 0 && <li className="text-sm text-muted">—</li>}
             </ul>
             {client.reportEmails.length > 0 && (

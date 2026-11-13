@@ -8,6 +8,7 @@ import { ASSIGNABLE_ROLES } from "@/lib/rbac";
 import { hourlyRateFor, parseRoleRates } from "@/lib/roles";
 import { titled } from "@/lib/metadata";
 import { InviteForm, MemberControls, RevokeInviteButton, type RoleOptions } from "./client";
+import { MemberName } from "./name-editor";
 
 export const generateMetadata = titled("nav.users");
 
@@ -78,9 +79,15 @@ export default async function UsersPage() {
               return (
                 <tr key={m.id} className={m.active ? "" : "opacity-60"}>
                   <td>
-                    <div className="font-medium">
-                      {m.user.name} {m.userId === ctx.user.id && <span className="text-muted">({t("common.you")})</span>}
-                    </div>
+                    {m.user.erasedAt || (m.role === "OWNER" && ctx.role !== "OWNER") ? (
+                      <div className="font-medium">
+                        {m.user.name} {m.userId === ctx.user.id && <span className="text-muted">({t("common.you")})</span>}
+                      </div>
+                    ) : (
+                      <MemberName id={m.id} name={m.user.name}>
+                        {m.userId === ctx.user.id && <span className="text-muted">({t("common.you")})</span>}
+                      </MemberName>
+                    )}
                     {!m.user.erasedAt && <div className="text-xs text-muted">{m.user.email}</div>}
                   </td>
                   <td>

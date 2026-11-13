@@ -12,6 +12,9 @@ import { openRequestChat } from "@/lib/request-chat";
 import { RequestChat } from "@/components/request-chat";
 import { docRef } from "@/lib/series";
 import type { WorkOrderStatus } from "@/generated/prisma/enums";
+import { REQUEST_PHOTOS_TOTAL } from "@/lib/request-limits";
+import { MAX_REQUEST_PHOTOS } from "@/lib/requests";
+import { AddRequestPhotos } from "./add-photos";
 
 export default async function PortalRequestPage({ params }: PageProps<"/portal/requests/[id]">) {
   const { id } = await params;
@@ -112,6 +115,9 @@ export default async function PortalRequestPage({ params }: PageProps<"/portal/r
               </div>
             )}
             {!r.description && r.attachments.length === 0 && <p className="text-sm text-muted">{t("requests.noDescription")}</p>}
+            {r.attachments.length < REQUEST_PHOTOS_TOTAL && (
+              <AddRequestPhotos requestId={r.id} max={Math.min(MAX_REQUEST_PHOTOS, REQUEST_PHOTOS_TOTAL - r.attachments.length)} />
+            )}
           </Card>
           {wo?.status === "DONE" && wo.workReport && (
             <Card className="p-5">

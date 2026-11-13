@@ -35,7 +35,8 @@
     "previous": "Anterior",
     "next": "Seguinte",
     "pageOf": "Página {page} de {pages} · {total} no total",
-    "checkFields": "Verifique os campos assinalados."
+    "checkFields": "Verifique os campos assinalados.",
+    "charCount": "{used, number} / {max, number}"
   },
   "auth": {
     "signInTitle": "Inicie sessão na sua conta",
@@ -207,7 +208,8 @@
     "clientUsersDescription": "Proprietários de vilas e property managers que entram no portal do cliente.",
     "noClientUsers": "Ainda não há utilizadores clientes",
     "villaOwner": "Proprietário · {count, plural, one {# vila} other {# vilas}}",
-    "propertyManager": "Property manager · {count, plural, one {# vila} other {# vilas}}"
+    "propertyManager": "Property manager · {count, plural, one {# vila} other {# vilas}}",
+    "rename": "Alterar o nome"
   },
   "validation": {
     "invalid": "Valor inválido.",
@@ -257,7 +259,8 @@
     "primary": "Principal",
     "addContact": "Adicionar contacto",
     "contactRole": "Função",
-    "contactRolePlaceholder": "Governante, proprietário, gabinete…"
+    "contactRolePlaceholder": "Governante, proprietário, gabinete…",
+    "primaryCheckbox": "Contacto principal"
   },
   "clientType": {
     "PRIVATE_OWNER": "Proprietário particular",
@@ -843,7 +846,13 @@
     "visitConfirmed": "Visita confirmada para {date}",
     "visitConfirmedTitle": "Visita confirmada",
     "yourWindow": "Tem disponibilidade {window}. Vamos confirmar a data e a hora.",
-    "visitOn": "Visita {date}"
+    "visitOn": "Visita {date}",
+    "addPhotosTitle": "Adicionar fotografias",
+    "addPhotosHint": "Tem mais alguma coisa para nos mostrar? As fotografias ficam neste pedido e a nossa equipa é avisada.",
+    "addPhotosSend": "{count, plural, one {Enviar # fotografia} other {Enviar # fotografias}}",
+    "photosAdded": "Fotografias adicionadas.",
+    "photosFull": "Este pedido já tem o número máximo de fotografias.",
+    "photosInvalid": "Use fotografias JPEG, PNG ou WebP com até 8 MB."
   },
   "vendors": {
     "description": "Fornecedores, subempreiteiros e fabricantes a quem compra peças e equipamento.",
@@ -1096,6 +1105,10 @@
     "REQUEST_MESSAGE": {
       "title": "Nova mensagem no pedido {number}: {title}",
       "body": "{actor}: {excerpt}"
+    },
+    "REQUEST_PHOTOS": {
+      "title": "Novas fotografias no pedido {number}: {title}",
+      "body": "{actor} adicionou {count, plural, one {# fotografia} other {# fotografias}}"
     }
   },
   "email": {
@@ -1180,7 +1193,8 @@
       "LOW_STOCK": "Peças a esgotar",
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",
       "PO_UPDATE": "Atualizações das minhas notas de encomenda",
-      "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido"
+      "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido",
+      "REQUEST_PHOTOS": "Um cliente adiciona fotografias a um pedido"
     },
     "appearance": "Idioma e aspeto",
     "language": "Idioma"

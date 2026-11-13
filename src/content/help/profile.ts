@@ -64,6 +64,7 @@ Tick or untick the boxes next to each event. There is no save button: changes sa
 - **Someone @mentions me**
 - **New chat messages**
 - **New maintenance requests**
+- **A client adds photos to a request**
 - **Meter readings out of range**
 - **Parts running low**
 - **Purchase orders waiting for approval**
@@ -153,6 +154,7 @@ Marque ou desmarque as caixas junto a cada evento. Não há botão de guardar: a
 - **Alguém me menciona com @**
 - **Novas mensagens de conversa**
 - **Novos pedidos de manutenção**
+- **Um cliente adiciona fotografias a um pedido**
 - **Leituras de contadores fora dos limites**
 - **Peças a esgotar**
 - **Notas de encomenda a aguardar aprovação**
