@@ -37,6 +37,8 @@ export async function seedDemo(prisma: PrismaClient) {
       email: "geral@demo-integrations.test",
       brandColor: "#0b6e4f",
       reportFooter: "Demo data. It is erased whenever the demo is reset.",
+      // Shared demo logins: a second factor would lock everyone else out of them.
+      require2fa: false,
       // Cost per hour by role (custom roles carry their own, see "Engineer" below).
       roleRates: { OWNER: 70, ADMIN: 60, MANAGER: 55, TECHNICIAN: 45 },
       subscription: { create: { status: "TRIALING", trialEndsAt: new Date(Date.now() + 14 * 86_400_000) } },

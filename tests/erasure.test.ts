@@ -8,7 +8,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/lib/db/client", () => ({ prisma: {} }));
 vi.mock("@/lib/audit", () => ({ audit: vi.fn() }));
 
-const { anonymizedClientData } = await import("@/lib/erasure");
+const { anonymizedClientData, clientAddresses, withoutAddresses } = await import("@/lib/erasure");
 
 /** Text fields (String, String?, String[]) of a Prisma model, read from the schema. */
 function textFields(model: string) {
@@ -34,5 +34,17 @@ describe("anonymizedClientData", () => {
     const fields = textFields("Client").filter((f) => !keys.has(f));
     expect(fields.length).toBeGreaterThan(5);
     for (const f of fields) expect(data, `Client.${f} is not cleared on anonymisation`).toHaveProperty(f);
+  });
+});
+
+describe("client e-mail addresses on sent reports", () => {
+  it("collects the client's, its report copies' and its contacts' addresses, in stored and lower case", () => {
+    const a = clientAddresses({ email: " Ana@Villa.pt ", reportEmails: ["office@villa.pt"] }, [{ email: null }, { email: "gardener@villa.pt" }]);
+    expect(a).toEqual(expect.arrayContaining(["Ana@Villa.pt", "ana@villa.pt", "office@villa.pt", "gardener@villa.pt"]));
+    expect(clientAddresses({ email: null, reportEmails: [] }, [{ email: "  " }])).toEqual([]);
+  });
+
+  it("removes only those addresses from a job's list, whatever their case", () => {
+    expect(withoutAddresses(["ANA@villa.pt", "accounts@company.pt", "office@villa.pt"], ["ana@villa.pt", "office@villa.pt"])).toEqual(["accounts@company.pt"]);
   });
 });

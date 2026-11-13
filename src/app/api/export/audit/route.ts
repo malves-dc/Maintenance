@@ -3,6 +3,7 @@ import { getContext } from "@/lib/context";
 import { csvResponse, toCsv } from "@/lib/csv";
 import { auditWhere, categoryOf } from "@/lib/audit-filter";
 import { auditText } from "@/lib/audit-text";
+import { audit } from "@/lib/audit";
 
 const MAX_ROWS = 50_000;
 
@@ -33,5 +34,7 @@ export async function GET(req: Request) {
       .join("; "),
     e.ip,
   ]);
+  // The log holds names, e-mails and IP addresses: taking a copy out is itself logged.
+  await audit(ctx, "audit.export", "Organization", ctx.organization.id, { rows: entries.length });
   return csvResponse(`audit_${new Date().toISOString().slice(0, 10)}.csv`, toCsv(header, rows));
 }

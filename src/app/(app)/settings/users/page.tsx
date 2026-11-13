@@ -74,14 +74,14 @@ export default async function UsersPage() {
           </thead>
           <tbody>
             {members.map((m) => {
-              const locked = m.role === "OWNER" || m.userId === ctx.user.id || !!m.user.erasedAt;
+              const locked = m.role === "OWNER" || m.userId === ctx.user.id || !!(m.erasedAt || m.user.erasedAt);
               return (
                 <tr key={m.id} className={m.active ? "" : "opacity-60"}>
                   <td>
                     <div className="font-medium">
                       {m.user.name} {m.userId === ctx.user.id && <span className="text-muted">({t("common.you")})</span>}
                     </div>
-                    {!m.user.erasedAt && <div className="text-xs text-muted">{m.user.email}</div>}
+                    {!(m.erasedAt || m.user.erasedAt) && <div className="text-xs text-muted">{m.user.email}</div>}
                   </td>
                   <td>
                     {m.jobRole?.name ?? t(`roles.${m.role}`)}
@@ -100,10 +100,10 @@ export default async function UsersPage() {
                   </td>
                   <td>
                     <Badge className={m.active ? "bg-green-50 text-green-700" : ""}>
-                      {m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
+                      {m.erasedAt || m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
                     </Badge>
                   </td>
-                  <td className="text-right">{!locked && <MemberControls id={m.id} role={m.jobRoleId ? `job:${m.jobRoleId}` : m.role} active={m.active} roleOptions={roleOptions} />}</td>
+                  <td className="text-right">{!locked && <MemberControls id={m.id} role={m.jobRoleId ? `job:${m.jobRoleId}` : m.role} active={m.active} twoFactor={!!m.user.totpEnabledAt} roleOptions={roleOptions} />}</td>
                 </tr>
               );
             })}

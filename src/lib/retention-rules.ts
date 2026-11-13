@@ -10,16 +10,21 @@ export type Retention = {
   requestersMonths: number;
   /** Chat messages (DMs, groups, team channels). Work-order comments are job records and are kept. */
   chatMonths: number;
+  /** Deactivated members and archived clients: after this, they're listed for erasure (never erased on their own,
+   *  since only a person can tell whether something still needs their data, e.g. an open dispute). */
+  formerMonths: number;
 };
 
-export const RETENTION_DEFAULTS: Retention = { notificationsDays: 90, auditMonths: 24, requestersMonths: 24, chatMonths: 0 };
+export const RETENTION_DEFAULTS: Retention = { notificationsDays: 90, auditMonths: 24, requestersMonths: 24, chatMonths: 24, formerMonths: 24 };
 export const RETENTION_KEYS = Object.keys(RETENTION_DEFAULTS) as (keyof Retention)[];
 /** Upper bound of each setting (10 years), so a typo can't overflow date maths. */
-export const RETENTION_MAX: Retention = { notificationsDays: 3650, auditMonths: 120, requestersMonths: 120, chatMonths: 120 };
+export const RETENTION_MAX: Retention = { notificationsDays: 3650, auditMonths: 120, requestersMonths: 120, chatMonths: 120, formerMonths: 120 };
 
 /** Fixed periods for technical records nobody needs to tune. */
 export const SYNC_LOG_DAYS = 30;
 export const EXPIRED_INVITE_DAYS = 30;
+/** Devices registered for push whose user has had no access, or hasn't opened the app, for this long. */
+export const PUSH_IDLE_DAYS = 180;
 
 export function parseRetention(raw: unknown): Retention {
   const o = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
@@ -51,5 +56,12 @@ export function cutoffs(r: Retention, now: Date) {
     audit: r.auditMonths ? monthsBefore(now, r.auditMonths) : null,
     requesters: r.requestersMonths ? monthsBefore(now, r.requestersMonths) : null,
     chat: r.chatMonths ? monthsBefore(now, r.chatMonths) : null,
+    former: r.formerMonths ? monthsBefore(now, r.formerMonths) : null,
   };
+}
+
+/** Lines of the privacy notice's retention section: one per period that is on (0 = kept, so not listed). */
+export function retentionNoticeLines(r: Retention): { key: keyof Retention | "pushDays"; n: number }[] {
+  const keys: (keyof Retention)[] = ["notificationsDays", "auditMonths", "requestersMonths", "chatMonths"];
+  return [...keys.filter((k) => r[k] > 0).map((k) => ({ key: k, n: r[k] })), { key: "pushDays" as const, n: PUSH_IDLE_DAYS }];
 }

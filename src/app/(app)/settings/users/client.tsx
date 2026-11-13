@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useActionForm } from "@/lib/use-action-form";
 import { useTranslations } from "next-intl";
 import { Button, Field, FormError, Input, Select } from "@/components/ui";
-import { eraseMemberAction, inviteUserAction, revokeInviteAction, updateMemberAction } from "../actions";
+import { eraseMemberAction, inviteUserAction, resetTwoFactorAction, revokeInviteAction, updateMemberAction } from "../actions";
 
 /** The company's roles, by name: built-in ones (value = the role) and created ones (value "job:<id>") alike. Labels come from the server. */
 export type RoleOptions = { value: string; label: string }[];
@@ -95,12 +95,17 @@ export function InviteForm({ clients = [], roleOptions }: { clients?: { id: stri
   );
 }
 
-/** Role (staff only: without `roleOptions` there is no role picker), deactivate / reactivate and erase. */
-export function MemberControls({ id, role, active, roleOptions }: { id: string; role?: string; active: boolean; roleOptions?: RoleOptions }) {
+/** Role (staff only: without `roleOptions` there is no role picker), deactivate / reactivate, reset two-factor and erase. */
+export function MemberControls({ id, role, active, twoFactor, roleOptions }: { id: string; role?: string; active: boolean; twoFactor?: boolean; roleOptions?: RoleOptions }) {
   const t = useTranslations();
   const [pending, start] = useTransition();
   return (
     <div className="inline-flex items-center gap-2">
+      {twoFactor && (
+        <Button size="sm" variant="ghost" disabled={pending} onClick={() => confirm(t("twoFactor.resetConfirm")) && start(() => resetTwoFactorAction(id))}>
+          {t("twoFactor.reset")}
+        </Button>
+      )}
       {roleOptions && (
         <Select
           className="h-8 w-44"
@@ -130,6 +135,7 @@ export function MemberControls({ id, role, active, roleOptions }: { id: string; 
             start(async () => {
               const r = await eraseMemberAction(id);
               if (r.error) alert(t.has(r.error) ? t(r.error) : t("common.somethingWrong"));
+              else if (r.scope === "company") alert(t("erasure.erasedHere"));
             })
           }
         >

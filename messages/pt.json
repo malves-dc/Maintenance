@@ -77,7 +77,9 @@
     "factoryResetConfirm": "Apagar TODOS os dados deste servidor e repor a demonstração? Não é possível anular.",
     "factoryResetDone": "O servidor foi reposto com os dados de demonstração. Inicie sessão com owner@demo.test / demo1234.",
     "wrongResetPassword": "Palavra-passe de reposição incorreta.",
-    "tooManyAttempts": "Demasiadas tentativas de início de sessão falhadas. Aguarde 15 minutos e tente novamente, ou reponha a palavra-passe."
+    "tooManyAttempts": "Demasiadas tentativas de início de sessão falhadas. Aguarde 15 minutos e tente novamente, ou reponha a palavra-passe.",
+    "twoFactorRequired": "Escreva o código da sua aplicação de autenticação.",
+    "twoFactorInvalid": "Código errado ou expirado."
   },
   "onboarding": {
     "title": "Crie a sua organização",
@@ -1666,6 +1668,10 @@
         "title": "Que dados recolhemos",
         "body": "Contactos (nome, e-mail, telefone) de clientes, contactos das moradias, colaboradores e pessoas que comunicam avarias; moradas e notas de acesso das propriedades que mantemos; pedidos de manutenção, ordens de trabalho, fotografias, assinaturas de clientes e mensagens; no caso dos colaboradores, o tempo registado nos trabalhos; e registos técnicos, como inícios de sessão e registos de segurança."
       },
+      "sources": {
+        "title": "De onde vêm",
+        "body": "Na maior parte, de si. Alguns vêm de terceiros: os dados dos contactos das moradias (gestores da casa, familiares, empregados) são-nos dados pelo proprietário ou pela empresa que gere a moradia; quem comunica uma avaria pode deixar os seus dados no nosso formulário de pedido; e os nossos técnicos registam o trabalho que fazem, as fotografias que tiram e quem assinou. Se temos os seus dados porque outra pessoa no-los deu, este aviso também se aplica a si."
+      },
       "purposes": {
         "title": "Para que os usamos",
         "body": "Para prestar os serviços de manutenção acordados com os nossos clientes (execução de contrato), responder a pedidos e avarias comunicados, planear e documentar o nosso trabalho, cumprir obrigações legais como a faturação e a conservação de registos, e manter o sistema seguro (interesse legítimo)."
@@ -1680,7 +1686,13 @@
       },
       "retention": {
         "title": "Durante quanto tempo os guardamos",
-        "body": "Enquanto lhe prestarmos serviços e, depois, pelos prazos exigidos por lei (por exemplo, registos contabilísticos). Os dados que deixem de ser necessários são apagados ou anonimizados."
+        "body": "Enquanto lhe prestarmos serviços e, depois, pelos prazos exigidos por lei (por exemplo, registos contabilísticos). Os dados que deixem de ser necessários são apagados ou anonimizados.",
+        "periods": "Em particular, o sistema apaga automaticamente:",
+        "notificationsDays": "as notificações na aplicação, ao fim de {n, plural, one {# dia} other {# dias}};",
+        "auditMonths": "o registo de segurança, ao fim de {n, plural, one {# mês} other {# meses}};",
+        "requestersMonths": "o nome, e-mail e telefone deixados no formulário de pedido, {n, plural, one {# mês} other {# meses}} depois de o pedido ser decidido;",
+        "chatMonths": "as mensagens de chat entre colaboradores, ao fim de {n, plural, one {# mês} other {# meses}};",
+        "pushDays": "os dispositivos registados para notificações, quando o utilizador deixa de ter acesso ou não usa a aplicação há {n, plural, one {# dia} other {# dias}}."
       },
       "security": {
         "title": "Como os protegemos",
@@ -1698,7 +1710,51 @@
     "notificationsDays": "Notificações (dias)",
     "auditMonths": "Registo de segurança (meses)",
     "requestersMonths": "Contactos de quem fez pedidos por QR (meses após a decisão)",
-    "chatMonths": "Mensagens de chat (meses)"
+    "chatMonths": "Mensagens de chat (meses)",
+    "formerMonths": "Ex-membros e clientes arquivados: lembrar de apagar ao fim de (meses)",
+    "formerDue": "Passaram este prazo; reveja-os e apague os dados se já nada precisar deles:",
+    "formerMembersDue": "{n, plural, one {# ex-membro} other {# ex-membros}}",
+    "formerClientsDue": "{n, plural, one {# cliente arquivado} other {# clientes arquivados}}"
+  },
+  "gdprExport": {
+    "client": "Exportar dados",
+    "clientHint": "Descarregar os dados pessoais deste cliente (JSON): dados, contactos, moradias, trabalhos e pedidos. Para quando o cliente pede uma cópia dos seus dados.",
+    "requesterTitle": "Dados de quem fez um pedido",
+    "requesterHint": "Para pessoas sem conta que comunicaram uma avaria por código QR e pedem uma cópia dos seus dados: tudo o que escreveram com este endereço de e-mail (JSON).",
+    "download": "Descarregar"
+  },
+  "twoFactor": {
+    "title": "Autenticação de dois fatores",
+    "orgSetting": "Exigir autenticação de dois fatores aos administradores e aos colaboradores que veem códigos de acesso",
+    "orgSettingHint": "Ser-lhes-á pedido que a configurem na próxima visita, com uma aplicação de autenticação (Microsoft Authenticator, Google Authenticator, 1Password…).",
+    "on": "Ativa desde {date}.",
+    "off": "Desativada. O início de sessão pede apenas a palavra-passe.",
+    "required": "A sua empresa exige-a para a sua função.",
+    "setUp": "Configurar",
+    "turnOff": "Desativar",
+    "turnOffConfirm": "Desativar a autenticação de dois fatores? O início de sessão passa a pedir apenas a palavra-passe.",
+    "newCodes": "Novos códigos de recuperação",
+    "newCodesConfirm": "Criar novos códigos de recuperação? Os anteriores deixam de funcionar.",
+    "codeLabel": "Código da aplicação",
+    "codeOrRecovery": "Código da aplicação ou código de recuperação",
+    "codeHint": "6 dígitos. Perdeu o telemóvel? Escreva um dos seus códigos de recuperação.",
+    "invalidCode": "Código errado ou expirado.",
+    "setupTitle": "Configurar a autenticação de dois fatores",
+    "setupIntro": "A sua empresa pede um segundo passo no início de sessão, porque a sua conta pode ver códigos de acesso das moradias ou gerir a empresa. Precisa de uma aplicação de autenticação no telemóvel.",
+    "setupIntroOptional": "O início de sessão passa a pedir um código de uma aplicação de autenticação no telemóvel, além da palavra-passe.",
+    "step1": "1. Na aplicação de autenticação, adicione uma conta e leia este código.",
+    "manualKey": "Não consegue ler o código? Escreva esta chave:",
+    "step2": "2. Escreva o código de 6 dígitos que a aplicação mostra.",
+    "confirm": "Ativar",
+    "recoveryTitle": "Guarde os códigos de recuperação",
+    "recoveryIntro": "Cada código funciona uma vez, em vez do código da aplicação, se perder o telemóvel. Guarde-os num sítio seguro (um gestor de palavras-passe, ou impressos). Não voltam a ser mostrados.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "done": "Feito, continuar",
+    "reset": "Repor dois fatores",
+    "resetConfirm": "Repor a autenticação de dois fatores desta pessoa? Passa a entrar só com a palavra-passe e, se a função o exigir, terá de a configurar de novo.",
+    "notAllowed": "A sua empresa exige a autenticação de dois fatores para a sua função.",
+    "signOut": "Terminar sessão"
   },
   "erasure": {
     "formerUser": "Antigo utilizador",
@@ -1709,9 +1765,9 @@
     "eraseConfirm": "Apagar os dados pessoais desta pessoa? O nome, e-mail, telefone, palavra-passe e notificações são removidos definitivamente e deixa de poder iniciar sessão. Os trabalhos e o tempo registado ficam, como \"Antigo utilizador\". Não é possível desfazer.",
     "anonymize": "Apagar dados pessoais",
     "anonymizeHint": "Remove o nome, contactos, NIF, notas e pessoas de contacto deste cliente; as moradias e os trabalhos ficam.",
-    "anonymizeConfirm": "Apagar os dados pessoais deste cliente? O nome, e-mail, telefone, NIF, morada de faturação, notas e todas as pessoas de contacto são removidos definitivamente. As moradias, trabalhos e contratos ficam, como \"Antigo cliente\". Não é possível desfazer.",
+    "anonymizeConfirm": "Apagar os dados pessoais deste cliente? O nome, e-mail, telefone, NIF, morada de faturação, notas e todas as pessoas de contacto são removidos definitivamente, tal como os seus endereços nos relatórios enviados, os nomes de quem assinou trabalhos nas suas moradias e os dados deixados em pedidos por QR nessas moradias. Nas moradias arquivadas, saem também as notas de acesso, os códigos de acesso e as fotografias. As moradias, trabalhos e contratos ficam, como \"Antigo cliente\". Não é possível desfazer.",
     "deactivateFirst": "Desative primeiro o membro.",
-    "otherCompanies": "Esta pessoa pertence também a outra empresa, por isso a conta não pode ser apagada aqui. Desativá-la remove o acesso a esta empresa.",
+    "erasedHere": "Apagada desta empresa. Esta pessoa trabalha também para outra empresa, por isso a conta mantém-se lá; o nome fica nos trabalhos antigos até essa conta ser também apagada.",
     "archiveFirst": "Arquive primeiro o cliente.",
     "portalUsers": "Este cliente ainda tem utilizadores do portal ativos. Desative-os e apague-os primeiro."
   },
@@ -2156,7 +2212,13 @@
         "passwordChangeFailed": "Alteração de palavra-passe falhada (palavra-passe atual errada)",
         "passwordResetRequested": "Pediu um link para repor a palavra-passe",
         "passwordReset": "Repôs a palavra-passe com um link",
-        "calendarLink": "Criou um novo link de calendário"
+        "calendarLink": "Criou um novo link de calendário",
+        "twoFactorEnabled": "Ativou a autenticação de dois fatores",
+        "twoFactorDisabled": "Desativou a autenticação de dois fatores",
+        "twoFactorCodes": "Criou novos códigos de recuperação",
+        "twoFactorFailed": "Início de sessão falhado (código de dois fatores errado)",
+        "twoFactorRecoveryUsed": "Iniciou sessão com um código de recuperação",
+        "twoFactorReset": "A autenticação de dois fatores foi reposta por um administrador"
       },
       "server": {
         "unlock": "Desbloqueou Definições → Servidor",
@@ -2198,10 +2260,21 @@
         }
       },
       "user": {
-        "erased": "Apagou os dados de uma pessoa"
+        "erased": "Apagou os dados de uma pessoa",
+        "erasedHere": "Apagou os dados de uma pessoa nesta empresa (continua a trabalhar para outra)"
       },
       "client": {
-        "anonymized": "Anonimizou um cliente"
+        "anonymized": "Anonimizou um cliente",
+        "export": "Exportou os dados pessoais de um cliente"
+      },
+      "requester": {
+        "export": "Exportou os dados pessoais de quem fez pedidos por código QR"
+      },
+      "account": {
+        "export": "Descarregou os seus dados pessoais"
+      },
+      "audit": {
+        "export": "Exportou o registo de auditoria"
       },
       "workOrder": {
         "reportSent": "Enviou o relatório de serviço por email"
@@ -2212,6 +2285,9 @@
       }
     },
     "fields": {
+      "rows": "Linhas",
+      "villas": "Moradias",
+      "photos": "Fotografias",
       "name": "Nome",
       "title": "Título",
       "description": "Descrição",
