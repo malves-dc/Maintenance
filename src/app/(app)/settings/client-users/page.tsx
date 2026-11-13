@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { getContext } from "@/lib/context";
 import { titled } from "@/lib/metadata";
 import { InviteForm, MemberControls, RevokeInviteButton } from "../users/client";
+import { MemberName } from "../users/name-editor";
 
 export const generateMetadata = titled("nav.clientUsers");
 
@@ -57,7 +58,7 @@ export default async function ClientUsersPage() {
               {members.map((m) => (
                 <tr key={m.id} className={m.active ? "" : "opacity-60"}>
                   <td>
-                    <div className="font-medium">{m.user.name}</div>
+                    {m.user.erasedAt ? <div className="font-medium">{m.user.name}</div> : <MemberName id={m.id} name={m.user.name} />}
                     {!m.user.erasedAt && <div className="text-xs text-muted">{m.user.email}</div>}
                   </td>
                   <td>

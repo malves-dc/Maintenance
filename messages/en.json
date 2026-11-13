@@ -35,7 +35,8 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {page} of {pages} · {total} total",
-    "checkFields": "Please check the highlighted fields."
+    "checkFields": "Please check the highlighted fields.",
+    "charCount": "{used, number} / {max, number}"
   },
   "auth": {
     "signInTitle": "Sign in to your account",
@@ -207,7 +208,8 @@
     "clientUsersDescription": "Villa owners and property managers who sign in to the client portal.",
     "noClientUsers": "No client users yet",
     "villaOwner": "Owner · {count, plural, one {# villa} other {# villas}}",
-    "propertyManager": "Property manager · {count, plural, one {# villa} other {# villas}}"
+    "propertyManager": "Property manager · {count, plural, one {# villa} other {# villas}}",
+    "rename": "Change name"
   },
   "validation": {
     "invalid": "Invalid value.",
@@ -257,7 +259,8 @@
     "primary": "Primary",
     "addContact": "Add contact",
     "contactRole": "Role",
-    "contactRolePlaceholder": "House manager, owner, estate office…"
+    "contactRolePlaceholder": "House manager, owner, estate office…",
+    "primaryCheckbox": "Primary contact"
   },
   "clientType": {
     "PRIVATE_OWNER": "Private owner",
@@ -843,7 +846,13 @@
     "visitConfirmed": "Visit confirmed for {date}",
     "visitConfirmedTitle": "Visit confirmed",
     "yourWindow": "You're available {window}. We'll confirm a date and time.",
-    "visitOn": "Visit {date}"
+    "visitOn": "Visit {date}",
+    "addPhotosTitle": "Add photos",
+    "addPhotosHint": "Something more to show us? The photos are added to this request and our team is told.",
+    "addPhotosSend": "{count, plural, one {Send # photo} other {Send # photos}}",
+    "photosAdded": "Photos added.",
+    "photosFull": "This request already holds as many photos as it can.",
+    "photosInvalid": "Use JPEG, PNG or WebP photos of up to 8 MB."
   },
   "vendors": {
     "description": "Suppliers, subcontractors and manufacturers you buy parts and equipment from.",
@@ -1096,6 +1105,10 @@
     "REQUEST_MESSAGE": {
       "title": "New message on request {number}: {title}",
       "body": "{actor}: {excerpt}"
+    },
+    "REQUEST_PHOTOS": {
+      "title": "New photos on request {number}: {title}",
+      "body": "{actor} added {count, plural, one {# photo} other {# photos}}"
     }
   },
   "email": {
@@ -1180,7 +1193,8 @@
       "LOW_STOCK": "Parts running low",
       "PO_APPROVAL": "Purchase orders waiting for approval",
       "PO_UPDATE": "Updates on my purchase orders",
-      "REQUEST_MESSAGE": "New messages in a request's conversation"
+      "REQUEST_MESSAGE": "New messages in a request's conversation",
+      "REQUEST_PHOTOS": "A client adds photos to a request"
     },
     "appearance": "Language and appearance",
     "language": "Language"
