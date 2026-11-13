@@ -1752,6 +1752,7 @@
     "copied": "Copiado",
     "done": "Feito, continuar",
     "reset": "Repor dois fatores",
+    "resetUnavailable": "Esta pessoa não ativou a autenticação de dois fatores, por isso não há nada a repor.",
     "resetConfirm": "Repor a autenticação de dois fatores desta pessoa? Passa a entrar só com a palavra-passe e, se a função o exigir, terá de a configurar de novo.",
     "notAllowed": "A sua empresa exige a autenticação de dois fatores para a sua função.",
     "signOut": "Terminar sessão"

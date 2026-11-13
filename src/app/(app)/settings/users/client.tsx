@@ -101,11 +101,16 @@ export function MemberControls({ id, role, active, twoFactor, roleOptions }: { i
   const [pending, start] = useTransition();
   return (
     <div className="inline-flex items-center gap-2">
-      {twoFactor && (
-        <Button size="sm" variant="ghost" disabled={pending} onClick={() => confirm(t("twoFactor.resetConfirm")) && start(() => resetTwoFactorAction(id))}>
-          {t("twoFactor.reset")}
-        </Button>
-      )}
+      {/* Always there, so admins know where to find it; greyed out until the person has two-factor on. */}
+      <Button
+        size="sm"
+        variant="ghost"
+        disabled={pending || !twoFactor}
+        title={twoFactor ? undefined : t("twoFactor.resetUnavailable")}
+        onClick={() => confirm(t("twoFactor.resetConfirm")) && start(() => resetTwoFactorAction(id))}
+      >
+        {t("twoFactor.reset")}
+      </Button>
       {roleOptions && (
         <Select
           className="h-8 w-44"

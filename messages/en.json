@@ -1752,6 +1752,7 @@
     "copied": "Copied",
     "done": "Done, continue",
     "reset": "Reset two-factor",
+    "resetUnavailable": "This person hasn't turned on two-factor sign-in, so there is nothing to reset.",
     "resetConfirm": "Reset this person's two-factor sign-in? They'll sign in with their password only and, if their role requires it, be asked to set it up again.",
     "notAllowed": "Your company requires two-factor sign-in for your role.",
     "signOut": "Sign out"
