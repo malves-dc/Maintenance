@@ -17,7 +17,8 @@ export async function confirmTwoFactorAction(_: TwoFactorState, form: FormData):
   const codes = await enableTwoFactor(user, codeOf(form));
   if (!codes) return { error: "invalidCode" };
   await auditUser(user.id, "auth.twoFactorEnabled");
-  revalidatePath("/", "layout");
+  // No revalidatePath here: the setup page would re-render, see two-factor on and redirect before the recovery codes
+  // are shown. "Done" navigates away, which loads fresh pages anyway.
   return { codes };
 }
 
