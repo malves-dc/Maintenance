@@ -26,6 +26,7 @@ export const AUDITED: Record<string, "all" | "delete"> = {
   Vendor: "all",
   PurchaseOrder: "all",
   Team: "all",
+  Office: "all",
   JobRole: "all",
   Membership: "all",
   Invitation: "all",

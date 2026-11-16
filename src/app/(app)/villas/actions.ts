@@ -11,6 +11,23 @@ import { relinkClientWorkOrders } from "@/lib/contracts";
 import { normalizeBillTo } from "@/lib/villa-client";
 import { isHostOrIp, NO_RESULT } from "@/lib/connectivity-rules";
 import { checkVilla } from "@/lib/connectivity";
+import { refreshDistances, setManualDistance } from "@/lib/offices";
+import type { TenantDb } from "@/lib/db/tenant";
+
+/** The km typed per office on the villa form (`officeKm.<officeId>`; blank = worked out), for the company's offices only. */
+async function officeKmFrom(db: TenantDb, form: FormData): Promise<Map<string, number | null> | "invalid"> {
+  const offices = await db.office.findMany({ select: { id: true } });
+  const out = new Map<string, number | null>();
+  for (const { id } of offices) {
+    const raw = form.get(`officeKm.${id}`);
+    if (raw === null) continue;
+    const text = String(raw).trim().replace(",", ".");
+    const km = text === "" ? null : Number(text);
+    if (km !== null && (!Number.isFinite(km) || km < 0 || km > 10_000)) return "invalid";
+    out.set(id, km);
+  }
+  return out;
+}
 
 const villaSchema = z
   .object({
@@ -25,6 +42,7 @@ const villaSchema = z
     latitude: optNumber().refine((v) => v === null || Math.abs(v) <= 90),
     longitude: optNumber().refine((v) => v === null || Math.abs(v) <= 180),
     distanceKm: optNumber().refine((v) => v === null || (v >= 0 && v <= 10_000)),
+    defaultOfficeId: optId(),
     accessNotes: optStr(5000),
     connectivityType: optEnumOf(ConnectivityType),
     connectivityHost: optStr(253).refine((v) => v === null || isHostOrIp(v), { message: "invalid_host" }),
@@ -48,6 +66,9 @@ export async function saveVillaAction(id: string | null, _: FormResult, form: Fo
   if (parsed.error) return parsed.error;
   const data = { ...parsed.data, billTo: normalizeBillTo(parsed.data) };
   await assertOwned(ctx.db, "client", [data.clientId, data.managerId]);
+  await assertOwned(ctx.db, "office", [data.defaultOfficeId]);
+  const officeKm = await officeKmFrom(ctx.db, form);
+  if (officeKm === "invalid") return { error: "validation", fieldErrors: {} };
 
   let villaId = id;
   if (id) {
@@ -69,6 +90,9 @@ export async function saveVillaAction(id: string | null, _: FormResult, form: Fo
   } else {
     villaId = (await ctx.db.villa.create({ data: { ...data, organizationId: ctx.organization.id } })).id;
   }
+  // Distances typed for each office, then the rest worked out from the coordinates.
+  for (const [officeId, km] of officeKm) await setManualDistance(ctx.db, ctx.organization.id, villaId!, officeId, km);
+  if (officeKm.size) await refreshDistances(ctx.db, ctx.organization.id, { road: ctx.organization.roadDistances, villaIds: [villaId!] });
   revalidatePath("/villas");
   redirect(`/villas/${villaId}`);
 }

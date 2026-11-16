@@ -5,6 +5,7 @@ import { BackLink } from "@/components/back-link";
 import { getContext } from "@/lib/context";
 import { sp } from "@/lib/list";
 import { VillaForm } from "../villa-form";
+import { villaOffices } from "@/lib/offices";
 
 export default async function NewVillaPage({ searchParams }: PageProps<"/villas/new">) {
   const ctx = await getContext();
@@ -20,7 +21,7 @@ export default async function NewVillaPage({ searchParams }: PageProps<"/villas/
       <BackLink href="/villas" label={t("nav.villas")} />
       <PageHeader title={t("villas.new")} />
       <Card className="max-w-3xl p-6">
-        <VillaForm clients={clients} defaultClientId={sp(await searchParams, "clientId")} />
+        <VillaForm clients={clients} offices={await villaOffices(ctx.db, null)} defaultClientId={sp(await searchParams, "clientId")} />
       </Card>
     </>
   );

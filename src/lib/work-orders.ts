@@ -13,7 +13,7 @@ import { billedTime, type TimeEntryLike } from "@/lib/billing-time";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { syncReportRevision } from "@/lib/report-revision";
 import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-surcharge";
-import { travelCharge, type TravelContext, type TripEntry } from "@/lib/travel-charge";
+import { travelCharge, type AssigneeOffice, type TravelContext, type TripEntry, type VillaPlaces } from "@/lib/travel-charge";
 import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
 
 export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGRESS", "ON_HOLD"];
@@ -331,8 +331,10 @@ export function workOrderCosts(
     timeEntries: (TimeEntryLike & Partial<TripEntry>)[];
     otherCosts: { amount: unknown }[];
     parts?: { quantity: unknown; unitCost: unknown }[];
-    /** Select the villa's distanceKm and the entries' startedAt + mode whenever `travel` is passed. */
-    villa?: { distanceKm: number | null } | null;
+    /** Whenever `travel` is passed: the villa with TRAVEL_VILLA_SELECT (at least distanceKm), the assignees with
+     *  TRAVEL_ASSIGNEE_SELECT and the entries' startedAt + mode. */
+    villa?: VillaPlaces | null;
+    assignees?: AssigneeOffice[];
   },
   block: number,
   /** The urgent surcharge that applies to this work order (see lib/urgent-surcharge.ts); none when omitted. */
@@ -344,7 +346,7 @@ export function workOrderCosts(
   const other = wo.otherCosts.reduce((s, c) => s + Number(c.amount), 0);
   const parts = (wo.parts ?? []).reduce((s, p) => s + Number(p.quantity) * Number(p.unitCost), 0);
   const urgent = urgentSurcharge(wo.priority, time.labor, urgentRule);
-  const trips = travel ? travelCharge(wo.timeEntries, wo.villa?.distanceKm, travel) : null;
+  const trips = travel ? travelCharge(wo.timeEntries, { villa: wo.villa, assignees: wo.assignees }, travel) : null;
   const travelCost = trips?.amount ?? 0;
   return {
     minutes: time.minutes,
@@ -356,6 +358,7 @@ export function workOrderCosts(
     travel: travelCost,
     trips: trips?.trips ?? 0,
     perTrip: trips?.perTrip ?? 0,
+    tripLines: trips?.lines ?? [],
     total: time.labor + parts + other + urgent + travelCost,
   };
 }

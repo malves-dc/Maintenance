@@ -12,7 +12,8 @@ import { fileUrl } from "@/lib/storage";
 import { assignableUsers, workOrderCosts } from "@/lib/work-orders";
 import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
-import { travelOf } from "@/lib/travel-charge";
+import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { homeOffices } from "@/lib/offices";
 import { approveRequestAction, declineRequestAction, scheduleRequestAction } from "../actions";
 import { DateTimeField } from "@/components/datetime-field";
 import { FieldError } from "@/components/action-form";
@@ -45,7 +46,8 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           status: true,
           priority: true,
           contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
-          villa: { select: { distanceKm: true } },
+          villa: { select: TRAVEL_VILLA_SELECT },
+          assignees: { select: TRAVEL_ASSIGNEE_SELECT },
           timeEntries: { select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, mode: true } },
           otherCosts: { select: { amount: true } },
           parts: { select: { quantity: true, unitCost: true } },
@@ -55,6 +57,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
     },
   });
   if (!r) notFound();
+  const homes = r.workOrder && ctx.can("costs.view") ? await homeOffices(ctx.db) : undefined;
   // Approvers, and whoever was on call when it arrived.
   const isHandler = ctx.can("requests.approve") || r.onCallUsers.some((u) => u.id === ctx.user.id);
   const canApprove = isHandler && r.status === "PENDING";
@@ -128,7 +131,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           )}
           {r.status === "APPROVED" && r.workOrder && ctx.can("costs.view") && (() => {
             // What this request has cost so far: time (at each person's role rate), parts and other costs.
-            const c = workOrderCosts(r.workOrder, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, r.workOrder.contract), travelOf(ctx.organization, r.workOrder.contract));
+            const c = workOrderCosts(r.workOrder, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, r.workOrder.contract), travelOf(ctx.organization, r.workOrder.contract, homes));
             const money = (n: number) => format.number(n, { style: "currency", currency: ctx.organization.currency });
             return (
               <Card className="p-5 text-sm">

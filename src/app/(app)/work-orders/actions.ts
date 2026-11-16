@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getContext, requirePermission, type AppContext } from "@/lib/context";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { assertOwned } from "@/lib/db/tenant";
 import { deleteObject } from "@/lib/storage";
 import { parseDocRef, seriesYear } from "@/lib/series";
 import { addComment, addTimeEntry, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
@@ -155,6 +156,26 @@ export async function setAssigneeRoleAction(id: string, userId: string, choice: 
     data: { assignees: { update: { where: { workOrderId_userId: { workOrderId: id, userId } }, data } } },
   });
   await restampRate(ctx, id, userId);
+  revalidatePath(path(id));
+}
+
+/**
+ * The office someone left from for this job ("" = their primary office): their trips are charged by its distance
+ * to the villa (lib/travel-charge.ts). Assignees set their own while the job is open; managers anyone's, also after
+ * it is closed, until it is invoiced.
+ */
+export async function setAssigneeOfficeAction(id: string, userId: string, officeId: string) {
+  const ctx = await requirePermission("workOrders.execute");
+  const manager = ctx.can("workOrders.manage");
+  if (userId !== ctx.user.id && !manager) throw new Error("Forbidden");
+  const wo = await ctx.db.workOrder.findUnique({ where: { id }, select: { status: true, invoicedAt: true, assignees: { where: { userId }, select: { userId: true } } } });
+  if (!wo || !wo.assignees.length) throw new Error("Not found");
+  if (wo.invoicedAt || (!manager && (wo.status === "DONE" || wo.status === "CANCELLED"))) throw new Error("Closed");
+  if (officeId) await assertOwned(ctx.db, "office", [officeId]);
+  await ctx.db.workOrder.update({
+    where: { id },
+    data: { assignees: { update: { where: { workOrderId_userId: { workOrderId: id, userId } }, data: { officeId: officeId || null } } } },
+  });
   revalidatePath(path(id));
 }
 
