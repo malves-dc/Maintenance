@@ -6,6 +6,10 @@
 FROM node:24-alpine3.24 AS base
 # Alpine security updates on every build; the release workflow skips the cache here.
 RUN apk upgrade --no-cache && apk add --no-cache openssl ca-certificates
+# OpenSSL >= 3.5.9-r1 (security fix) is only in edge so far; take just these three packages from there.
+# Drop this line once alpine3.24 ships it (apk policy openssl).
+RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
+      'openssl>=3.5.9-r1' 'libssl3>=3.5.9-r1' 'libcrypto3>=3.5.9-r1'
 WORKDIR /app
 
 # ── Dependencies (postinstall runs `prisma generate`, which needs the schema)
