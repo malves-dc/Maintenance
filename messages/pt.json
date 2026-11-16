@@ -1480,6 +1480,8 @@
     "clearFilter": "Mostrar tudo",
     "offlineHint": "Funciona sem rede. Adicione esta aplicação ao ecrã principal para acesso rápido.",
     "timerRunning": "Cronómetro a contar",
+    "manualTimeHint": "Para trabalho que não cronometrou neste telemóvel. O tempo de hoje termina agora; o de um dia anterior começa às 09:00.",
+    "manualTimeInvalid": "Indique um dia que não seja no futuro e entre 1 e 1440 minutos.",
     "steps": "{done}/{total} passos",
     "access": "Acesso",
     "start": "Iniciar trabalho",
