@@ -1480,6 +1480,8 @@
     "clearFilter": "Show all",
     "offlineHint": "Works without signal. Add this app to your home screen for quick access.",
     "timerRunning": "Timer running",
+    "manualTimeHint": "For work you didn't time on this phone. Today's time ends now; an earlier day's starts at 09:00.",
+    "manualTimeInvalid": "Enter a day that isn't in the future and 1 to 1440 minutes.",
     "steps": "{done}/{total} steps",
     "access": "Access",
     "start": "Start work",
