@@ -127,7 +127,8 @@
     "search": "Pesquisa",
     "onCall": "Prevenção",
     "clientUsers": "Clientes",
-    "technical": "Técnico"
+    "technical": "Técnico",
+    "offices": "Escritórios"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -209,6 +210,46 @@
     "villaOwner": "Proprietário · {count, plural, one {# vila} other {# vilas}}",
     "propertyManager": "Property manager · {count, plural, one {# vila} other {# vilas}}"
   },
+  "offices": {
+    "title": "Escritórios",
+    "description": "De onde saem os técnicos. As deslocações são cobradas pela distância do escritório de cada técnico à moradia.",
+    "distancesTitle": "Distâncias às moradias",
+    "distancesExplained": "A distância de cada moradia a cada escritório é calculada a partir das coordenadas, exceto se for escrita na moradia. A linha reta entre ambos é multiplicada por 1,3 para a estrada; nada sai do servidor.",
+    "roadDistances": "Distâncias por estrada",
+    "roadDistancesHint": "Pedir ao servidor de rotas {server} (OSRM) a distância por estrada mais curta. Só são enviadas coordenadas, nunca nomes nem moradas; se não responder, usa-se a estimativa.",
+    "recalculate": "Recalcular",
+    "recalculated": "{road, plural, =0 {} one {# por estrada, } other {# por estrada, }}{estimated, plural, one {# estimada} other {# estimadas}}.",
+    "roadFailed": "O servidor de rotas não respondeu: foram usadas estimativas.",
+    "new": "Novo escritório",
+    "firstHint": "O primeiro escritório herda a distância atual de cada moradia e passa a ser o escritório por defeito de todas.",
+    "newHint": "Acrescente as coordenadas para que as distâncias às moradias sejam calculadas.",
+    "none": "Ainda não há escritórios: as deslocações usam a distância de cada moradia à empresa.",
+    "withoutOffice": "Sem escritório (as suas deslocações saem do escritório da moradia): {names}",
+    "stats": "Escritório por defeito de {villas, plural, one {# moradia} other {# moradias}} · distâncias a {distances} de {total}",
+    "noCoordinates": "sem coordenadas",
+    "deleteConfirm": "Apagar o escritório {name}? As suas moradias ficam sem escritório por defeito.",
+    "people": "Pessoas",
+    "addPerson": "Adicionar pessoa",
+    "primary": "Principal",
+    "makePrimary": "Tornar este o escritório principal",
+    "defaultOffice": "Escritório por defeito",
+    "defaultOfficeHint": "O escritório que acompanha esta moradia. As deslocações dos técnicos sem escritório saem dele.",
+    "defaultShort": "por defeito",
+    "noOffice": "Sem escritório",
+    "distances": "Distância a cada escritório",
+    "distancesHint": "Km por estrada, só ida. Deixe vazio para calcular a partir das coordenadas; um número escrito aqui é mantido.",
+    "auto": "Automática",
+    "autoKm": "{km, number} km (automática)",
+    "source": {
+      "ESTIMATE": "estimada",
+      "ROAD": "por estrada"
+    },
+    "leavesFrom": "de {office}",
+    "leavesFromOf": "Escritório de onde {name} saiu",
+    "leavesFromHint": "O escritório de onde esta pessoa saiu para este trabalho: as suas deslocações são cobradas pela distância dele à moradia.",
+    "ownOffice": "de {office} (principal)",
+    "villaOffice": "do escritório da moradia"
+  },
   "validation": {
     "invalid": "Valor inválido.",
     "too_small": "Obrigatório.",
@@ -243,7 +284,9 @@
     "windowOrder": "O fim tem de ser depois do início.",
     "windowPast": "Este período já terminou.",
     "windowTooLong": "O período não pode ter mais de um ano.",
-    "slotRequired": "Confirme a data e a hora da visita."
+    "slotRequired": "Confirme a data e a hora da visita.",
+    "officeNameTaken": "Já existe um escritório com este nome.",
+    "bothCoordinates": "Preencha a latitude e a longitude, ou nenhuma."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -2136,7 +2179,8 @@
       "Organization": "empresa",
       "User": "utilizador",
       "Server": "servidor",
-      "KnowledgeArticle": "artigo da base de conhecimento"
+      "KnowledgeArticle": "artigo da base de conhecimento",
+      "Office": "escritório"
     },
     "actions": {
       "auth": {
@@ -2282,7 +2326,8 @@
       "pinned": "Fixado",
       "assets": "Equipamentos",
       "updatedById": "Atualizado por",
-      "onCallHours": "Horário de prevenção"
+      "onCallHours": "Horário de prevenção",
+      "defaultOfficeId": "Escritório por defeito"
     }
   },
   "van": {
@@ -2370,7 +2415,10 @@
     "included": "Deslocações incluídas no contrato (não são cobradas)",
     "includedInContract": "incluídas no contrato",
     "feeTerm": "{amount} por deslocação",
-    "kmTerm": "{amount} por km"
+    "kmTerm": "{amount} por km",
+    "fromOffice": "de {office}: {rule}",
+    "fromOfficeCount": "{count} de {office}: {rule}",
+    "distanceUnknown": "distância desconhecida"
   },
   "search": {
     "title": "Pesquisa",

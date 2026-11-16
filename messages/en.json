@@ -127,7 +127,8 @@
     "search": "Search",
     "onCall": "On call",
     "clientUsers": "Clients",
-    "technical": "Technical"
+    "technical": "Technical",
+    "offices": "Offices"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -209,6 +210,46 @@
     "villaOwner": "Owner · {count, plural, one {# villa} other {# villas}}",
     "propertyManager": "Property manager · {count, plural, one {# villa} other {# villas}}"
   },
+  "offices": {
+    "title": "Offices",
+    "description": "Where technicians leave from. Trips are charged by the distance from each technician's office to the villa.",
+    "distancesTitle": "Distances to villas",
+    "distancesExplained": "Each villa's distance from each office is worked out from their coordinates, unless it is typed on the villa. The straight line between them is multiplied by 1.3 for the road; nothing leaves the server.",
+    "roadDistances": "Road distances",
+    "roadDistancesHint": "Ask the routing server {server} (OSRM) for the shortest road distance instead. Only coordinates are sent, never names or addresses; if it can't be reached, the estimate is used.",
+    "recalculate": "Recalculate",
+    "recalculated": "{road, plural, =0 {} one {# by road, } other {# by road, }}{estimated, plural, one {# estimated} other {# estimated}}.",
+    "roadFailed": "The routing server didn't answer: estimates were used.",
+    "new": "New office",
+    "firstHint": "The first office takes over each villa's current distance and becomes every villa's default office.",
+    "newHint": "Add the coordinates so that its distances to the villas are worked out.",
+    "none": "No offices yet: trips are measured by each villa's own distance from the company.",
+    "withoutOffice": "Not in any office (their trips leave from the villa's office): {names}",
+    "stats": "Default office of {villas, plural, one {# villa} other {# villas}} · distances to {distances} of {total}",
+    "noCoordinates": "no coordinates",
+    "deleteConfirm": "Delete the office {name}? Its villas lose their default office.",
+    "people": "People",
+    "addPerson": "Add person",
+    "primary": "Primary",
+    "makePrimary": "Make this their primary office",
+    "defaultOffice": "Default office",
+    "defaultOfficeHint": "The office that looks after this villa. Trips of technicians without an office leave from it.",
+    "defaultShort": "default",
+    "noOffice": "No office",
+    "distances": "Distance from each office",
+    "distancesHint": "Road km, one way. Leave empty to work it out from the coordinates; a number typed here is kept.",
+    "auto": "Automatic",
+    "autoKm": "{km, number} km (automatic)",
+    "source": {
+      "ESTIMATE": "estimated",
+      "ROAD": "by road"
+    },
+    "leavesFrom": "from {office}",
+    "leavesFromOf": "Office {name} left from",
+    "leavesFromHint": "The office this person left from for this job: their trips are charged by its distance to the villa.",
+    "ownOffice": "from {office} (primary)",
+    "villaOffice": "from the villa's office"
+  },
   "validation": {
     "invalid": "Invalid value.",
     "too_small": "Required.",
@@ -243,7 +284,9 @@
     "windowOrder": "The end must be after the start.",
     "windowPast": "This period is already over.",
     "windowTooLong": "The period can't be longer than a year.",
-    "slotRequired": "Confirm the date and time of the visit."
+    "slotRequired": "Confirm the date and time of the visit.",
+    "officeNameTaken": "There is already an office with this name.",
+    "bothCoordinates": "Fill in both latitude and longitude, or neither."
   },
   "clients": {
     "description": "Villa owners, family offices and property managers you work for.",
@@ -2136,7 +2179,8 @@
       "Organization": "company",
       "User": "user",
       "Server": "server",
-      "KnowledgeArticle": "knowledge-base article"
+      "KnowledgeArticle": "knowledge-base article",
+      "Office": "office"
     },
     "actions": {
       "auth": {
@@ -2282,7 +2326,8 @@
       "pinned": "Pinned",
       "assets": "Assets",
       "updatedById": "Updated by",
-      "onCallHours": "On-call hours"
+      "onCallHours": "On-call hours",
+      "defaultOfficeId": "Default office"
     }
   },
   "van": {
@@ -2370,7 +2415,10 @@
     "included": "Trips included in the contract (none charged)",
     "includedInContract": "included in the contract",
     "feeTerm": "{amount} per trip",
-    "kmTerm": "{amount} per km"
+    "kmTerm": "{amount} per km",
+    "fromOffice": "from {office}: {rule}",
+    "fromOfficeCount": "{count} from {office}: {rule}",
+    "distanceUnknown": "distance unknown"
   },
   "search": {
     "title": "Search",

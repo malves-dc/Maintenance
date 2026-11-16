@@ -11,7 +11,8 @@ import { ServiceReport, type ReportData } from "@/app/(app)/work-orders/[id]/rep
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
-import { chargesTravel, countTrips, dayKey, travelRuleFor } from "@/lib/travel-charge";
+import { chargesTravel, countTrips, dayKey, TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelRuleFor } from "@/lib/travel-charge";
+import { homeOffices } from "@/lib/offices";
 import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
 import { docRef } from "@/lib/series";
 
@@ -33,10 +34,10 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   const wo = await ctx.db.workOrder.findFirst({
     where,
     include: {
-      villa: { select: { name: true, address: true, city: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
+      villa: { select: { ...TRAVEL_VILLA_SELECT, name: true, address: true, city: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { name: true, manufacturer: true, model: true, serialNumber: true } },
-      assignees: { select: { role: true, jobRole: { select: { name: true } }, user: { select: { name: true } } } },
+      assignees: { select: { ...TRAVEL_ASSIGNEE_SELECT, role: true, jobRole: { select: { name: true } }, user: { select: { name: true } } } },
       completedBy: { select: { name: true } },
       items: { orderBy: { sortOrder: "asc" } },
       timeEntries: { where: { minutes: { not: null } }, include: { user: { select: { name: true } } }, orderBy: { startedAt: "asc" } },
@@ -71,7 +72,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   const timeZone = ctx.organization.timezone;
   const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding), timeZone);
   const rule = travelRuleFor(ctx.organization, wo.contract);
-  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, timeZone, rule.perTechnician) : 0;
+  const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, timeZone, rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes: rule.perTechnician ? undefined : await homeOffices(ctx.db) }) : 0;
   const day = (d: Date) => format.dateTime(d, { dateStyle: "short" });
   const timeRows = [...billed.days].sort((a, b) => a.day.localeCompare(b.day)).map((p) => {
     const mine = wo.timeEntries.filter((e) => (e.userId ?? "-") === p.userId && dayKey(e.startedAt, timeZone) === p.day);

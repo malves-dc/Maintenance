@@ -326,8 +326,14 @@ Debian dev container) needs that volume removed first.
   (`setTimeModeAction`). One trip per day (org time zone) with finished on-site time, per technician or per work order
   (`Organization.travelPerTechnician`); cost = `travelFee` within `travelRadiusKm` of the company (or when
   `Villa.distanceKm` is unset), else `travelKmRate` × the whole one-way distance. A contract can include trips
-  (`travelIncluded`) or set its own `travelFee` / `travelKmRate` (null = company). Pass `travelOf(org, contract)` to `workOrderCosts` (select `villa.distanceKm` and the
-  entries' `startedAt`/`mode`). The service report shows the count and each person's mode, no amounts.
+  (`travelIncluded`) or set its own `travelFee` / `travelKmRate` (null = company). Pass `travelOf(org, contract, await homeOffices(ctx.db))` to `workOrderCosts` (select the villa with
+  `TRAVEL_VILLA_SELECT`, the assignees with `TRAVEL_ASSIGNEE_SELECT` and the entries' `startedAt`/`mode`). The service report shows the count and each person's mode, no amounts.
+- **Offices** (Settings → Offices, `lib/offices.ts`, `lib/geo.ts`, org.manage): `Office`, `OfficeMember` (tech ↔ office, one `primary`),
+  `Villa.defaultOfficeId`, `VillaOfficeDistance` (MANUAL / ESTIMATE = straight line × 1.3 / ROAD = OSRM table API, coordinates only;
+  `Organization.roadDistances`, server `OSRM_URL`, default the public demo). A trip leaves from `WorkOrderAssignee.officeId`, else the
+  person's primary office, else the villa's default office; its km = that office's `VillaOfficeDistance` (unknown = fixed fee), or
+  `Villa.distanceKm` when no office applies. Per-work-order trips count one per office per day. The first office adopts every villa's
+  `distanceKm` (as MANUAL) and becomes their default office. Distances are recomputed on office/villa save and by "Recalculate".
 - **Per-org counters** via `nextNumber(orgId, key)`. Keys in use: `purchaseOrder`, and `series:<year>` through `nextSeriesNumber()`.
 - **Yearly series** (`lib/series.ts`, tested; 2026-11-06): `Request` and `WorkOrder` have `year` + `number`, unique per org, shown with `docRef()` ("2026-12", no # or R). One counter per year in the company's time zone, shared by both, so a request's number is free for its work order: `approveRequest` passes `series`. Records from before the series kept their number (under their creation year), so a legacy request can clash with an existing work order: it then takes a new number. Notification `data.number` and the field app's `number` are the string; old cached snapshots hold a plain number. `parseDocRef()` reads typed numbers (list search, links).
 - **Status EN_ROUTE** ("On the way", between OPEN and IN_PROGRESS): set by hand by the technician when leaving for the job; sets `firstResponseAt`. `notStarted()` = OPEN or EN_ROUTE. The portal request page shows received → scheduled → technician on the way → technician working (ON_HOLD shows "On hold: <reason>" from the last status log) → done.

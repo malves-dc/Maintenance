@@ -24,7 +24,7 @@ A villa always belongs to a client, so [create the client](/help/clients) first.
 2. Choose the **Owner** and/or the **Property manager / company**: a villa can have only an owner, only a managing company, or both, but at least one. The manager can't be the owner itself.
 3. When the villa has both, choose in **Bill to** who the work is billed to: the owner or the manager. With only one of them, that one is billed.
 4. Fill in the **Name** and a short **Code**, such as VQL-07. The code is printed on the QR labels, so keep it short.
-5. Add the **Address**, **City**, **Country** and, for exact navigation, the **Latitude** and **Longitude**. **Distance from the company** (km by road, one way) decides the trip charged for on-site work; see [Settings → Organization](/help/organization).
+5. Add the **Address**, **City**, **Country** and, for exact navigation, the **Latitude** and **Longitude**. **Distance from the company** (km by road, one way) decides the trip charged for on-site work; see [Settings → Organization](/help/organization). With [offices](/help/offices), the form asks for the **Default office** and the distance from each office instead.
 6. Use **Access notes** for parking, working hours, pets and similar practical details.
 7. Click **Create**.
 
@@ -127,7 +127,7 @@ Uma moradia pertence sempre a um cliente, por isso [crie primeiro o cliente](/he
 2. Escolha o **Proprietário** e/ou a **Gestão da propriedade / empresa**: uma moradia pode ter só proprietário, só uma empresa de gestão, ou ambos, mas pelo menos um. O gestor não pode ser o próprio proprietário.
 3. Quando a moradia tem ambos, escolha em **Faturar a** a quem se fatura o trabalho: ao proprietário ou à gestão. Com só um deles, fatura-se a esse.
 4. Preencha o **Nome** e um **Código** curto, como VQL-07. O código é impresso nas etiquetas QR, por isso mantenha-o curto.
-5. Acrescente a **Morada**, **Localidade**, **País** e, para uma navegação exata, a **Latitude** e a **Longitude**. A **Distância à empresa** (km por estrada, só ida) define a deslocação cobrada pelo trabalho no local; veja [Definições → Empresa](/help/organization).
+5. Acrescente a **Morada**, **Localidade**, **País** e, para uma navegação exata, a **Latitude** e a **Longitude**. A **Distância à empresa** (km por estrada, só ida) define a deslocação cobrada pelo trabalho no local; veja [Definições → Empresa](/help/organization). Com [escritórios](/help/offices), o formulário pede antes o **Escritório por defeito** e a distância a cada escritório.
 6. Use as **Notas de acesso** para estacionamento, horários, animais e outros detalhes práticos.
 7. Clique em **Criar**.
 

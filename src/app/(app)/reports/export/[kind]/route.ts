@@ -6,7 +6,8 @@ import { SLA_STATUS_LOGS, slaCalendar, slaStates } from "@/lib/sla";
 import { workOrderCosts } from "@/lib/work-orders";
 import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
-import { travelOf } from "@/lib/travel-charge";
+import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { homeOffices } from "@/lib/offices";
 import { csvResponse, money, moneyColumns, toCsv, type Cell, type Column } from "@/lib/csv";
 import { villaClient } from "@/lib/villa-client";
 import { docRef } from "@/lib/series";
@@ -37,16 +38,18 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
       const wos = await ctx.db.workOrder.findMany({
         where: { ...woScope(f), createdAt: { gte: f.from, lte: f.to } },
         include: {
-          villa: { select: { name: true, distanceKm: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
+          villa: { select: { ...TRAVEL_VILLA_SELECT, name: true, client: { select: { name: true } }, manager: { select: { name: true } }, billTo: true } },
           asset: { select: { name: true } },
           contract: { select: { name: true, responseTimeHours: true, resolutionTimeHours: true, businessHoursOnly: true, pauseOnHold: true, urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
           statusLogs: SLA_STATUS_LOGS,
           timeEntries: { select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, mode: true } },
+          assignees: { select: TRAVEL_ASSIGNEE_SELECT },
           parts: { select: { quantity: true, unitCost: true } },
           otherCosts: { select: { amount: true } },
         },
         orderBy: [{ year: "asc" }, { number: "asc" }],
       });
+      const homes = await homeOffices(ctx.db);
       header = [
         t("reports.csv.number"), t("wo.title"), t("wo.type"), t("common.status"), t("wo.priority"), t("assets.system"),
         t("villas.client"), t("assets.villa"), t("wo.asset"), t("wo.createdAt"), t("reports.csv.firstResponse"), t("wo.completedAt"),
@@ -55,7 +58,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
         ...(billing ? [t("billing.title")] : []),
       ];
       rows = wos.map((w) => {
-        const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract));
+        const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes));
         const s = w.contract ? slaStates(w, w.contract, now, slaCalendar(ctx.organization)) : null;
         return [
           docRef(w), w.title, t(`woType.${w.type}`), t(`woStatus.${w.status}`), t(`priority.${w.priority}`), sys(w.system),
