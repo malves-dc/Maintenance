@@ -2627,7 +2627,14 @@
     "sendFailed": "Couldn't send. Check your connection and try again.",
     "emptyMessage": "Write a message first.",
     "tooLong": "That message is too long.",
-    "forbidden": "You can't take part in this conversation."
+    "forbidden": "You can't take part in this conversation.",
+    "participants": "{count, plural, one {# participant} other {# participants}}",
+    "participantsHint": "These people can read this conversation and write in it.",
+    "kind": {
+      "client": "Client",
+      "staff": "Management",
+      "technician": "Technician"
+    }
   },
   "billing": {
     "title": "Billing",

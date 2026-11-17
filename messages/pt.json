@@ -2627,7 +2627,14 @@
     "sendFailed": "Não foi possível enviar. Verifique a ligação e tente de novo.",
     "emptyMessage": "Escreva primeiro uma mensagem.",
     "tooLong": "A mensagem é demasiado longa.",
-    "forbidden": "Não pode participar nesta conversa."
+    "forbidden": "Não pode participar nesta conversa.",
+    "participants": "{count, plural, one {# participante} other {# participantes}}",
+    "participantsHint": "Estas pessoas podem ler esta conversa e escrever nela.",
+    "kind": {
+      "client": "Cliente",
+      "staff": "Gestão",
+      "technician": "Técnico"
+    }
   },
   "billing": {
     "title": "Faturação",
