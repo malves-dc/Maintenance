@@ -37,10 +37,13 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
     await signIn("credentials", {
       email: form.get("email"),
       password: form.get("password"),
+      code: form.get("code") ?? "",
       redirectTo: safeNext(form.get("next")),
     });
   } catch (e) {
     if (e instanceof CredentialsSignin && e.code === "too_many_attempts") return { error: "tooManyAttempts" };
+    if (e instanceof CredentialsSignin && e.code === "two_factor_required") return { error: "twoFactorRequired" };
+    if (e instanceof CredentialsSignin && e.code === "two_factor_invalid") return { error: "twoFactorInvalid" };
     if (e instanceof AuthError) return { error: "invalidCredentials" };
     throw e; // NEXT_REDIRECT on success
   }

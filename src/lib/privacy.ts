@@ -1,7 +1,7 @@
 // Privacy notice (GDPR art. 12–14). Each company has a public page at /privacy/<slug>: its own text
 // (Settings → Organization) or, until it writes one, the built-in template filled with its details.
 
-export const PRIVACY_SECTIONS = ["controller", "data", "purposes", "recipients", "retention", "security", "rights"] as const;
+export const PRIVACY_SECTIONS = ["controller", "data", "sources", "purposes", "recipients", "transfers", "retention", "security", "rights"] as const;
 
 export const privacyPath = (org: { slug: string }) => `/privacy/${org.slug}`;
 

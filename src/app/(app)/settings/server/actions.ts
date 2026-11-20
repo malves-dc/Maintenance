@@ -277,6 +277,7 @@ function copiesFromForm(form: FormData, current: BackupCopies): { copies: Backup
       provider,
       kinds: kinds("cloudKinds"),
       folder: cleanFolder(get("folder")) || c.folder,
+      encryptedOnly: form.get("cloudEncryptedOnly") === "on",
       mirrorDeletes: form.get("mirrorDeletes") === "on",
       onedrive: {
         tenant: get("odTenant") || "common",
@@ -359,6 +360,7 @@ const copiesSummary = (c: BackupCopies) => ({
   cloudProvider: c.cloud.provider,
   cloudKinds: c.cloud.kinds.join(", "),
   cloudFolder: c.cloud.folder,
+  cloudEncryptedOnly: c.cloud.encryptedOnly,
   mirrorDeletes: c.cloud.mirrorDeletes,
   onedriveTenant: c.cloud.onedrive.tenant,
   onedriveClientId: c.cloud.onedrive.clientId,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { Card, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { Button, Card, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { ActionForm, FieldError } from "@/components/action-form";
 import { getContext } from "@/lib/context";
 import { brandColor, DEFAULT_BRAND, logoSrc } from "@/lib/branding";
@@ -12,6 +12,7 @@ import { parseRetention, RETENTION_KEYS, RETENTION_MAX } from "@/lib/retention-r
 import { parseBusinessHours } from "@/lib/sla-clock";
 import { parseOnCallHours } from "@/lib/on-call";
 import { parseCompanyRecipients } from "@/lib/report-recipients";
+import { erasureDue } from "@/lib/erasure";
 
 // Roles that can be sent copies of service reports (custom roles are added from the company's list).
 const REPORT_ROLES = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "VIEWER"] as const;
@@ -37,9 +38,10 @@ export default async function OrgSettingsPage() {
   const retention = parseRetention(o.retention);
   const hours = parseBusinessHours(o.businessHours);
   const reports = parseCompanyRecipients(o.reportRecipients);
-  const [staff, jobRoles] = await Promise.all([
+  const [staff, jobRoles, former] = await Promise.all([
     ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true, email: true } } }, orderBy: { user: { name: "asc" } } }),
     ctx.db.jobRole.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    erasureDue(ctx),
   ]);
   const roleOptions = [
     ...REPORT_ROLES.map((r) => ({ value: r as string, label: t(`roles.${r}`) })),
@@ -115,6 +117,33 @@ export default async function OrgSettingsPage() {
                   </Field>
                 ))}
               </div>
+              {(former.members > 0 || former.clients > 0) && (
+                <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                  <p>{t("retention.formerDue")}</p>
+                  <p className="mt-1 flex flex-wrap gap-x-4">
+                    {former.members > 0 && (
+                      <Link href="/settings/users" className="font-medium underline">
+                        {t("retention.formerMembersDue", { n: former.members })}
+                      </Link>
+                    )}
+                    {former.clients > 0 && (
+                      <Link href="/clients?archived=1" className="font-medium underline">
+                        {t("retention.formerClientsDue", { n: former.clients })}
+                      </Link>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-medium">{t("twoFactor.title")}</h3>
+              <label className="mt-2 flex items-start gap-2 text-sm">
+                <input type="checkbox" name="require2fa" defaultChecked={o.require2fa} className="mt-0.5" />
+                <span>
+                  {t("twoFactor.orgSetting")}
+                  <span className="block text-xs text-muted">{t("twoFactor.orgSettingHint")}</span>
+                </span>
+              </label>
             </div>
 
             <h2 className="border-t border-border pt-5 font-medium">{t("company.regional")}</h2>
@@ -259,6 +288,19 @@ export default async function OrgSettingsPage() {
             <p className="mb-3 text-xs text-muted">{t("company.logoHint")}</p>
             <LogoUploader src={logoSrc(o)} name={o.name} color={brandColor(o)} />
           </Card>
+          {ctx.can("requests.approve") && (
+            <Card className="p-5">
+              <h2 className="mb-1 font-medium">{t("gdprExport.requesterTitle")}</h2>
+              <p className="mb-3 text-xs text-muted">{t("gdprExport.requesterHint")}</p>
+              {/* A native POST: the route answers with a file download, and the address stays out of the URL. */}
+              <form method="post" action="/api/export/requester" className="flex gap-2">
+                <Input name="email" type="email" required maxLength={200} placeholder={t("common.email")} aria-label={t("common.email")} />
+                <Button type="submit" variant="secondary">
+                  {t("gdprExport.download")}
+                </Button>
+              </form>
+            </Card>
+          )}
         </div>
       </div>
     </>

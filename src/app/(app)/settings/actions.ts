@@ -28,8 +28,9 @@ const STAFF_REPORT_ROLES: string[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNT
 import { erasedName, eraseMember, ErasureError } from "@/lib/erasure";
 import { emailLayout, sendEmail } from "@/lib/email";
 import { background } from "@/lib/notify";
-import { audit, changesOf } from "@/lib/audit";
+import { audit, auditUser, changesOf } from "@/lib/audit";
 import { TIME_ROUNDING_OPTIONS } from "@/lib/billing-time";
+import { clearTwoFactor } from "@/lib/two-factor";
 
 /** Settings → Staff and Settings → Clients list the same memberships and invitations. */
 function revalidateUsers() {
@@ -60,6 +61,8 @@ const orgSchema = z.object({
   auditMonths: z.coerce.number().int().min(0).max(RETENTION_MAX.auditMonths),
   requestersMonths: z.coerce.number().int().min(0).max(RETENTION_MAX.requestersMonths),
   chatMonths: z.coerce.number().int().min(0).max(RETENTION_MAX.chatMonths),
+  formerMonths: z.coerce.number().int().min(0).max(RETENTION_MAX.formerMonths),
+  require2fa: z.unknown().transform((v) => v === "on"),
   timezone: z.string().trim().min(1).max(64),
   currency: z.string().trim().length(3).toUpperCase(),
   defaultLocale: z.enum(LOCALES),
@@ -97,8 +100,9 @@ export async function updateOrgAction(_: FormResult, form: FormData): Promise<Fo
     roles: form.getAll("reportRoles").map(String).filter((r) => STAFF_REPORT_ROLES.includes(r) || jobIds.has(r)),
     emails: reportEmails.emails.slice(0, MAX_EXTRA),
   };
-  const { notificationsDays, auditMonths, requestersMonths, chatMonths, ...rest } = parsed.data;
-  const data = { ...rest, brandColor: normalizeHex(rest.brandColor), retention: { notificationsDays, auditMonths, requestersMonths, chatMonths }, businessHours: bh.hours, onCallHours: onCall.hours, reportRecipients };
+  const { notificationsDays, auditMonths, requestersMonths, chatMonths, formerMonths, ...rest } = parsed.data;
+  const retention = { notificationsDays, auditMonths, requestersMonths, chatMonths, formerMonths };
+  const data = { ...rest, brandColor: normalizeHex(rest.brandColor), retention, businessHours: bh.hours, onCallHours: onCall.hours, reportRecipients };
   // Organization isn't a tenant-scoped model; scope by id explicitly. No on-call hours = a JSON null column (at any time).
   await prisma.organization.update({ where: { id: ctx.organization.id }, data: { ...data, onCallHours: data.onCallHours ?? Prisma.DbNull } });
   const { changes } = changesOf(ctx.organization as unknown as Record<string, unknown>, data);
@@ -222,11 +226,14 @@ export async function updateMemberAction(membershipId: string, data: { role?: st
   const choice = data.role ? await resolveRoleChoice(ctx, data.role) : null;
   // Staff and client (portal) users are managed on separate pages; a role change never moves someone across.
   if (choice && (choice.role === "REQUESTER") !== (m.role === "REQUESTER")) throw new Error("Forbidden");
+  // A member whose data this company erased stays out (lib/erasure.ts).
+  if (m.erasedAt && data.active) throw new Error("Forbidden");
+  const toggled = typeof data.active === "boolean" && data.active !== m.active;
   await ctx.db.membership.update({
     where: { id: membershipId },
     data: {
       ...(choice ? { role: choice.role, jobRoleId: choice.jobRoleId, clientId: choice.role === "REQUESTER" ? m.clientId : null } : {}),
-      active: typeof data.active === "boolean" ? data.active : undefined,
+      ...(toggled ? { active: data.active, deactivatedAt: data.active ? null : new Date() } : {}),
     },
   });
   revalidateUsers();
@@ -284,18 +291,33 @@ export async function removeTeamMemberAction(teamId: string, userId: string) {
   revalidatePath("/settings/teams");
 }
 
+/**
+ * Turns off a member's two-factor sign-in, for someone who lost their phone and their recovery codes. Their password
+ * still applies; if their role requires a second factor they set it up again on their next visit. Logged in each of
+ * the person's companies, since the account is shared.
+ */
+export async function resetTwoFactorAction(membershipId: string) {
+  const ctx = await requirePermission("users.manage");
+  const m = await ctx.db.membership.findUnique({ where: { id: membershipId }, select: { userId: true, role: true } });
+  if (!m || m.userId === ctx.user.id || (m.role === "OWNER" && ctx.role !== "OWNER")) throw new Error("Forbidden");
+  await clearTwoFactor(m.userId);
+  await auditUser(m.userId, "auth.twoFactorReset", { by: ctx.user.name });
+  revalidateUsers();
+}
+
 // ── Erasure (GDPR art. 17)
 
-export async function eraseMemberAction(membershipId: string): Promise<{ error?: string }> {
+export async function eraseMemberAction(membershipId: string): Promise<{ error?: string; scope?: "account" | "company" }> {
   const ctx = await requirePermission("users.manage");
   const m = await ctx.db.membership.findUnique({ where: { id: membershipId }, select: { userId: true } });
   if (!m) return { error: "forbidden" };
+  let scope: "account" | "company";
   try {
-    await eraseMember(ctx, membershipId, erasedName(ctx.organization.defaultLocale, "user", m.userId));
+    scope = await eraseMember(ctx, membershipId, erasedName(ctx.organization.defaultLocale, "user", m.userId));
   } catch (e) {
     if (e instanceof ErasureError) return { error: e.message };
     throw e;
   }
   revalidateUsers();
-  return {};
+  return { scope };
 }
