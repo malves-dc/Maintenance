@@ -1,5 +1,6 @@
 "use server";
 
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -186,7 +187,7 @@ export async function saveLocationAction(id: string | null, _: FormResult, form:
   if (parsed.error) return parsed.error;
   const data = { ...parsed.data, userId: parsed.data.type === "VAN" ? parsed.data.userId : null };
   if (data.userId) {
-    const member = await ctx.db.membership.count({ where: { userId: data.userId, active: true, role: { not: "REQUESTER" } } });
+    const member = await ctx.db.membership.count({ where: { userId: data.userId, active: true, role: { notIn: NOT_IN_STAFF_LISTS } } });
     if (!member) return { error: "validation", fieldErrors: { userId: "invalid" } };
   }
   if (id) await ctx.db.stockLocation.update({ where: { id }, data });

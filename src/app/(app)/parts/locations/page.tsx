@@ -33,7 +33,7 @@ export default async function LocationsPage() {
     }),
     canManage
       ? ctx.db.membership.findMany({
-          where: { active: true, role: { notIn: ["REQUESTER", "VIEWER", "ACCOUNTANT"] } },
+          where: { active: true, role: { notIn: ["REQUESTER", "VIEWER", "ACCOUNTANT", "TIMESHEET"] } },
           select: { user: { select: { id: true, name: true } } },
           orderBy: { user: { name: "asc" } },
         })

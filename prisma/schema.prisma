@@ -22,6 +22,7 @@ enum Role {
   REQUESTER // client / villa-manager portal user
   VIEWER
   ACCOUNTANT // finance: reports and costs, no field work
+  TIMESHEET // hours only: logs their own hours (/hours) and sees nothing else of the app
 }
 
 enum SystemType {

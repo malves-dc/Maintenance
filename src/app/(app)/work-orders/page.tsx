@@ -1,3 +1,4 @@
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -41,7 +42,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps<"/work-
 
   const [villas, members, categories] = await Promise.all([
     ctx.db.villa.findMany({ where: { archivedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
-    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } }),
+    ctx.db.membership.findMany({ where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS } }, select: { user: { select: { id: true, name: true } } } }),
     ctx.db.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
 

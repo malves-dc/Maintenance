@@ -32,7 +32,7 @@ export const PERMISSIONS = {
   "purchasing.approve": ["OWNER", "ADMIN"],
   "vendors.manage": ["OWNER", "ADMIN", "MANAGER"],
   "reports.view": ["OWNER", "ADMIN", "MANAGER", "VIEWER", "ACCOUNTANT"],
-  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // Hours (/hours): log one's own hours at villas
+  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "TIMESHEET"], // Hours (/hours): log one's own hours at villas
   "timesheets.manage": ["OWNER", "ADMIN", "MANAGER"], // Hours: everyone's hours, the team view, reports and settings
   "internal.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"], // anything not client-facing
 } as const satisfies Record<string, readonly Role[]>;
@@ -113,7 +113,18 @@ export function can(role: Role, permission: Permission): boolean {
   return (PERMISSIONS[permission] as readonly Role[]).includes(role);
 }
 
-export const ASSIGNABLE_ROLES: Role[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "REQUESTER", "VIEWER"];
+export const ASSIGNABLE_ROLES: Role[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "TIMESHEET", "REQUESTER", "VIEWER"];
+
+/**
+ * Roles left out of the staff pickers (assignees, teams, messages, vans, offices, report recipients): clients, and
+ * people who only log hours. TIMESHEET, like REQUESTER, is fixed: just `timesheets.log`, without the staff app.
+ */
+export const NOT_IN_STAFF_LISTS: Role[] = ["REQUESTER", "TIMESHEET"];
+
+/** Where someone in the TIMESHEET role may go: the hours, their profile, notifications and help; anything else → /hours. */
+export function timesheetOnlyAllows(pathname: string) {
+  return /^\/(hours|settings\/profile|notifications|help)(\/|$)/.test(pathname);
+}
 
 const sameSet = (a: Permission[], b: Permission[]) => a.length === b.length && a.every((p) => b.includes(p));
 

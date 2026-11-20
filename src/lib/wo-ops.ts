@@ -1,4 +1,5 @@
 import "server-only";
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import { z } from "zod";
 import { assertCanLogTime, changeStatus, notStarted, WorkOrderError, type WoCtx } from "@/lib/work-orders";
 import { docRef } from "@/lib/series";
@@ -77,7 +78,7 @@ export async function addComment(ctx: WoCtx, woId: string, body: string, attachm
   }
 
   // @mentioned staff get MENTION; the WO's creator and assignees get WO_COMMENT.
-  const staff = await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } });
+  const staff = await ctx.db.membership.findMany({ where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS } }, select: { user: { select: { id: true, name: true } } } });
   const mentioned = findMentions(text, staff.map((m) => m.user));
   const data = { number: docRef(wo), title: wo.title, actor: ctx.user.name, excerpt: excerpt(text), where: docRef(wo) };
   const link = `/work-orders/${woId}`;

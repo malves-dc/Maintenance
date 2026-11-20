@@ -28,9 +28,9 @@ export default async function RolePermissionsPage({ params }: PageProps<"/settin
   let granted: Permission[];
   let customised = false;
   let fixed = false;
-  if (key === "OWNER" || key === "REQUESTER") {
+  if (key === "OWNER" || key === "REQUESTER" || key === "TIMESHEET") {
     name = t(`roles.${key}`);
-    granted = key === "OWNER" ? GRANTABLE : GRANTABLE.filter((p) => defaultPermissions("REQUESTER").includes(p));
+    granted = key === "OWNER" ? GRANTABLE : GRANTABLE.filter((p) => defaultPermissions(key).includes(p));
     fixed = true;
   } else if (isEditableRole(key)) {
     name = t(`roles.${key}`);
@@ -51,7 +51,7 @@ export default async function RolePermissionsPage({ params }: PageProps<"/settin
     items: g.permissions.map((p) => ({ permission: p, label: t(`perm.${p}.label` as never), hint: t(`perm.${p}.hint` as never) })),
   }));
   // Keyed on what is saved, so the checkboxes follow a save or a reset.
-  const list = <PermissionList key={granted.join()} groups={groups} granted={granted} staffApp={key !== "REQUESTER"} disabled={!editable} />;
+  const list = <PermissionList key={granted.join()} groups={groups} granted={granted} staffApp={key !== "REQUESTER" && key !== "TIMESHEET"} disabled={!editable} />;
 
   return (
     <>

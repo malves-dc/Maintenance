@@ -148,7 +148,8 @@
     "costPerHour": "Preço por hora",
     "delete": "Eliminar",
     "deleteConfirm": "Eliminar a função \"{name}\"? {count, plural, =0 {} one {A # pessoa nesta função volta a ser Técnico.} other {As # pessoas nesta função voltam a ser Técnicos.}}",
-    "ACCOUNTANT": "Contabilista"
+    "ACCOUNTANT": "Contabilista",
+    "TIMESHEET": "Só horas"
   },
   "systems": {
     "ELECTRICAL": "Eletricidade",
@@ -2733,7 +2734,7 @@
     "dailyHours": "Horas de um dia de trabalho",
     "dailyHoursHint": "Na vista da equipa, os dias úteis com menos horas ficam assinalados.",
     "whoLogs": "Quem regista horas",
-    "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, crie uma função com apenas essa permissão.",
+    "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, dê-lhes a função «Só horas»: veem apenas as Horas, o perfil e as notificações.",
     "errors": {
       "date": "Data inválida.",
       "future": "Não pode registar horas em dias futuros.",

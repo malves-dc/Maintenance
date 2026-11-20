@@ -1,3 +1,4 @@
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import { getTranslations } from "next-intl/server";
 import { Card, Field, Input } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
@@ -9,7 +10,7 @@ export default async function NewConversationPage() {
   const ctx = await getContext();
   const t = await getTranslations();
   const people = await ctx.db.membership.findMany({
-    where: { active: true, role: { not: "REQUESTER" }, userId: { not: ctx.user.id } },
+    where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS }, userId: { not: ctx.user.id } },
     select: { role: true, jobRole: { select: { name: true } }, user: { select: { id: true, name: true } } },
     orderBy: { user: { name: "asc" } },
   });

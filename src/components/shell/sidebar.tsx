@@ -97,6 +97,8 @@ export function Sidebar({ appName, version, groups, user, org, orgs, unreadNotif
   const [open, setOpen] = useState(false);
   const [orgMenu, setOrgMenu] = useState(false);
   const [pending, start] = useTransition();
+  // The top bar's shortcuts only for people whose menu has them.
+  const has = (href: string) => groups.some((g) => g.items.some((i) => i.href === href));
 
   const content = (
     <div className="flex h-full flex-col">
@@ -203,12 +205,16 @@ export function Sidebar({ appName, version, groups, user, org, orgs, unreadNotif
           <img src={org.logo} alt="" className="size-7 rounded bg-white object-contain" />
         )}
         <span className="flex-1 truncate font-medium">{org.name}</span>
-        <Link href="/search" aria-label={t("nav.search")} className="rounded-md p-2 text-muted hover:bg-gray-100">
-          <Search className="size-4" />
-        </Link>
-        <Link href="/scan" aria-label={t("nav.scan")} className="rounded-md p-2 text-muted hover:bg-gray-100">
-          <ScanLine className="size-4" />
-        </Link>
+        {has("/search") && (
+          <Link href="/search" aria-label={t("nav.search")} className="rounded-md p-2 text-muted hover:bg-gray-100">
+            <Search className="size-4" />
+          </Link>
+        )}
+        {has("/scan") && (
+          <Link href="/scan" aria-label={t("nav.scan")} className="rounded-md p-2 text-muted hover:bg-gray-100">
+            <ScanLine className="size-4" />
+          </Link>
+        )}
         <NotificationBell key={unreadNotifications} initial={unreadNotifications} href="/notifications" />
       </div>
 

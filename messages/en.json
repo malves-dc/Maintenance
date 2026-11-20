@@ -148,7 +148,8 @@
     "costPerHour": "Price per hour",
     "delete": "Delete",
     "deleteConfirm": "Delete the role \"{name}\"? {count, plural, =0 {} one {The # person in it becomes a Technician again.} other {The # people in it become Technicians again.}}",
-    "ACCOUNTANT": "Accountant"
+    "ACCOUNTANT": "Accountant",
+    "TIMESHEET": "Hours only"
   },
   "systems": {
     "ELECTRICAL": "Electrical",
@@ -2733,7 +2734,7 @@
     "dailyHours": "Hours in a working day",
     "dailyHoursHint": "In the team view, working days with fewer hours are flagged.",
     "whoLogs": "Who logs hours",
-    "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, create a role with just that permission.",
+    "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, give them the \"Hours only\" role: they see just Hours, their profile and notifications.",
     "errors": {
       "date": "Invalid date.",
       "future": "You can't log hours on future days.",

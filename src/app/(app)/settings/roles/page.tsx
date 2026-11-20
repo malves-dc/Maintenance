@@ -14,7 +14,7 @@ import { titled } from "@/lib/metadata";
 
 export const generateMetadata = titled("nav.roles");
 
-const BUILT_IN: Role[] = ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT", "REQUESTER"];
+const BUILT_IN: Role[] = ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT", "TIMESHEET", "REQUESTER"];
 
 type Row = { key: string; name: string; members: number; granted: number; rate: unknown; rated: boolean; created: boolean };
 

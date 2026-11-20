@@ -8,11 +8,16 @@ import { getContext } from "@/lib/context";
 import { unreadConversations } from "@/lib/conversations";
 import { brandStyle, logoSrc } from "@/lib/branding";
 import { getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
+import { timesheetOnlyAllows } from "@/lib/rbac";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getContext();
   // Client users live in the portal.
   if (ctx.role === "REQUESTER") redirect("/portal");
+  // People who only log hours see the hours, their profile and notifications; every other page sends them to /hours.
+  const hoursOnly = ctx.role === "TIMESHEET";
+  if (hoursOnly && !timesheetOnlyAllows((await headers()).get("x-pathname") ?? "/")) redirect("/hours");
   const t = await getTranslations();
 
   const [pendingRequests, posToApprove, unreadMessages, unreadNotifications] = await Promise.all([
@@ -26,7 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const groups = NAV.map((g) => ({
     ...g,
     items: g.items
-      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)))
+      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)) && (!hoursOnly || timesheetOnlyAllows(i.href)))
       .map((i) => (badges[i.href] ? { ...i, badge: badges[i.href] } : i)),
   })).filter((g) => g.items.length > 0);
   const version = (await getServerSettings()).showVersion ? await runningVersion() : null;

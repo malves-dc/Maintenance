@@ -27,7 +27,10 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(home, req.nextUrl));
   }
 
-  const res = NextResponse.next();
+  // The path, for layouts (they aren't told it): the app layout keeps people in the TIMESHEET role inside /hours.
+  const headers = new Headers(req.headers);
+  headers.set("x-pathname", pathname);
+  const res = NextResponse.next({ request: { headers } });
   // Sliding session: on a full page load, once a day, re-issue the cookie with a fresh 30-day expiry.
   if (token && secret && isPageLoad(req.method, req.headers) && needsRenewal(token.iat)) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- iat/exp/jti are set afresh by encode()

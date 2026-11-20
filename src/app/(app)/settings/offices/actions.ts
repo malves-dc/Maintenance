@@ -1,5 +1,6 @@
 "use server";
 
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePermission } from "@/lib/context";
@@ -60,7 +61,7 @@ export async function deleteOfficeAction(id: string) {
 }
 
 async function assertStaff(ctx: Awaited<ReturnType<typeof requirePermission>>, userId: string) {
-  const m = await ctx.db.membership.findFirst({ where: { userId, role: { not: "REQUESTER" } }, select: { id: true } });
+  const m = await ctx.db.membership.findFirst({ where: { userId, role: { notIn: NOT_IN_STAFF_LISTS } }, select: { id: true } });
   if (!m) throw new Error("Invalid user");
 }
 

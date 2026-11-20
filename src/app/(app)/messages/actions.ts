@@ -1,5 +1,6 @@
 "use server";
 
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -17,7 +18,7 @@ export async function startConversationAction(_: FormResult, form: FormData): Pr
   const ids = [...new Set(form.getAll("userIds").map(String).filter((u) => u && u !== ctx.user.id))].slice(0, 50);
   if (ids.length === 0) return { error: "validation", fieldErrors: { userIds: "too_small" } };
   const name = z.string().trim().max(100).parse(form.get("name") ?? "") || null;
-  const valid = await ctx.db.membership.count({ where: { userId: { in: ids }, active: true, role: { not: "REQUESTER" } } });
+  const valid = await ctx.db.membership.count({ where: { userId: { in: ids }, active: true, role: { notIn: NOT_IN_STAFF_LISTS } } });
   if (valid !== ids.length) return { error: "validation", fieldErrors: { userIds: "invalid" } };
 
   let id: string;

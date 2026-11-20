@@ -1,3 +1,4 @@
+import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -38,7 +39,7 @@ export default async function OrgSettingsPage() {
   const hours = parseBusinessHours(o.businessHours);
   const reports = parseCompanyRecipients(o.reportRecipients);
   const [staff, jobRoles] = await Promise.all([
-    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true, email: true } } }, orderBy: { user: { name: "asc" } } }),
+    ctx.db.membership.findMany({ where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS } }, select: { user: { select: { id: true, name: true, email: true } } }, orderBy: { user: { name: "asc" } } }),
     ctx.db.jobRole.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   const roleOptions = [
