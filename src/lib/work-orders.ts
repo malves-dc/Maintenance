@@ -88,7 +88,7 @@ export async function resolveRefs(ctx: WoCtx, input: WorkOrderInput) {
 /** Active members who can carry out work orders (with the company's permission settings), by name: the assignee choices. */
 export async function assignableUsers(db: WoCtx["db"]) {
   const rows = await db.membership.findMany({
-    where: { active: true, role: { notIn: ["REQUESTER", "OWNER", "TIMESHEET"] } }, // the owner doesn't do field work
+    where: { active: true, role: { notIn: ["REQUESTER", "OWNER"] } }, // the owner doesn't do field work
     select: { role: true, jobRole: { select: { permissions: true } }, organization: { select: { rolePermissions: true } }, user: { select: { id: true, name: true } } },
   });
   return rows
@@ -260,7 +260,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
 export async function jobTechnicians(ctx: Pick<WoCtx, "db">, userIds: string[]) {
   if (userIds.length === 0) return [];
   const rows = await ctx.db.membership.findMany({
-    where: { userId: { in: userIds }, active: true, role: { notIn: ["OWNER", "REQUESTER", "TIMESHEET"] } },
+    where: { userId: { in: userIds }, active: true, role: { not: "OWNER" } },
     select: { user: { select: { id: true, name: true } } },
   });
   return rows.map((r) => ({ userId: r.user.id, name: r.user.name }));

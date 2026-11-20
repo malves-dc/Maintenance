@@ -743,12 +743,13 @@ markers), Message, VerificationToken (password reset).
 - Work-order `TimeEntry` time is read alongside (`hoursRows()` in `lib/timesheet.ts`, scoped through the work order) in
   Today, Entries, Team, Report and the CSV (`/api/export/hours`), and counts towards the 24 h day limit; it is only
   changed on its work order. Pure rules in `lib/timesheet-rules.ts` (tested).
-- Permissions `timesheets.log` (own hours; default OWNER/ADMIN/MANAGER/TECHNICIAN/TIMESHEET) and `timesheets.manage`
-  (everyone's, team, report). The Hours settings need `org.manage`. Companies with saved role overrides must tick them.
-- Role `TIMESHEET` ("Hours only"), fixed like REQUESTER: just `timesheets.log`, no `internal.view`. The app layout
-  sends it to /hours from any page but /hours, profile, notifications and help (`timesheetOnlyAllows`, using the
-  `x-pathname` header proxy.ts sets); it is left out of staff pickers (`NOT_IN_STAFF_LISTS`: assignees, teams,
-  messages, vans, offices, report recipients) and the mobile top bar hides search/scan without them in the menu.
+- Permissions `timesheets.log` (own hours; default OWNER/ADMIN/MANAGER/TECHNICIAN) and `timesheets.manage` (everyone's,
+  team, report). The Hours settings need `org.manage`. Companies with saved role overrides must tick them.
+- `internal.view` ("Access the maintenance app") is now a permission in Settings → Roles (group "app"), on by default
+  for staff roles; migration `app_access_permission` added it to every saved list (it used to be forced on). Staff
+  without it (e.g. a custom role with only `timesheets.log`) are kept by the app layout to /hours, profile,
+  notifications and help (`appOffAllows`, from the `x-pathname` header proxy.ts sets), see only those in the menu, and
+  are left out of staff pickers (they filter by `membersWith(db, "internal.view")`).
 - Home-screen icon: /hours pages link `/hours/manifest.webmanifest` (id `/hours`, start `/hours`, scope `/`, icons
   `/icons/hours-*.png`), so installing from there gives an Hours icon; the Today tab offers it (`install-button.tsx`:
   `beforeinstallprompt`, steps for iOS). The main manifest has an Hours shortcut.

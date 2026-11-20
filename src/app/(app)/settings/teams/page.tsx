@@ -1,4 +1,4 @@
-import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
+import { membersWith } from "@/lib/notify";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Badge, Card, PageHeader } from "@/components/ui";
@@ -16,7 +16,7 @@ export default async function TeamsPage() {
       orderBy: { name: "asc" },
     }),
     ctx.db.membership.findMany({
-      where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS } },
+      where: { active: true, role: { notIn: ["REQUESTER"] }, userId: { in: await membersWith(ctx.db, "internal.view") } },
       include: { user: { select: { id: true, name: true } } },
     }),
   ]);

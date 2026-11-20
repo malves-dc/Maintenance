@@ -6,7 +6,7 @@ import { z } from "zod";
 import { requirePermission } from "@/lib/context";
 import { prisma } from "@/lib/db/client";
 import { assertOwned } from "@/lib/db/tenant";
-import { ASSIGNABLE_ROLES, NOT_IN_STAFF_LISTS } from "@/lib/rbac";
+import { ASSIGNABLE_ROLES } from "@/lib/rbac";
 import { appLocale, LOCALES } from "@/i18n/config";
 import { optStr, parseForm, str, type FormResult } from "@/lib/forms";
 import { brandColor, contrastWithWhite, logoSrc, MIN_CONTRAST, normalizeHex } from "@/lib/branding";
@@ -27,7 +27,7 @@ import { MAX_EXTRA, parseEmailList } from "@/lib/report-recipients";
 const STAFF_REPORT_ROLES: string[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "VIEWER"];
 import { erasedName, eraseMember, ErasureError } from "@/lib/erasure";
 import { emailLayout, sendEmail } from "@/lib/email";
-import { background } from "@/lib/notify";
+import { background, membersWith } from "@/lib/notify";
 import { audit, changesOf } from "@/lib/audit";
 import { TIME_ROUNDING_OPTIONS } from "@/lib/billing-time";
 
@@ -90,7 +90,7 @@ export async function updateOrgAction(_: FormResult, form: FormData): Promise<Fo
   const reportEmails = parseEmailList(String(form.get("reportCompanyEmails") ?? ""));
   if (reportEmails.invalid.length) return { error: "validation", fieldErrors: { reportCompanyEmails: "badEmails" } };
   const wantedUsers = form.getAll("reportUserIds").map(String);
-  const staffIds = new Set((await ctx.db.membership.findMany({ where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS }, userId: { in: wantedUsers } }, select: { userId: true } })).map((m) => m.userId));
+  const staffIds = new Set((await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: (await membersWith(ctx.db, "internal.view")).filter((u) => wantedUsers.includes(u)) } }, select: { userId: true } })).map((m) => m.userId));
   const jobIds = new Set((await ctx.db.jobRole.findMany({ select: { id: true } })).map((j) => `job:${j.id}`));
   const reportRecipients = {
     userIds: wantedUsers.filter((id) => staffIds.has(id)),

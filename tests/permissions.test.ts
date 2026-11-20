@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ALL_PERMISSIONS, builtInRoleToStore, customRoleToStore, defaultPermissions, effectivePermissions, GRANTABLE, parseRolePermissions, PERMISSION_GROUPS, rolePermissionsFor } from "@/lib/rbac";
+import { ALL_PERMISSIONS, appOffAllows, appOffHome, builtInRoleToStore, customRoleToStore, defaultPermissions, effectivePermissions, GRANTABLE, parseRolePermissions, PERMISSION_GROUPS, rolePermissionsFor } from "@/lib/rbac";
 
 const sorted = (s: Iterable<string>) => [...s].sort();
 
 describe("configurable permissions", () => {
-  it("lists every permission once in Settings → Roles, except staff-app access", () => {
+  it("lists every permission once in Settings → Roles, staff-app access included", () => {
     const shown = PERMISSION_GROUPS.flatMap((g) => g.permissions);
     expect(new Set(shown).size).toBe(shown.length);
-    expect(sorted([...shown, "internal.view"])).toEqual(sorted(ALL_PERMISSIONS));
+    expect(sorted(shown)).toEqual(sorted(ALL_PERMISSIONS));
   });
 
   it("keeps today's defaults when nothing is changed", () => {
@@ -20,10 +20,10 @@ describe("configurable permissions", () => {
     expect(sorted(effectivePermissions("OWNER", { ADMIN: [] }))).toEqual(sorted(ALL_PERMISSIONS));
   });
 
-  it("applies a company's change to a built-in role, always keeping staff-app access", () => {
-    const overrides = { TECHNICIAN: ["workOrders.execute", "reports.view"] };
+  it("applies a company's change to a built-in role, staff-app access included", () => {
+    const overrides = { TECHNICIAN: ["internal.view", "workOrders.execute", "reports.view"] };
     expect(sorted(effectivePermissions("TECHNICIAN", overrides))).toEqual(["internal.view", "reports.view", "workOrders.execute"]);
-    expect(sorted(effectivePermissions("TECHNICIAN", { TECHNICIAN: [] }))).toEqual(["internal.view"]);
+    expect(sorted(effectivePermissions("TECHNICIAN", { TECHNICIAN: [] }))).toEqual([]);
     expect(effectivePermissions("MANAGER", overrides).has("workOrders.manage")).toBe(true); // other roles untouched
   });
 
@@ -32,19 +32,19 @@ describe("configurable permissions", () => {
     expect(effectivePermissions("ADMIN", tampered).has("billing.manage")).toBe(false); // not in its list
     expect(effectivePermissions("ADMIN", tampered).has("org.manage")).toBe(true);
     expect(sorted(effectivePermissions("REQUESTER", tampered))).toEqual(["requests.create"]);
-    expect(parseRolePermissions(tampered)).toEqual({ ADMIN: ["org.manage"] });
+    expect(parseRolePermissions(tampered)).toEqual({ ADMIN: ["internal.view", "org.manage"] });
   });
 
   it("lets a custom role follow its access level, or use its own list", () => {
-    const overrides = { MANAGER: ["clients.manage"] };
+    const overrides = { MANAGER: ["internal.view", "clients.manage"] };
     expect(sorted(effectivePermissions("MANAGER", overrides, null))).toEqual(["clients.manage", "internal.view"]);
-    expect(sorted(effectivePermissions("MANAGER", overrides, ["assets.manage"]))).toEqual(["assets.manage", "internal.view"]);
+    expect(sorted(effectivePermissions("MANAGER", overrides, ["internal.view", "assets.manage"]))).toEqual(["assets.manage", "internal.view"]);
   });
 
   it("describes a role's current list for the matrix", () => {
-    expect(sorted(rolePermissionsFor("VIEWER", {}))).toEqual(["costs.view", "reports.view"]);
+    expect(sorted(rolePermissionsFor("VIEWER", {}))).toEqual(["costs.view", "internal.view", "reports.view"]);
     expect(rolePermissionsFor("VIEWER", { VIEWER: ["reports.view", "assets.manage"] })).toEqual(["reports.view", "assets.manage"]);
-    expect(GRANTABLE).not.toContain("internal.view");
+    expect(GRANTABLE).toContain("internal.view");
   });
 });
 
@@ -78,5 +78,19 @@ describe("accountant", () => {
   it("can lose costs like any other role", () => {
     expect(effectivePermissions("TECHNICIAN", { TECHNICIAN: ["workOrders.execute"] }).has("costs.view")).toBe(false);
     expect(effectivePermissions("TECHNICIAN", null).has("costs.view")).toBe(true); // today's behaviour by default
+  });
+});
+
+describe("a role without the staff app", () => {
+  it("can be just someone who logs hours", () => {
+    expect(sorted(effectivePermissions("TECHNICIAN", { TECHNICIAN: ["timesheets.log"] }))).toEqual(["timesheets.log"]);
+    expect(sorted(effectivePermissions("TECHNICIAN", null, ["timesheets.log"]))).toEqual(["timesheets.log"]);
+  });
+
+  it("stays within the hours, its profile, notifications and help", () => {
+    for (const p of ["/hours", "/hours/entries", "/hours/new", "/settings/profile", "/notifications", "/help"]) expect(appOffAllows(p)).toBe(true);
+    for (const p of ["/", "/dashboard", "/work-orders", "/villas/x", "/hoursx", "/settings/users", "/m"]) expect(appOffAllows(p)).toBe(false);
+    expect(appOffHome(true)).toBe("/hours");
+    expect(appOffHome(false)).toBe("/settings/profile");
   });
 });

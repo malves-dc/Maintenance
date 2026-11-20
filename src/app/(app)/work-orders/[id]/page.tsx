@@ -1,4 +1,4 @@
-import { NOT_IN_STAFF_LISTS } from "@/lib/rbac";
+import { membersWith } from "@/lib/notify";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -110,7 +110,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       ? ctx.db.stockLocation.findMany({ where: { archivedAt: null }, select: { id: true, name: true, type: true, userId: true }, orderBy: [{ type: "asc" }, { name: "asc" }] })
       : [],
     canExecute
-      ? ctx.db.membership.findMany({ where: { active: true, role: { notIn: NOT_IN_STAFF_LISTS } }, select: { user: { select: { id: true, name: true } } }, orderBy: { user: { name: "asc" } } })
+      ? ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: await membersWith(ctx.db, "internal.view") } }, select: { user: { select: { id: true, name: true } } }, orderBy: { user: { name: "asc" } } })
       : [],
     canExecute && wo.status !== "DONE" && wo.status !== "CANCELLED" ? ctx.db.jobRole.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }) : [],
     ctx.db.office.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),

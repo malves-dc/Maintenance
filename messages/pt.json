@@ -148,8 +148,7 @@
     "costPerHour": "Preço por hora",
     "delete": "Eliminar",
     "deleteConfirm": "Eliminar a função \"{name}\"? {count, plural, =0 {} one {A # pessoa nesta função volta a ser Técnico.} other {As # pessoas nesta função voltam a ser Técnicos.}}",
-    "ACCOUNTANT": "Contabilista",
-    "TIMESHEET": "Só horas"
+    "ACCOUNTANT": "Contabilista"
   },
   "systems": {
     "ELECTRICAL": "Eletricidade",
@@ -1797,9 +1796,7 @@
     "ownerOnly": "Só o Super Admin pode alterar as permissões.",
     "customised": "Alterada",
     "reset": "Repor as permissões por defeito",
-    "resetConfirm": "Repor as permissões por defeito desta função?",
-    "staffApp": "Usar a app da equipa",
-    "staffAppHint": "Sempre ativo nas funções da equipa; as contas de cliente só veem o portal do cliente."
+    "resetConfirm": "Repor as permissões por defeito desta função?"
   },
   "permGroup": {
     "admin": "Administração",
@@ -1808,7 +1805,8 @@
     "supply": "Stock e compras",
     "insights": "Relatórios",
     "finance": "Finanças",
-    "timesheets": "Horas"
+    "timesheets": "Horas",
+    "app": "Aplicação"
   },
   "perm": {
     "org": {
@@ -1971,6 +1969,12 @@
       "manage": {
         "label": "Gerir horas",
         "hint": "Ver e corrigir as horas de todos, a vista da equipa e os relatórios de horas."
+      }
+    },
+    "internal": {
+      "view": {
+        "label": "Acesso à app de manutenção",
+        "hint": "Abrir a app da equipa: ordens de trabalho, moradias, equipamentos e o resto. Sem esta permissão, a pessoa só vê as Horas (se as registar), o perfil e as notificações."
       }
     }
   },
@@ -2734,7 +2738,7 @@
     "dailyHours": "Horas de um dia de trabalho",
     "dailyHoursHint": "Na vista da equipa, os dias úteis com menos horas ficam assinalados.",
     "whoLogs": "Quem regista horas",
-    "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, dê-lhes a função «Só horas»: veem apenas as Horas, o perfil e as notificações.",
+    "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, crie uma função só com essa permissão e sem «Acesso à app de manutenção»: veem apenas as Horas, o perfil e as notificações.",
     "errors": {
       "date": "Data inválida.",
       "future": "Não pode registar horas em dias futuros.",

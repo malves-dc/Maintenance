@@ -27,7 +27,7 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL(home, req.nextUrl));
   }
 
-  // The path, for layouts (they aren't told it): the app layout keeps people in the TIMESHEET role inside /hours.
+  // The path, for layouts (they aren't told it): the app layout keeps staff without the staff app inside /hours.
   const headers = new Headers(req.headers);
   headers.set("x-pathname", pathname);
   const res = NextResponse.next({ request: { headers } });

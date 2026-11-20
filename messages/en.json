@@ -148,8 +148,7 @@
     "costPerHour": "Price per hour",
     "delete": "Delete",
     "deleteConfirm": "Delete the role \"{name}\"? {count, plural, =0 {} one {The # person in it becomes a Technician again.} other {The # people in it become Technicians again.}}",
-    "ACCOUNTANT": "Accountant",
-    "TIMESHEET": "Hours only"
+    "ACCOUNTANT": "Accountant"
   },
   "systems": {
     "ELECTRICAL": "Electrical",
@@ -1797,9 +1796,7 @@
     "ownerOnly": "Only the Super Admin can change permissions.",
     "customised": "Changed",
     "reset": "Restore defaults",
-    "resetConfirm": "Put this role back to the default permissions?",
-    "staffApp": "Use the staff app",
-    "staffAppHint": "Always on for staff roles; client accounts only see the client portal."
+    "resetConfirm": "Put this role back to the default permissions?"
   },
   "permGroup": {
     "admin": "Administration",
@@ -1808,7 +1805,8 @@
     "supply": "Stock and purchasing",
     "insights": "Reports",
     "finance": "Finance",
-    "timesheets": "Hours"
+    "timesheets": "Hours",
+    "app": "App"
   },
   "perm": {
     "org": {
@@ -1971,6 +1969,12 @@
       "manage": {
         "label": "Manage hours",
         "hint": "See and correct everyone's hours, the team view and the hours reports."
+      }
+    },
+    "internal": {
+      "view": {
+        "label": "Access the maintenance app",
+        "hint": "Open the staff app: work orders, villas, assets and the rest. Without it, someone only sees Hours (if they log hours), their profile and notifications."
       }
     }
   },
@@ -2734,7 +2738,7 @@
     "dailyHours": "Hours in a working day",
     "dailyHoursHint": "In the team view, working days with fewer hours are flagged.",
     "whoLogs": "Who logs hours",
-    "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, give them the \"Hours only\" role: they see just Hours, their profile and notifications.",
+    "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, create a role with just that permission and without \"Access the maintenance app\": they see only Hours, their profile and notifications.",
     "errors": {
       "date": "Invalid date.",
       "future": "You can't log hours on future days.",

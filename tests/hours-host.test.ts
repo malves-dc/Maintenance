@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { homePath, hoursHosts, isHoursHost, requestHost } from "@/lib/hours-host";
-import { effectivePermissions, timesheetOnlyAllows } from "@/lib/rbac";
 
 describe("hours: direct address", () => {
   const env = "horas.example.pt, Staging.Horas.example.pt:443";
@@ -17,15 +16,5 @@ describe("hours: direct address", () => {
   it("starts on the hours there and on the dashboard elsewhere", () => {
     expect(homePath(true)).toBe("/hours");
     expect(homePath(false)).toBe("/dashboard");
-  });
-});
-
-describe("hours: the hours-only role", () => {
-  it("can only log its own hours: no staff app, nothing else", () => {
-    expect([...effectivePermissions("TIMESHEET", { TECHNICIAN: ["internal.view"] })]).toEqual(["timesheets.log"]);
-  });
-  it("stays within the hours, its profile and notifications", () => {
-    for (const p of ["/hours", "/hours/entries", "/hours/new", "/settings/profile", "/notifications", "/help"]) expect(timesheetOnlyAllows(p)).toBe(true);
-    for (const p of ["/", "/dashboard", "/work-orders", "/villas/x", "/hoursx", "/settings/users", "/m"]) expect(timesheetOnlyAllows(p)).toBe(false);
   });
 });

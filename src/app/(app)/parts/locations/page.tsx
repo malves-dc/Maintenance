@@ -1,3 +1,4 @@
+import { membersWith } from "@/lib/notify";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
@@ -33,7 +34,7 @@ export default async function LocationsPage() {
     }),
     canManage
       ? ctx.db.membership.findMany({
-          where: { active: true, role: { notIn: ["REQUESTER", "VIEWER", "ACCOUNTANT", "TIMESHEET"] } },
+          where: { active: true, role: { notIn: ["REQUESTER", "VIEWER", "ACCOUNTANT"] }, userId: { in: await membersWith(ctx.db, "internal.view") } },
           select: { user: { select: { id: true, name: true } } },
           orderBy: { user: { name: "asc" } },
         })
