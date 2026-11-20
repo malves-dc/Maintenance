@@ -39,6 +39,25 @@ export class RequestError extends Error {
 }
 
 /**
+ * Stores up to MAX_REQUEST_PHOTOS photos (JPEG/PNG/WebP, 8 MB each) on a request; others are skipped.
+ * Callers check the request is the submitter's. Returns how many were stored.
+ */
+export async function storeRequestPhotos(db: TenantDb, organizationId: string, requestId: string, uploadedById: string | null, photos: File[]) {
+  const month = new Date().toISOString().slice(0, 7);
+  let stored = 0;
+  for (const file of photos.slice(0, MAX_REQUEST_PHOTOS)) {
+    const ext = PHOTO_TYPES[file.type];
+    if (!ext || file.size === 0 || file.size > MAX_PHOTO_BYTES) continue;
+    const ref = await putObject(`${organizationId}/${month}/${randomBytes(12).toString("hex")}.${ext}`, Buffer.from(await file.arrayBuffer()));
+    await db.attachment.create({
+      data: { organizationId, url: ref, filename: file.name.slice(0, 200) || `photo.${ext}`, mimeType: file.type, size: file.size, uploadedById, requestId },
+    });
+    stored++;
+  }
+  return stored;
+}
+
+/**
  * Creates a request (portal, QR form or staff) and stores its photos.
  * Callers are responsible for having validated villa/asset scope for the submitter.
  */
@@ -70,23 +89,7 @@ export async function createRequest(db: TenantDb, organizationId: string, input:
     include: { onCallUsers: { select: { id: true } } },
   });
 
-  const month = new Date().toISOString().slice(0, 7);
-  for (const file of photos.slice(0, MAX_REQUEST_PHOTOS)) {
-    const ext = PHOTO_TYPES[file.type];
-    if (!ext || file.size === 0 || file.size > MAX_PHOTO_BYTES) continue;
-    const ref = await putObject(`${organizationId}/${month}/${randomBytes(12).toString("hex")}.${ext}`, Buffer.from(await file.arrayBuffer()));
-    await db.attachment.create({
-      data: {
-        organizationId,
-        url: ref,
-        filename: file.name.slice(0, 200) || `photo.${ext}`,
-        mimeType: file.type,
-        size: file.size,
-        uploadedById: input.requesterId ?? null,
-        requestId: req.id,
-      },
-    });
-  }
+  await storeRequestPhotos(db, organizationId, req.id, input.requesterId ?? null, photos);
 
   const villa = req.villaId ? await db.villa.findUnique({ where: { id: req.villaId }, select: { name: true } }) : null;
   // Approvers, plus whoever on call gets it (who may not be an approver).

@@ -15,7 +15,8 @@ import { ACTIVE_STATUSES, jobTechnicians, workOrderCosts } from "@/lib/work-orde
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
-import { countTrips, isFar, travelOf } from "@/lib/travel-charge";
+import { countTrips, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { homeOffices } from "@/lib/offices";
 import { cn } from "@/lib/utils";
 import { StatusBar } from "./status-bar";
 import { Checklist } from "./checklist";
@@ -45,7 +46,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const wo = await ctx.db.workOrder.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, distanceKm: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
+      villa: { select: { ...TRAVEL_VILLA_SELECT, id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { id: true, name: true, status: true } },
       team: { select: { name: true, color: true } },
@@ -56,6 +57,8 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       linksTo: { select: { id: true, from: { select: RELATED } } },
       assignees: {
         select: {
+          userId: true,
+          officeId: true,
           role: true,
           jobRole: { select: { id: true, name: true } },
           user: { select: { id: true, name: true, memberships: { where: { organizationId: ctx.organization.id }, select: { role: true, jobRole: { select: { id: true, name: true } } } } } },
@@ -83,7 +86,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
     canExecute && wo.villaId
       ? await ctx.db.workOrder.findMany({ where: { villaId: wo.villaId, id: { not: wo.id } }, select: { year: true, number: true, title: true }, orderBy: { createdAt: "desc" }, take: 50 })
       : [];
-  const [meters, procedures, partOptions, locations, staff, jobRoles] = await Promise.all([
+  const [meters, procedures, partOptions, locations, staff, jobRoles, offices, homes] = await Promise.all([
     wo.assetId ? ctx.db.meter.findMany({ where: { assetId: wo.assetId }, select: { id: true, name: true, unit: true }, orderBy: { name: "asc" } }) : [],
     ctx.db.procedure.findMany({ where: { archivedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
     canUseParts
@@ -109,6 +112,8 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
       ? ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } }, orderBy: { user: { name: "asc" } } })
       : [],
     canExecute && wo.status !== "DONE" && wo.status !== "CANCELLED" ? ctx.db.jobRole.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }) : [],
+    ctx.db.office.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    homeOffices(ctx.db),
   ]);
   // Parts come out of my van by default, else the first warehouse.
   const defaultLocationId =
@@ -122,10 +127,11 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const money = (n: number) => format.number(n, { style: "currency", currency: ctx.organization.currency });
   const block = timeRoundingOf(ctx.organization.timeRounding);
   const urgentRule = urgentRuleFor(ctx.organization, wo.contract);
-  const travel = travelOf(ctx.organization, wo.contract);
+  const travel = travelOf(ctx.organization, wo.contract, homes);
+  const officeName = (id: string | null) => offices.find((o) => o.id === id)?.name ?? null;
   const costs = workOrderCosts(wo, block, urgentRule, travel);
   // Trips the contract includes: shown on the job at no charge.
-  const includedTrips = travel.rule.included ? countTrips(wo.timeEntries, travel.timeZone, travel.rule.perTechnician) : 0;
+  const includedTrips = travel.rule.included ? countTrips(wo.timeEntries, travel.timeZone, travel.rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes }) : 0;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const reportEmail = ctx.can("workOrders.sendReport") ? await reportRecipients(ctx, wo.id) : null;
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
@@ -182,8 +188,18 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             ownName,
             // Each assignee picks their own role on the job; managers set anyone's.
             editable: canExecute && !closed && (a.user.id === ctx.user.id || ctx.can("workOrders.manage")),
+            // With offices: the office each one leaves from for this job (their trips' distance).
+            office: offices.length
+              ? {
+                  value: a.officeId ?? "",
+                  label: officeName(a.officeId ?? homes.get(a.user.id) ?? wo.villa?.defaultOfficeId ?? null) ?? "",
+                  ownOffice: officeName(homes.get(a.user.id) ?? null),
+                  editable: canExecute && !wo.invoicedAt && (ctx.can("workOrders.manage") || (!closed && a.user.id === ctx.user.id)),
+                }
+              : undefined,
           };
         })}
+        offices={offices.map((o) => ({ value: o.id, label: o.name }))}
       />,
     ],
     [t("wo.createdBy"), `${wo.createdBy.name} · ${dt(wo.createdAt)}`],
@@ -358,7 +374,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                 minutes: e.minutes,
                 startedAt: e.startedAt.toISOString(),
                 mode: e.mode,
-                label: format.dateTime(e.startedAt, { dateStyle: "short" }),
+                label: e.endedAt
+                  ? `${format.dateTime(e.startedAt, { dateStyle: "short" })} ${format.dateTime(e.startedAt, { timeStyle: "short" })}–${format.dateTime(e.endedAt, { timeStyle: "short" })}`
+                  : format.dateTime(e.startedAt, { dateStyle: "short" }),
                 note: e.note,
               }))}
               billed={
@@ -439,9 +457,17 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                     ? {
                         amount: money(costs.travel),
                         trips: costs.trips,
-                        rule: isFar(wo.villa?.distanceKm, travel.rule)
-                          ? t("travel.perKmRule", { km: format.number(wo.villa!.distanceKm!, { maximumFractionDigits: 1 }), rate: money(travel.rule.kmRate) })
-                          : t("travel.perTripRule", { amount: money(costs.perTrip) }),
+                        // One part per office the trips left from (with offices), e.g. "2 from Lisbon: 40 km × €0.40 each".
+                        rule: costs.tripLines
+                          .map((l) => {
+                            const rule = l.far
+                              ? t("travel.perKmRule", { km: format.number(l.distanceKm!, { maximumFractionDigits: 1 }), rate: money(travel.rule.kmRate) })
+                              : t("travel.perTripRule", { amount: money(l.perTrip) }) + (l.officeId && l.distanceKm == null ? ` · ${t("travel.distanceUnknown")}` : "");
+                            const office = officeName(l.officeId);
+                            if (!office) return rule;
+                            return costs.tripLines.length > 1 ? t("travel.fromOfficeCount", { count: l.trips, office, rule }) : t("travel.fromOffice", { office, rule });
+                          })
+                          .join(" · "),
                       }
                     : includedTrips > 0
                       ? { amount: money(0), trips: includedTrips, rule: t("travel.includedInContract") }

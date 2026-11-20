@@ -11,6 +11,7 @@ import * as gettingStarted from "./getting-started";
 import * as messages from "./messages";
 import * as meters from "./meters";
 import * as notifications from "./notifications";
+import * as offices from "./offices";
 import * as onCall from "./on-call";
 import * as organization from "./organization";
 import * as parts from "./parts";
@@ -61,6 +62,7 @@ export const HELP_CONTENT: Record<string, HelpModule> = {
   "client-users": clientUsers,
   roles,
   teams,
+  offices,
   categories,
   audit,
   server,

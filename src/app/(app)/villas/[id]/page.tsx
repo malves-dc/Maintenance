@@ -16,6 +16,7 @@ import { KnowledgeCard } from "@/components/knowledge/knowledge-card";
 import type { SystemType } from "@/generated/prisma/enums";
 import { villaClient } from "@/lib/villa-client";
 import { isFar, travelRuleFor } from "@/lib/travel-charge";
+import { villaOffices } from "@/lib/offices";
 import { ConnectivityCard } from "./connectivity-card";
 
 export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
@@ -38,6 +39,8 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
     },
   });
   if (!villa) notFound();
+  const offices = await villaOffices(ctx.db, villa.id);
+  const rule = travelRuleFor(ctx.organization);
   const contacts = villaClient(villa)?.contacts ?? [];
 
   const areas = flattenTree(villa.areas).map((a) => ({
@@ -202,13 +205,31 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
                 </a>
               </div>
             )}
-            <div>
-              <div className="text-xs text-muted">{t("villas.distanceKm")}</div>
+            {offices.length === 0 ? (
               <div>
-                {villa.distanceKm != null ? t("villas.distanceValue", { km: villa.distanceKm }) : <span className="text-muted">{t("villas.distanceUnset")}</span>}
-                {isFar(villa.distanceKm, travelRuleFor(ctx.organization)) && <span className="text-muted"> · {t("travel.chargedPerKm")}</span>}
+                <div className="text-xs text-muted">{t("villas.distanceKm")}</div>
+                <div>
+                  {villa.distanceKm != null ? t("villas.distanceValue", { km: villa.distanceKm }) : <span className="text-muted">{t("villas.distanceUnset")}</span>}
+                  {isFar(villa.distanceKm, rule) && <span className="text-muted"> · {t("travel.chargedPerKm")}</span>}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div>
+                <div className="text-xs text-muted">{t("offices.distances")}</div>
+                <ul>
+                  {offices.map((o) => (
+                    <li key={o.id}>
+                      <span className={o.id === villa.defaultOfficeId ? "font-medium" : undefined}>{o.name}</span>
+                      {o.id === villa.defaultOfficeId && <span className="text-xs text-muted"> ({t("offices.defaultShort")})</span>}
+                      {": "}
+                      {o.km != null ? t("villas.distanceValue", { km: o.km }) : <span className="text-muted">{t("villas.distanceUnset")}</span>}
+                      {o.source && o.source !== "MANUAL" && <span className="text-xs text-muted"> · {t(`offices.source.${o.source}`)}</span>}
+                      {isFar(o.km, rule) && <span className="text-muted"> · {t("travel.chargedPerKm")}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {contacts.length > 0 && (
               <div>
                 <div className="text-xs text-muted">{t("clients.contacts")}</div>

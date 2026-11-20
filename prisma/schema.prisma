@@ -221,6 +221,7 @@ model User {
 
   memberships        Membership[]
   teamMemberships    TeamMember[]
+  officeMemberships  OfficeMember[]
   assignedWOs        WorkOrderAssignee[]
   createdWOs         WorkOrder[]          @relation("WOCreatedBy")
   completedWOs       WorkOrder[]          @relation("WOCompletedBy")
@@ -281,12 +282,15 @@ model Organization {
   urgentFee      Decimal  @default(0) @db.Decimal(12, 2) // extra cost of an urgent work order: fixed amount…
   urgentPercent  Int      @default(0) // …plus this % of its labour (both 0 = no surcharge); a contract can override
   // Trips charged for on-site work (lib/travel-charge.ts): a fixed fee up to travelRadiusKm from the company,
-  // beyond it travelKmRate per km of the one-way distance (Villa.distanceKm). Both 0 = no trips charged.
+  // beyond it travelKmRate per km of the one-way distance (from the technician's office, see Office; else Villa.distanceKm). Both 0 = no trips charged.
   // A trip is per technician per day (travelPerTechnician) or per work order per day. A contract can override.
   travelFee      Decimal  @default(0) @db.Decimal(12, 2)
   travelRadiusKm Int      @default(25)
   travelKmRate   Decimal  @default(0) @db.Decimal(12, 2)
   travelPerTechnician Boolean @default(true)
+  // Settings → Offices: work out villa↔office distances by road with the OSRM server (coordinates only); off = a
+  // straight-line estimate, computed here. Distances typed by hand are never replaced.
+  roadDistances  Boolean  @default(false)
   // Settings → Technical: seconds between internet checks of each monitored villa (lib/connectivity.ts); 0 = off.
   connectivityIntervalSec Int @default(300)
   // Who also gets e-mailed service reports: {"userIds": […], "roles": ["ACCOUNTANT", "job:<id>"], "emails": […]}.
@@ -308,6 +312,9 @@ model Organization {
   jobRoles       JobRole[]
   counters       Counter[]
   teams          Team[]
+  offices        Office[]
+  officeMembers  OfficeMember[]
+  villaOfficeDistances VillaOfficeDistance[]
   clients        Client[]
   villas         Villa[]
   areas          Area[]
@@ -519,7 +526,10 @@ model Villa {
   country        String?
   latitude       Float?
   longitude      Float?
-  distanceKm     Float? // road distance from the company's address, one way; decides the trip charge (null = within the radius)
+  // Road distance, one way, used for the trip charge when no office applies (the company has no offices, or neither
+  // the technician nor the villa has one); otherwise VillaOfficeDistance holds the distance from each office.
+  distanceKm     Float? // null = within the radius
+  defaultOfficeId String? // the office that looks after this villa: trips of technicians without an office leave from it
   accessNotes    String? // parking, working hours, dogs… (non-secret)
   // AES-GCM encrypted blob: gate/alarm codes, Wi-Fi admin, etc. Every decrypt is audit-logged.
   secretsEnc     String?
@@ -552,9 +562,72 @@ model Villa {
   pmSchedules  PMSchedule[]
   attachments  Attachment[]
   articles     KnowledgeArticle[]
+  defaultOffice   Office?               @relation(fields: [defaultOfficeId], references: [id], onDelete: SetNull)
+  officeDistances VillaOfficeDistance[]
 
   @@index([organizationId, clientId])
   @@index([managerId])
+}
+
+/// A company office (base) that technicians leave from. Trips are charged by the distance from the technician's
+/// office to the villa (lib/travel-charge.ts); the distances are in VillaOfficeDistance (lib/offices.ts).
+model Office {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members      OfficeMember[]
+  villas       Villa[]
+  distances    VillaOfficeDistance[]
+  assignees    WorkOrderAssignee[]
+
+  @@unique([organizationId, name])
+}
+
+/// A technician works from this office. Someone in several offices has one primary office: their trips leave from
+/// it unless a work order says otherwise (WorkOrderAssignee.officeId).
+model OfficeMember {
+  organizationId String
+  officeId       String
+  userId         String
+  primary        Boolean @default(false)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  office       Office       @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([officeId, userId])
+  @@index([organizationId, userId])
+}
+
+enum DistanceSource {
+  MANUAL // typed by someone: never replaced automatically
+  ESTIMATE // straight line × a road factor, from the coordinates
+  ROAD // road distance from the routing server (OSRM)
+}
+
+/// One-way distance from an office to a villa, in km.
+model VillaOfficeDistance {
+  organizationId String
+  villaId        String
+  officeId       String
+  distanceKm     Float
+  source         DistanceSource
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  villa        Villa        @relation(fields: [villaId], references: [id], onDelete: Cascade)
+  office       Office       @relation(fields: [officeId], references: [id], onDelete: Cascade)
+
+  @@id([villaId, officeId])
+  @@index([organizationId])
+  @@index([officeId])
 }
 
 // Villa knowledge base: how this villa's systems are set up, workarounds, where things are. Staff only
@@ -838,10 +911,13 @@ model WorkOrderAssignee {
   // company's roles. Both empty = their own role.
   role        Role?
   jobRoleId   String?
+  // The office the person leaves from for this job (their trips are measured from it); null = their primary office.
+  officeId    String?
 
   workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobRole   JobRole?  @relation(fields: [jobRoleId], references: [id], onDelete: SetNull)
+  office    Office?   @relation(fields: [officeId], references: [id], onDelete: SetNull)
 
   @@id([workOrderId, userId])
   @@index([userId])

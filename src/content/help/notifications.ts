@@ -34,6 +34,7 @@ You're never notified about something you did yourself. Otherwise:
 - **Someone @mentions me**: someone mentions you in a work order comment, a group chat or a team channel.
 - **New chat messages**: a message in one of your conversations. These don't appear in the list; the number next to **Messages** in the menu shows them instead. See [Messages](/help/messages).
 - **New maintenance requests**: a client sends a request. Goes to everyone who can approve requests. See [Requests](/help/requests).
+- **A client adds photos to a request**: a client adds photos to a request already sent, at any stage. Goes to everyone who can approve requests and to the people assigned to its work order.
 - **Meter readings out of range**: a reading falls outside its limits and a work order is opened. Goes to everyone who can manage work orders. See [Meters](/help/meters).
 - **Parts running low**: a part drops to its minimum. Goes to everyone who manages stock, once, at the moment it becomes low. See [Parts & inventory](/help/parts).
 - **Purchase orders waiting for approval**: a purchase order is submitted. Goes to everyone who can approve purchase orders.
@@ -97,6 +98,7 @@ Nunca é notificado sobre algo que fez a si próprio. De resto:
 - **Alguém me menciona com @**: alguém o menciona num comentário de uma ordem de trabalho, numa conversa de grupo ou num canal de equipa.
 - **Novas mensagens de conversa**: uma mensagem numa das suas conversas. Estas não aparecem na lista; o número junto a **Mensagens** no menu mostra-as. Veja [Mensagens](/help/messages).
 - **Novos pedidos de manutenção**: um cliente envia um pedido. Vai para todos os que podem aprovar pedidos. Veja [Pedidos](/help/requests).
+- **Um cliente adiciona fotografias a um pedido**: um cliente junta fotografias a um pedido já enviado, em qualquer fase. Vai para todos os que podem aprovar pedidos e para as pessoas atribuídas à ordem de trabalho.
 - **Leituras de contadores fora dos limites**: uma leitura sai dos limites e é aberta uma ordem de trabalho. Vai para todos os que podem gerir ordens de trabalho. Veja [Contadores](/help/meters).
 - **Peças a esgotar**: uma peça desce até ao mínimo. Vai para todos os que gerem o stock, uma vez, no momento em que fica baixa. Veja [Peças e stock](/help/parts).
 - **Notas de encomenda a aguardar aprovação**: uma encomenda é submetida. Vai para todos os que podem aprovar encomendas.

@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Camera, ChevronLeft, Video, CirclePause, CirclePlay, MapPin, Monitor, Send, Square } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
+import { ClockTimeFields } from "@/components/clock-time-fields";
+import { clockInterval, localDay, localTime } from "@/lib/offline/manual-time";
 import { PriorityText, WorkOrderStatusBadge } from "@/components/badges";
 import { MentionTextarea, type MentionMember } from "@/components/mention-textarea";
 import { shrinkImage, UPLOAD_ERRORS } from "@/lib/upload-client";
@@ -64,6 +66,32 @@ export function WorkOrderView({
   };
   const [holdNote, setHoldNote] = useState<string | null>(null);
   const [mode, setMode] = useState<"ONSITE" | "REMOTE">("ONSITE");
+  // Time typed by hand, for work not timed on this device. The form is re-created after each entry.
+  const [manual, setManual] = useState(false);
+  const [manualKey, setManualKey] = useState(0);
+  const [manualError, setManualError] = useState<string | null>(null);
+  const addManualTime = async (form: HTMLFormElement) => {
+    const data = new FormData(form);
+    const startedAt = String(data.get("startedAt") ?? "");
+    const endedAt = String(data.get("endedAt") ?? "");
+    if (!startedAt || !endedAt) {
+      setManualError(t("field.manualTimeInvalid"));
+      return;
+    }
+    // Checked again at submit: a clock-out that was in the future when typed may not be any more, or vice versa.
+    const start = new Date(startedAt);
+    const recheck = clockInterval(localDay(start), localTime(start), localTime(new Date(endedAt)));
+    if ("error" in recheck) {
+      setManualError(t(`time.clockErrors.${recheck.error}`));
+      return;
+    }
+    const note = String(data.get("note") ?? "").trim();
+    const at = new Date().toISOString();
+    await enqueue({ kind: "time", woId: wo.id, startedAt: recheck.startedAt.toISOString(), endedAt: recheck.endedAt.toISOString(), note: note || null, at, mode });
+    setManualError(null);
+    setManual(false);
+    setManualKey((k) => k + 1);
+  };
   const photoInput = useRef<HTMLInputElement>(null);
   const videoInput = useRef<HTMLInputElement>(null);
   const [converting, setConverting] = useState<number | null>(null);
@@ -258,7 +286,7 @@ export function WorkOrderView({
             </div>
           )}
 
-          {!runningHere && (
+          {(!runningHere || manual) && (
             <div role="radiogroup" aria-label={t("time.mode")} className="grid grid-cols-2 rounded-md border border-border p-0.5 text-sm">
               {(["ONSITE", "REMOTE"] as const).map((m) => {
                 const Icon = m === "ONSITE" ? MapPin : Monitor;
@@ -301,6 +329,41 @@ export function WorkOrderView({
             )}
             <span className="text-xs text-muted">{t("field.logged", { minutes: wo.minutesLogged })}</span>
           </div>
+          {manual ? (
+            <form
+              key={manualKey}
+              className="space-y-2 rounded-md border border-border p-3"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await addManualTime(e.currentTarget);
+              }}
+            >
+              <ClockTimeFields onChange={() => setManualError(null)} />
+              <Input name="note" maxLength={500} placeholder={t("time.notePlaceholder")} aria-label={t("time.notePlaceholder")} />
+              <p className="text-xs text-muted">{t("field.manualTimeHint")}</p>
+              {manualError && <p className="text-xs text-danger">{manualError}</p>}
+              <div className="flex gap-2">
+                <Button type="submit" className="h-10 flex-1">
+                  {t("common.add")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10"
+                  onClick={() => {
+                    setManual(false);
+                    setManualError(null);
+                  }}
+                >
+                  {t("common.cancel")}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <button type="button" className="text-xs font-medium text-brand" onClick={() => setManual(true)}>
+              + {t("time.addManual")}
+            </button>
+          )}
         </section>
       )}
 

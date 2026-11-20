@@ -15,6 +15,9 @@ export const TENANT_MODELS = new Set([
   "JobRole",
   "Counter",
   "Team",
+  "Office",
+  "OfficeMember",
+  "VillaOfficeDistance",
   "Client",
   "Villa",
   "Area",
@@ -117,6 +120,7 @@ type OwnedModel =
   | "area"
   | "asset"
   | "team"
+  | "office"
   | "procedure"
   | "part"
   | "stockLocation"

@@ -4,14 +4,18 @@ import { Field, Input, Select, Textarea } from "@/components/ui";
 import type { Villa } from "@/generated/prisma/client";
 import { saveVillaAction } from "./actions";
 import { ConnectivityFields } from "./connectivity-fields";
+import type { VillaOffice } from "@/lib/offices";
 
 export async function VillaForm({
   villa,
   clients,
+  offices = [],
   defaultClientId,
 }: {
   villa?: Villa;
   clients: { id: string; name: string }[];
+  /** The company's offices with their distance to this villa (lib/offices.ts villaOffices). */
+  offices?: VillaOffice[];
   defaultClientId?: string;
 }) {
   const t = await getTranslations();
@@ -75,10 +79,47 @@ export async function VillaForm({
           <FieldError name="longitude" />
         </Field>
       </div>
-      <Field label={t("villas.distanceKm")} hint={t("villas.distanceHint")}>
-        <Input name="distanceKm" type="number" min={0} step="0.1" defaultValue={villa?.distanceKm ?? ""} className="sm:max-w-40" />
-        <FieldError name="distanceKm" />
-      </Field>
+      {offices.length === 0 ? (
+        <Field label={t("villas.distanceKm")} hint={t("villas.distanceHint")}>
+          <Input name="distanceKm" type="number" min={0} step="0.1" defaultValue={villa?.distanceKm ?? ""} className="sm:max-w-40" />
+          <FieldError name="distanceKm" />
+        </Field>
+      ) : (
+        <>
+          {/* With offices the distance comes from each office (below); the villa's own one stays as it was. */}
+          <input type="hidden" name="distanceKm" value={villa?.distanceKm ?? ""} />
+          <Field label={t("offices.defaultOffice")} hint={t("offices.defaultOfficeHint")}>
+            <Select name="defaultOfficeId" defaultValue={villa?.defaultOfficeId ?? (offices.length === 1 ? offices[0].id : "")} className="sm:max-w-80">
+              <option value="">{t("offices.noOffice")}</option>
+              {offices.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </Select>
+            <FieldError name="defaultOfficeId" />
+          </Field>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">{t("offices.distances")}</legend>
+            <p className="text-xs text-muted">{t("offices.distancesHint")}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {offices.map((o) => (
+                <Field key={o.id} label={o.name}>
+                  <Input
+                    name={`officeKm.${o.id}`}
+                    type="number"
+                    min={0}
+                    max={10000}
+                    step="0.1"
+                    defaultValue={o.source === "MANUAL" ? (o.km ?? "") : ""}
+                    placeholder={o.km != null && o.source !== "MANUAL" ? t("offices.autoKm", { km: o.km }) : t("offices.auto")}
+                  />
+                </Field>
+              ))}
+            </div>
+          </fieldset>
+        </>
+      )}
       <Field label={t("villas.accessNotes")} hint={t("villas.accessNotesHint")}>
         <Textarea name="accessNotes" defaultValue={villa?.accessNotes ?? ""} />
       </Field>

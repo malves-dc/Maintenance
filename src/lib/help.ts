@@ -49,6 +49,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   { slug: "client-users", group: "settings", icon: "Contact", href: "/settings/client-users", permission: "users.manage", paths: ["/settings/client-users"] },
   { slug: "roles", group: "settings", icon: "BadgeCheck", href: "/settings/roles", permission: "users.manage", paths: ["/settings/roles"] },
   { slug: "teams", group: "settings", icon: "UsersRound", href: "/settings/teams", permission: "teams.manage", paths: ["/settings/teams"] },
+  { slug: "offices", group: "settings", icon: "MapPinned", href: "/settings/offices", permission: "org.manage", paths: ["/settings/offices"] },
   { slug: "categories", group: "settings", icon: "Tags", href: "/settings/categories", permission: "workOrders.manage", paths: ["/settings/categories"] },
   { slug: "audit", group: "settings", icon: "ScrollText", href: "/settings/audit", permission: "audit.view", paths: ["/settings/audit"] },
   { slug: "server", group: "settings", icon: "Server", href: "/settings/server", permission: "org.manage", paths: ["/settings/server"] },

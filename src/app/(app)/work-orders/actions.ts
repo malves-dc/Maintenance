@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getContext, requirePermission, type AppContext } from "@/lib/context";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
+import { assertOwned } from "@/lib/db/tenant";
 import { deleteObject } from "@/lib/storage";
 import { parseDocRef, seriesYear } from "@/lib/series";
 import { addComment, addTimeEntry, answerItem, setClientAbsent, setWorkReport, signOff, WORK_REPORT_MAX } from "@/lib/wo-ops";
@@ -158,6 +159,26 @@ export async function setAssigneeRoleAction(id: string, userId: string, choice: 
   revalidatePath(path(id));
 }
 
+/**
+ * The office someone left from for this job ("" = their primary office): their trips are charged by its distance
+ * to the villa (lib/travel-charge.ts). Assignees set their own while the job is open; managers anyone's, also after
+ * it is closed, until it is invoiced.
+ */
+export async function setAssigneeOfficeAction(id: string, userId: string, officeId: string) {
+  const ctx = await requirePermission("workOrders.execute");
+  const manager = ctx.can("workOrders.manage");
+  if (userId !== ctx.user.id && !manager) throw new Error("Forbidden");
+  const wo = await ctx.db.workOrder.findUnique({ where: { id }, select: { status: true, invoicedAt: true, assignees: { where: { userId }, select: { userId: true } } } });
+  if (!wo || !wo.assignees.length) throw new Error("Not found");
+  if (wo.invoicedAt || (!manager && (wo.status === "DONE" || wo.status === "CANCELLED"))) throw new Error("Closed");
+  if (officeId) await assertOwned(ctx.db, "office", [officeId]);
+  await ctx.db.workOrder.update({
+    where: { id },
+    data: { assignees: { update: { where: { workOrderId_userId: { workOrderId: id, userId } }, data: { officeId: officeId || null } } } },
+  });
+  revalidatePath(path(id));
+}
+
 // ── Status
 
 export async function setStatusAction(id: string, status: WorkOrderStatus, note?: string): Promise<{ error?: string }> {
@@ -277,20 +298,24 @@ export async function stopTimerAction(woId: string) {
   revalidatePath(path(woId));
 }
 
+// Clock-in and clock-out as ISO instants: the browser turns the typed times into them in its own time zone.
 const timeSchema = z.object({
-  minutes: z.coerce.number().int().min(1).max(24 * 60),
-  date: z.coerce.date(),
+  startedAt: z.coerce.date(),
+  endedAt: z.coerce.date(),
   note: optStr(500),
 });
 
 export async function addTimeAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
   const { ctx, wo } = await executableWorkOrder(woId);
   const parsed = parseForm(timeSchema, form);
-  if (parsed.error) return parsed.error;
-  const { minutes, date, note } = parsed.data;
+  if (parsed.error) return { error: "time.clockErrors.incomplete" };
+  const { startedAt, endedAt, note } = parsed.data;
+  const minutes = Math.round((endedAt.getTime() - startedAt.getTime()) / 60_000);
+  if (minutes < 1 || minutes >= 24 * 60) return { error: "time.clockErrors.same" };
+  if (endedAt.getTime() > Date.now() + 60_000) return { error: "time.clockErrors.future" };
   try {
     assertOpenForTime(wo);
-    await addTimeEntry(ctx, woId, await myRateOn(ctx, woId), date, new Date(date.getTime() + minutes * 60_000), note, workMode(form.get("mode")));
+    await addTimeEntry(ctx, woId, await myRateOn(ctx, woId), startedAt, endedAt, note, workMode(form.get("mode")));
   } catch (e) {
     if (e instanceof WorkOrderError) return { error: `wo.${e.code}` };
     throw e;
