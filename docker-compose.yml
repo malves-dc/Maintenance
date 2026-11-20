@@ -20,6 +20,9 @@ services:
       DATABASE_URL: postgresql://maintenance:maintenance@db:5432/maintenance
       # Public address behind the proxy (used in emails, QR labels and push links).
       APP_URL: https://maintenance.example.com
+      # Optional own address for the Hours section (/horas), e.g. horas.example.com (comma-separated for several):
+      # point it at this container too; there only Hours, sign-in and the profile are reachable.
+      HOURS_HOST: ""
       # Create the demo company (owner@demo.test / demo1234) when the database is empty.
       SEED_DEMO: "true"
       # Public demo server: shows a banner on every page asking people not to enter real personal data.

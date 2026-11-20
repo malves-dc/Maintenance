@@ -17,6 +17,7 @@ export const NAV: NavGroup[] = [
       { href: "/dashboard", labelKey: "dashboard", icon: "LayoutDashboard", ready: true },
       { href: "/search", labelKey: "search", icon: "Search", permission: "internal.view", ready: true },
       { href: "/m", labelKey: "field", icon: "Smartphone", permission: "workOrders.execute", ready: true },
+      { href: "/horas", labelKey: "hours", icon: "Clock", permission: "timesheets.log", ready: true },
       { href: "/scan", labelKey: "scan", icon: "ScanLine", permission: "internal.view", ready: true },
     ],
   },

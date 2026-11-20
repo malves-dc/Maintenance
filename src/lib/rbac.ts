@@ -32,6 +32,8 @@ export const PERMISSIONS = {
   "purchasing.approve": ["OWNER", "ADMIN"],
   "vendors.manage": ["OWNER", "ADMIN", "MANAGER"],
   "reports.view": ["OWNER", "ADMIN", "MANAGER", "VIEWER", "ACCOUNTANT"],
+  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // Hours (/horas): log one's own hours at villas
+  "timesheets.manage": ["OWNER", "ADMIN", "MANAGER"], // Hours: everyone's hours, the team view, reports and settings
   "internal.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"], // anything not client-facing
 } as const satisfies Record<string, readonly Role[]>;
 
@@ -53,6 +55,7 @@ export const PERMISSION_GROUPS: { key: string; permissions: Permission[] }[] = [
   { key: "sites", permissions: ["clients.manage", "contracts.manage", "assets.manage", "secrets.view", "knowledge.manage"] },
   { key: "supply", permissions: ["inventory.use", "inventory.manage", "vendors.manage", "purchasing.manage", "purchasing.approve"] },
   { key: "insights", permissions: ["reports.view"] },
+  { key: "timesheets", permissions: ["timesheets.log", "timesheets.manage"] },
   { key: "finance", permissions: ["costs.view", "billing.view", "billing.manage"] },
 ];
 export const GRANTABLE: Permission[] = PERMISSION_GROUPS.flatMap((g) => g.permissions);
