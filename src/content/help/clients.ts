@@ -46,7 +46,7 @@ The client page brings everything about the client together:
 
 ## Contacts and service reports
 
-To add a contact, open **Add contact** under **Contacts**, fill in the **Name**, the **Role** (house manager, owner, estate office…), **Phone** and **Email**, and click **Add**. Remove a contact with the cross next to it.
+To add a contact, open **Add contact** under **Contacts**, fill in the **Name**, the **Role** (house manager, owner, estate office…), **Phone** and **Email**, and click **Add**. To change a contact, click the pencil next to it: you can edit the name, role, phone and e-mail, make it the **Primary contact** (the previous primary one stops being so) and choose whether it receives service reports; click **Save**. Remove a contact with the cross next to it.
 
 When a work order is finished, its PDF service report can be e-mailed from the work order page. The addresses offered by default are the client's e-mail, the contacts marked to receive reports, the client's **Service report copies** and the company's own copies. For a contact with an e-mail address:
 
@@ -117,7 +117,7 @@ A página do cliente junta tudo o que lhe diz respeito:
 
 ## Contactos e relatórios de serviço
 
-Para acrescentar um contacto, abra **Adicionar contacto** em **Contactos**, preencha o **Nome**, a **Função** (governante, proprietário, gabinete…), **Telefone** e **Email**, e clique em **Adicionar**. Remova um contacto com a cruz ao lado.
+Para acrescentar um contacto, abra **Adicionar contacto** em **Contactos**, preencha o **Nome**, a **Função** (governante, proprietário, gabinete…), **Telefone** e **Email**, e clique em **Adicionar**. Para alterar um contacto, clique no lápis ao lado: pode mudar o nome, a função, o telefone e o email, torná-lo o **Contacto principal** (o anterior deixa de o ser) e escolher se recebe relatórios de serviço; clique em **Guardar**. Remova um contacto com a cruz ao lado.
 
 Quando uma ordem de trabalho termina, o relatório de serviço em PDF pode ser enviado por email a partir da página da ordem. Os endereços sugeridos por defeito são o email do cliente, os contactos marcados para receber relatórios, as **Cópias dos relatórios de serviço** do cliente e as cópias da própria empresa. Para um contacto com email:
 

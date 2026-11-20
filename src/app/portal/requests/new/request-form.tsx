@@ -5,7 +5,9 @@ import { useTranslations } from "next-intl";
 import { FieldError, FieldErrorsProvider } from "@/components/action-form";
 import { AvailabilityFields } from "@/components/availability-fields";
 import { PhotoPicker } from "@/components/photo-picker";
-import { Button, Field, FormError, Input, Select, Textarea } from "@/components/ui";
+import { Button, Field, FormError, Select } from "@/components/ui";
+import { CountedInput, CountedTextarea } from "@/components/counted-field";
+import { REQUEST_DESCRIPTION_MAX, REQUEST_TITLE_MAX } from "@/lib/request-limits";
 import { useActionForm } from "@/lib/use-action-form";
 import { cn } from "@/lib/utils";
 import { createPortalRequestAction } from "../../actions";
@@ -75,11 +77,12 @@ export function PortalRequestForm({
           </Field>
         </div>
         <Field label={t("portal.whatsWrong")}>
-          <Input name="title" required placeholder={t("portal.titlePlaceholder")} />
+          <CountedInput name="title" required max={REQUEST_TITLE_MAX} placeholder={t("portal.titlePlaceholder")} />
           <FieldError name="title" />
         </Field>
         <Field label={t("portal.details")}>
-          <Textarea name="description" placeholder={t("portal.detailsPlaceholder")} />
+          <CountedTextarea name="description" max={REQUEST_DESCRIPTION_MAX} placeholder={t("portal.detailsPlaceholder")} />
+          <FieldError name="description" />
         </Field>
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium">{t("portal.urgency")}</legend>
