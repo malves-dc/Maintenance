@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Camera, ChevronLeft, Video, CirclePause, CirclePlay, MapPin, Monitor, Send, Square } from "lucide-react";
-import { Button, Field, Input } from "@/components/ui";
-import { DateInput } from "@/components/date-input";
-import { localDay, manualInterval } from "@/lib/offline/manual-time";
+import { Button, Input } from "@/components/ui";
+import { ClockTimeFields } from "@/components/clock-time-fields";
+import { clockInterval, localDay, localTime } from "@/lib/offline/manual-time";
 import { PriorityText, WorkOrderStatusBadge } from "@/components/badges";
 import { MentionTextarea, type MentionMember } from "@/components/mention-textarea";
 import { shrinkImage, UPLOAD_ERRORS } from "@/lib/upload-client";
@@ -72,14 +72,22 @@ export function WorkOrderView({
   const [manualError, setManualError] = useState<string | null>(null);
   const addManualTime = async (form: HTMLFormElement) => {
     const data = new FormData(form);
-    const interval = manualInterval(String(data.get("date") ?? ""), Number(data.get("minutes")));
-    if (!interval) {
+    const startedAt = String(data.get("startedAt") ?? "");
+    const endedAt = String(data.get("endedAt") ?? "");
+    if (!startedAt || !endedAt) {
       setManualError(t("field.manualTimeInvalid"));
+      return;
+    }
+    // Checked again at submit: a clock-out that was in the future when typed may not be any more, or vice versa.
+    const start = new Date(startedAt);
+    const recheck = clockInterval(localDay(start), localTime(start), localTime(new Date(endedAt)));
+    if ("error" in recheck) {
+      setManualError(t(`time.clockErrors.${recheck.error}`));
       return;
     }
     const note = String(data.get("note") ?? "").trim();
     const at = new Date().toISOString();
-    await enqueue({ kind: "time", woId: wo.id, startedAt: interval.startedAt.toISOString(), endedAt: interval.endedAt.toISOString(), note: note || null, at, mode });
+    await enqueue({ kind: "time", woId: wo.id, startedAt: recheck.startedAt.toISOString(), endedAt: recheck.endedAt.toISOString(), note: note || null, at, mode });
     setManualError(null);
     setManual(false);
     setManualKey((k) => k + 1);
@@ -330,14 +338,7 @@ export function WorkOrderView({
                 await addManualTime(e.currentTarget);
               }}
             >
-              <div className="grid grid-cols-2 gap-2">
-                <Field label={t("time.date")}>
-                  <DateInput name="date" required defaultValue={localDay(new Date())} />
-                </Field>
-                <Field label={t("time.minutes")}>
-                  <Input name="minutes" type="number" inputMode="numeric" min={1} max={1440} step={1} required />
-                </Field>
-              </div>
+              <ClockTimeFields onChange={() => setManualError(null)} />
               <Input name="note" maxLength={500} placeholder={t("time.notePlaceholder")} aria-label={t("time.notePlaceholder")} />
               <p className="text-xs text-muted">{t("field.manualTimeHint")}</p>
               {manualError && <p className="text-xs text-danger">{manualError}</p>}

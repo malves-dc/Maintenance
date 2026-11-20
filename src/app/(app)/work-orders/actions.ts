@@ -298,20 +298,24 @@ export async function stopTimerAction(woId: string) {
   revalidatePath(path(woId));
 }
 
+// Clock-in and clock-out as ISO instants: the browser turns the typed times into them in its own time zone.
 const timeSchema = z.object({
-  minutes: z.coerce.number().int().min(1).max(24 * 60),
-  date: z.coerce.date(),
+  startedAt: z.coerce.date(),
+  endedAt: z.coerce.date(),
   note: optStr(500),
 });
 
 export async function addTimeAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
   const { ctx, wo } = await executableWorkOrder(woId);
   const parsed = parseForm(timeSchema, form);
-  if (parsed.error) return parsed.error;
-  const { minutes, date, note } = parsed.data;
+  if (parsed.error) return { error: "time.clockErrors.incomplete" };
+  const { startedAt, endedAt, note } = parsed.data;
+  const minutes = Math.round((endedAt.getTime() - startedAt.getTime()) / 60_000);
+  if (minutes < 1 || minutes >= 24 * 60) return { error: "time.clockErrors.same" };
+  if (endedAt.getTime() > Date.now() + 60_000) return { error: "time.clockErrors.future" };
   try {
     assertOpenForTime(wo);
-    await addTimeEntry(ctx, woId, await myRateOn(ctx, woId), date, new Date(date.getTime() + minutes * 60_000), note, workMode(form.get("mode")));
+    await addTimeEntry(ctx, woId, await myRateOn(ctx, woId), startedAt, endedAt, note, workMode(form.get("mode")));
   } catch (e) {
     if (e instanceof WorkOrderError) return { error: `wo.${e.code}` };
     throw e;

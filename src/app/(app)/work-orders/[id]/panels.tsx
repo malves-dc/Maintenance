@@ -6,14 +6,15 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { FileDown, ImagePlus, MapPin, Monitor, Pencil, Play, Send, Square, Trash2, X } from "lucide-react";
 import { ActionForm, FieldError } from "@/components/action-form";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
 import { MediaPickerButton } from "@/components/media-picker-button";
 import { MentionTextarea, type MentionMember } from "@/components/mention-textarea";
 import { SignaturePad, type SignaturePadHandle } from "@/components/signature-pad";
 import { uploadFile, type Uploaded } from "@/lib/upload-client";
 import { useUploader } from "@/lib/use-uploader";
 import { AttachmentThumb } from "@/components/attachment-thumb";
-import { DateInput } from "@/components/date-input";
+import { ClockTimeFields } from "@/components/clock-time-fields";
+import { formatDuration } from "@/lib/offline/manual-time";
 import { cn } from "@/lib/utils";
 import type { WorkMode } from "@/generated/prisma/enums";
 import {
@@ -31,12 +32,6 @@ import {
   startTimerAction,
   stopTimerAction,
 } from "../actions";
-
-function formatDuration(totalMinutes: number) {
-  const h = Math.floor(totalMinutes / 60);
-  const m = Math.round(totalMinutes % 60);
-  return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m`;
-}
 
 // ── Time
 
@@ -143,16 +138,8 @@ export function TimeTracker({
       )}
       {canLog && manual && (
         <ActionForm action={addTimeAction.bind(null, woId)} submitLabel={t("common.add")} className="rounded-md border border-border p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Field label={t("time.date")}>
-              <DateInput name="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-            </Field>
-            <Field label={t("time.minutes")}>
-              <Input name="minutes" type="number" min={1} max={1440} required />
-              <FieldError name="minutes" />
-            </Field>
-          </div>
-          <Input name="note" placeholder={t("time.notePlaceholder")} />
+          <ClockTimeFields />
+          <Input name="note" maxLength={500} placeholder={t("time.notePlaceholder")} aria-label={t("time.notePlaceholder")} />
           <input type="hidden" name="mode" value={mode} />
           {runningSince && <ModeSwitch value={mode} onChange={setMode} />}
         </ActionForm>
