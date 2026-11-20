@@ -735,6 +735,27 @@ markers), Message, VerificationToken (password reset).
   (`Team.system`) is the request's system; to all of them when none is, or the request has no system. Requests have no team of
   their own, so the system is the link. Management UI: chips per week with × and a "+ Add" picker (`WeekPeople`).
 
+### Hours (added 2026-11-20)
+- A section of the app (`/hours`, tabs like Reports) that replaces the separate DC Horas timesheet app. Obras are
+  villas. `TimesheetEntry` (person, villa, `date` @db.Date in the company time zone, optional HH:MM start/end,
+  minutes, description, createdBy) and `TimesheetTimer` (one per person); settings `Organization.timesheetEditDays`
+  (own past days editable) and `timesheetDailyHours` (the team view flags short days).
+- Work-order `TimeEntry` time is read alongside (`hoursRows()` in `lib/timesheet.ts`, scoped through the work order) in
+  Today, Entries, Team, Report and the CSV (`/api/export/hours`), and counts towards the 24 h day limit; it is only
+  changed on its work order. Pure rules in `lib/timesheet-rules.ts` (tested).
+- Permissions `timesheets.log` (own hours; default OWNER/ADMIN/MANAGER/TECHNICIAN) and `timesheets.manage` (everyone's,
+  team, report). The Hours settings need `org.manage`. Companies with saved role overrides must tick them.
+- `internal.view` ("Access the maintenance app") is now a permission in Settings → Roles (group "app"), on by default
+  for staff roles; migration `app_access_permission` added it to every saved list (it used to be forced on). Staff
+  without it (e.g. a custom role with only `timesheets.log`) are kept by the app layout to /hours, profile,
+  notifications and help (`appOffAllows`, from the `x-pathname` header proxy.ts sets), see only those in the menu, and
+  are left out of staff pickers (they filter by `membersWith(db, "internal.view")`).
+- Home-screen icon: /hours pages link `/hours/manifest.webmanifest` (id `/hours`, start `/hours`, scope `/`, icons
+  `/icons/hours-*.png`), so installing from there gives an Hours icon; the Today tab offers it (`install-button.tsx`:
+  `beforeinstallprompt`, steps for iOS). The main manifest has an Hours shortcut.
+- `HOURS_HOST` (lib/hours-host.ts): an address whose `/` (and sign-in) lands on /hours; otherwise the normal app.
+- Not done: offline logging, hours cost per person, villa hour budgets.
+
 ### Phase 10 — SaaS layer
 Stripe checkout and portal (`Subscription`), plan limits (seats, villas, storage), trial expiry
 handling, a super-admin console (`User.isSuperAdmin`), org deletion/export.

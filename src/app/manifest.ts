@@ -25,6 +25,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     shortcuts: [
       { name: "My work", url: "/m" },
       { name: "Scan", url: "/scan" },
+      { name: "Hours", url: "/hours" },
       { name: "Dashboard", url: "/dashboard" },
     ],
   };

@@ -4,7 +4,7 @@ import { assertCanLogTime, changeStatus, notStarted, WorkOrderError, type WoCtx 
 import { docRef } from "@/lib/series";
 import type { AppContext } from "@/lib/context";
 import { recordReading } from "@/lib/meters";
-import { notify } from "@/lib/notify";
+import { notify, membersWith } from "@/lib/notify";
 import { excerpt, findMentions } from "@/lib/mentions";
 import type { WorkMode } from "@/generated/prisma/enums";
 
@@ -77,7 +77,7 @@ export async function addComment(ctx: WoCtx, woId: string, body: string, attachm
   }
 
   // @mentioned staff get MENTION; the WO's creator and assignees get WO_COMMENT.
-  const staff = await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } });
+  const staff = await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: await membersWith(ctx.db, "internal.view") } }, select: { user: { select: { id: true, name: true } } } });
   const mentioned = findMentions(text, staff.map((m) => m.user));
   const data = { number: docRef(wo), title: wo.title, actor: ctx.user.name, excerpt: excerpt(text), where: docRef(wo) };
   const link = `/work-orders/${woId}`;

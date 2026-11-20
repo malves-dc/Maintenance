@@ -51,7 +51,7 @@ export default async function RolePermissionsPage({ params }: PageProps<"/settin
     items: g.permissions.map((p) => ({ permission: p, label: t(`perm.${p}.label` as never), hint: t(`perm.${p}.hint` as never) })),
   }));
   // Keyed on what is saved, so the checkboxes follow a save or a reset.
-  const list = <PermissionList key={granted.join()} groups={groups} granted={granted} staffApp={key !== "REQUESTER"} disabled={!editable} />;
+  const list = <PermissionList key={granted.join()} groups={groups} granted={granted} disabled={!editable} />;
 
   return (
     <>

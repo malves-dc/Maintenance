@@ -43,6 +43,8 @@ export const TENANT_MODELS = new Set([
   "KnowledgeArticle",
   "OnCallWeek",
   "RequestMessage",
+  "TimesheetEntry",
+  "TimesheetTimer",
 ]);
 
 const WHERE_OPS = new Set([
