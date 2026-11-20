@@ -374,7 +374,9 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                 minutes: e.minutes,
                 startedAt: e.startedAt.toISOString(),
                 mode: e.mode,
-                label: format.dateTime(e.startedAt, { dateStyle: "short" }),
+                label: e.endedAt
+                  ? `${format.dateTime(e.startedAt, { dateStyle: "short" })} ${format.dateTime(e.startedAt, { timeStyle: "short" })}–${format.dateTime(e.endedAt, { timeStyle: "short" })}`
+                  : format.dateTime(e.startedAt, { dateStyle: "short" }),
                 note: e.note,
               }))}
               billed={
