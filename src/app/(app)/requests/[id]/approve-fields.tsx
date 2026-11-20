@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { FieldError } from "@/components/action-form";
 import { DateTimeField } from "@/components/datetime-field";
 import { Field, Input, Select } from "@/components/ui";
+import { assigneesAfterTeamChange } from "@/lib/team-assignees";
 import { cn } from "@/lib/utils";
 import { Priority, SystemType, WorkOrderType } from "@/generated/prisma/enums";
 
@@ -28,6 +29,7 @@ export function ApproveFields({
 }) {
   const t = useTranslations();
   const [assignees, setAssignees] = useState<Set<string>>(() => new Set(initialAssignees));
+  const [teamId, setTeamId] = useState("");
   const toggle = (id: string) =>
     setAssignees((s) => {
       const n = new Set(s);
@@ -87,10 +89,14 @@ export function ApproveFields({
         <Field label={t("wo.team")}>
           <Select
             name="teamId"
-            defaultValue=""
+            value={teamId}
             onChange={(e) => {
-              const team = teams.find((x) => x.id === e.target.value);
-              if (team && assignees.size === 0) setAssignees(new Set(team.memberIds));
+              // The people follow the team until someone changes them by hand.
+              const prev = teams.find((x) => x.id === teamId);
+              const next = teams.find((x) => x.id === e.target.value);
+              const picked = assigneesAfterTeamChange(assignees, prev?.memberIds, next?.memberIds);
+              if (picked) setAssignees(picked);
+              setTeamId(e.target.value);
             }}
           >
             <option value="">—</option>
