@@ -292,8 +292,9 @@ model Organization {
   // Who also gets e-mailed service reports: {"userIds": […], "roles": ["ACCOUNTANT", "job:<id>"], "emails": […]}.
   reportRecipients Json?
   privacyNotice String? // custom privacy notice (plain text) shown at /privacy/<slug>; null = built-in template
-  // Staff who can see access codes (secrets.view) and admins must sign in with a second factor (lib/two-factor.ts).
-  require2fa    Boolean  @default(true)
+  // When on, staff who can see access codes (secrets.view) and admins must sign in with a second factor
+  // (lib/two-factor.ts). Off by default: each company turns it on in Settings → Organization.
+  require2fa    Boolean  @default(false)
   // Cost per hour of the built-in roles, e.g. {"TECHNICIAN": 45}; custom roles carry their own (JobRole).
   roleRates     Json?
   timezone      String   @default("Europe/Lisbon")
