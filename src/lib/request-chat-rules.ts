@@ -33,6 +33,27 @@ export function mayChat(viewer: ChatViewer, r: ChatRequest): boolean {
   return viewer.canManage || r.assigneeIds.includes(viewer.userId);
 }
 
+/** Why someone is in the chat: the client side, staff with `requests.chat`, or a technician on the job. */
+export type ParticipantKind = "client" | "staff" | "technician";
+
+/** One person who can read and write the chat (everyone who may read it may also write). */
+export type ChatParticipant = { userId: string; name: string; kind: ParticipantKind };
+
+/** A member of the company, as chatParticipants() weighs them. */
+export type ChatCandidate = ChatViewer & { name: string };
+
+/**
+ * The people who take part in the chat, out of the company's active members: each one is put through mayChat(),
+ * so the list never shows anyone the rules would keep out. Client side first, then staff, then technicians.
+ */
+export function chatParticipants(candidates: ChatCandidate[], r: ChatRequest): ChatParticipant[] {
+  const order: Record<ParticipantKind, number> = { client: 0, staff: 1, technician: 2 };
+  return candidates
+    .filter((c) => mayChat(c, r))
+    .map((c): ChatParticipant => ({ userId: c.userId, name: c.name, kind: c.portal ? "client" : c.canManage ? "staff" : "technician" }))
+    .sort((a, b) => order[a.kind] - order[b.kind] || a.name.localeCompare(b.name));
+}
+
 /** Longest message accepted. */
 export const REQUEST_MESSAGE_MAX = 4000;
 
@@ -50,4 +71,4 @@ export function breaksAppendOnly(model: string, operation: string): boolean {
 export type ChatMessage = { id: string; body: string; at: string; author: string; fromClient: boolean; mine: boolean };
 
 /** A request's chat as loaded for one viewer (the API and the pages hand this to <RequestChat>). */
-export type ChatPayload = { requestId: string; number: string; messages: ChatMessage[] };
+export type ChatPayload = { requestId: string; number: string; messages: ChatMessage[]; participants: (ChatParticipant & { mine: boolean })[] };

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Lock, MessagesSquare, Send } from "lucide-react";
+import { ChevronDown, Lock, MessagesSquare, Send, Users } from "lucide-react";
 import { Button, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { REQUEST_MESSAGE_MAX, type ChatPayload } from "@/lib/request-chat-rules";
@@ -96,10 +96,38 @@ export function RequestChat({
         <MessagesSquare className="size-4 text-muted" />
         {t("title", { number: chat.number })}
       </h2>
-      <p className="mb-3 flex items-center gap-1.5 text-xs text-muted">
+      <p className="mb-2 flex items-center gap-1.5 text-xs text-muted">
         <Lock className="size-3" />
         {t("permanent")}
       </p>
+      <details className="group mb-3 text-xs">
+        <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+          <Users className="size-3" />
+          {t("participants", { count: chat.participants.length })}
+          <ChevronDown className="size-3 transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="mt-2 rounded-lg border border-border p-2">
+          <p className="mb-1.5 text-muted">{t("participantsHint")}</p>
+          <ul className="space-y-1">
+            {chat.participants.map((p) => (
+              <li key={p.userId} className="flex items-center justify-between gap-2">
+                <span className="truncate text-foreground">
+                  {p.name}
+                  {p.mine &&<span className="text-muted"> ({t("you")})</span>}
+                </span>
+                <span
+                  className={cn(
+                    "shrink-0 rounded px-1",
+                    p.kind === "client" ? "bg-amber-100 text-amber-800" : p.kind === "staff" ? "bg-gray-100 text-gray-700" : "bg-sky-100 text-sky-800",
+                  )}
+                >
+                  {t(`kind.${p.kind}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
       <ol
         ref={list}
         onScroll={(e) => {
