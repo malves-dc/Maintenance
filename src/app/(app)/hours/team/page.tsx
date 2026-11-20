@@ -11,7 +11,7 @@ import { addDays, formatMinutes, isDay, weekStart } from "@/lib/timesheet-rules"
 export const generateMetadata = titled("hours.tabs.team");
 
 /** Managers: who is on the clock now, and everyone's week day by day (short days in amber). */
-export default async function HoursTeamPage({ searchParams }: PageProps<"/horas/equipa">) {
+export default async function HoursTeamPage({ searchParams }: PageProps<"/hours/team">) {
   const ctx = await getContext();
   if (!ctx.can("timesheets.manage")) notFound();
   const t = await getTranslations("hours");
@@ -30,7 +30,7 @@ export default async function HoursTeamPage({ searchParams }: PageProps<"/horas/
   for (const r of rows) if (!people.some((p) => p.id === r.userId)) people.push({ id: r.userId, name: r.userName });
   const cell = (userId: string, d: string) => rows.filter((r) => r.userId === userId && r.date === d).reduce((s, r) => s + r.minutes, 0);
   const workday = (d: string) => new Date(`${d}T12:00:00Z`).getUTCDay() % 6 !== 0;
-  const q = (w: string) => `/horas/equipa?week=${w}`;
+  const q = (w: string) => `/hours/team?week=${w}`;
 
   return (
     <div className="space-y-5">
@@ -83,7 +83,7 @@ export default async function HoursTeamPage({ searchParams }: PageProps<"/horas/
                 return (
                   <tr key={p.id}>
                     <td className="font-medium">
-                      <Link href={`/horas/registos?week=${ws}&user=${p.id}`} className="hover:underline">
+                      <Link href={`/hours/entries?week=${ws}&user=${p.id}`} className="hover:underline">
                         {p.name}
                       </Link>
                     </td>

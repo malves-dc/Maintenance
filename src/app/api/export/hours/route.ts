@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { reportFilter } from "@/app/(app)/horas/report-filter";
+import { reportFilter } from "@/app/(app)/hours/report-filter";
 import { getContext } from "@/lib/context";
 import { csvResponse, toCsv } from "@/lib/csv";
 import { hoursRows, todayOf } from "@/lib/timesheet";

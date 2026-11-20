@@ -2655,8 +2655,6 @@
     "undoConfirm": "Marcar esta ordem de trabalho como por faturar? O número da fatura é removido."
   },
   "hours": {
-    "appName": "DC Horas",
-    "manifestDescription": "Registo de horas por moradia.",
     "tabs": {
       "today": "Hoje",
       "entries": "Registos",
@@ -2664,7 +2662,6 @@
       "report": "Relatório",
       "settings": "Definições"
     },
-    "noAccess": "Esta conta não regista horas. Peça a um administrador a permissão «Registar horas».",
     "today": "Hoje",
     "thisWeek": "Esta semana",
     "thisMonth": "Este mês",
@@ -2735,9 +2732,6 @@
     "editDaysHint": "Durante quantos dias cada pessoa ainda pode acrescentar, alterar ou eliminar as suas horas (0 = só no próprio dia). Quem gere horas pode sempre.",
     "dailyHours": "Horas de um dia de trabalho",
     "dailyHoursHint": "Na vista da equipa, os dias úteis com menos horas ficam assinalados.",
-    "ownAddress": "Endereço próprio",
-    "ownAddressOn": "A secção Horas abre diretamente em {hosts}, onde se instala como uma app à parte.",
-    "ownAddressOff": "Pode ter um endereço próprio (por exemplo horas.empresa.pt): aponte-o para este servidor e indique-o na variável HOURS_HOST.",
     "whoLogs": "Quem regista horas",
     "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, crie uma função com apenas essa permissão.",
     "errors": {
@@ -2757,28 +2751,14 @@
       "timerRunning": "Já tem um cronómetro a contar.",
       "noTimer": "Não há nenhum cronómetro a contar."
     },
-    "import": {
-      "title": "Importar do DC Horas",
-      "intro": "Carregue o ficheiro exportado da app DC Horas (scripts/export-json.js). Os colaboradores são associados pelo email e as obras às moradias pelo código (ou pelo nome). Primeiro verifique; nada é gravado até carregar em Importar. Pode repetir: registos iguais não são duplicados.",
-      "check": "Verificar ficheiro",
-      "apply": "Importar {n, plural, one {# registo} other {# registos}}",
-      "confirm": "Importar {n, plural, one {# registo} other {# registos}} de horas?",
-      "created": "{n, plural, one {Importado # registo} other {Importados # registos}}.",
-      "people": "{n, plural, one {# colaborador encontrado} other {# colaboradores encontrados}} nesta empresa",
-      "obras": "{n, plural, one {# obra associada} other {# obras associadas}} a moradias",
-      "importable": "{n, plural, =0 {Nenhum registo novo para importar} one {# registo novo para importar} other {# registos novos para importar}}",
-      "duplicates": "{n, plural, one {# registo já existe} other {# registos já existem}} (ficam como estão)",
-      "skipped": "{n, plural, one {# registo fica de fora} other {# registos ficam de fora}}: colaborador ou obra sem correspondência (ver abaixo)",
-      "invalid": "{n, plural, one {# registo inválido ignorado} other {# registos inválidos ignorados}}",
-      "missingUsers": "Colaboradores sem conta nesta empresa (convide-os com o mesmo email e volte a importar):",
-      "missingObras": "Obras sem moradia correspondente (crie a moradia com o mesmo código e volte a importar):",
-      "entries": "{n, plural, one {# registo} other {# registos}}",
-      "errors": {
-        "noFile": "Escolha o ficheiro exportado do DC Horas.",
-        "badFile": "Este ficheiro não é uma exportação do DC Horas.",
-        "tooBig": "O ficheiro é demasiado grande (máximo 15 MB).",
-        "forbidden": "Só um administrador pode importar."
-      }
+    "ownAddressOn": "O endereço {hosts} abre diretamente nesta secção.",
+    "ownAddressOff": "Pode ter um endereço que abre diretamente aqui (por exemplo horas.empresa.pt): aponte-o para este servidor e indique-o na variável HOURS_HOST.",
+    "ownAddress": "Endereço direto",
+    "install": {
+      "title": "Instale o ícone das Horas para abrir diretamente esta secção.",
+      "button": "Instalar ícone",
+      "ios": "No iPhone ou iPad: toque em Partilhar e depois em «Adicionar ao ecrã principal».",
+      "dismiss": "Não mostrar mais"
     }
   }
 }

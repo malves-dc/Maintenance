@@ -1,20 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { encode, getToken } from "next-auth/jwt";
-import { hoursHostRedirect, isHoursHost, requestHost } from "@/lib/hours-host";
+import { homePath, isHoursHost, requestHost } from "@/lib/hours-host";
 import { isPageLoad, needsRenewal, SESSION_MAX_AGE, sessionCookieName, usesSecureCookie } from "@/lib/session-cookie";
 
 // Routes reachable without signing in.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/invite", "/forgot-password", "/factory-reset", "/reset-password/", "/r/", "/api/auth", "/api/cron/", "/sw.js", "/offline.html", "/manifest.webmanifest", "/api/org-logo/", "/api/version", "/privacy", "/terms", "/session/clear", "/api/calendar/", "/horas/manifest.webmanifest"]; // cron routes check CRON_SECRET
+const PUBLIC_PREFIXES = ["/login", "/signup", "/invite", "/forgot-password", "/factory-reset", "/reset-password/", "/r/", "/api/auth", "/api/cron/", "/sw.js", "/offline.html", "/manifest.webmanifest", "/api/org-logo/", "/api/version", "/privacy", "/terms", "/session/clear", "/api/calendar/", "/hours/manifest.webmanifest"]; // cron routes check CRON_SECRET
 
 // The session is only read here (see lib/session-cookie.ts for why it isn't rewritten on every request).
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  // The Hours section's own address (HOURS_HOST): only /horas, sign-in and the app's files are served there.
-  const hoursHost = isHoursHost(requestHost(req.headers));
-  if (hoursHost) {
-    const to = hoursHostRedirect(pathname);
-    if (to) return NextResponse.redirect(new URL(to, req.nextUrl));
-  }
+  // An Hours address (HOURS_HOST) starts on /hours; the rest of the app works there as anywhere.
+  const home = homePath(isHoursHost(requestHost(req.headers)));
+  if (pathname === "/" && home !== "/dashboard") return NextResponse.redirect(new URL(home, req.nextUrl));
   const secure = usesSecureCookie(req.headers, req.nextUrl.protocol);
   const cookieName = sessionCookieName(secure);
   const secret = process.env.AUTH_SECRET;
@@ -27,7 +24,7 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.redirect(url);
   }
   if (token && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL(hoursHost ? "/horas" : "/dashboard", req.nextUrl));
+    return NextResponse.redirect(new URL(home, req.nextUrl));
   }
 
   const res = NextResponse.next();

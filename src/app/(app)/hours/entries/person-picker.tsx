@@ -12,7 +12,7 @@ export function PersonPicker({ people, value, self, week }: { people: { id: stri
     <Select
       aria-label={t("person")}
       value={value}
-      onChange={(e) => router.push(`/horas/registos?week=${week}${e.target.value === self ? "" : `&user=${e.target.value}`}`)}
+      onChange={(e) => router.push(`/hours/entries?week=${week}${e.target.value === self ? "" : `&user=${e.target.value}`}`)}
     >
       {!people.some((p) => p.id === value) && <option value={value}>—</option>}
       {people.map((p) => (

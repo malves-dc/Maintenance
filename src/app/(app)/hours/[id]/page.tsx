@@ -9,7 +9,7 @@ import { EntryPage, nextParam } from "../entry-page";
 
 export const generateMetadata = titled("hours.editHours");
 
-export default async function EditHoursPage({ params, searchParams }: PageProps<"/horas/[id]">) {
+export default async function EditHoursPage({ params, searchParams }: PageProps<"/hours/[id]">) {
   const ctx = await getContext();
   const manager = ctx.can("timesheets.manage");
   const { id } = await params;

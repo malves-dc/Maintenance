@@ -736,21 +736,20 @@ markers), Message, VerificationToken (password reset).
   their own, so the system is the link. Management UI: chips per week with × and a "+ Add" picker (`WeekPeople`).
 
 ### Hours (added 2026-11-20)
-- Replaces the separate DC Horas timesheet app (Schedule repo): `/horas` inside the app shell (tabs like Reports).
-  Obras are villas. `TimesheetEntry` (person, villa, `date` @db.Date in the company time zone, optional HH:MM
-  start/end, minutes, description, createdBy) and `TimesheetTimer` (one per person); settings
-  `Organization.timesheetEditDays` (own past days editable) and `timesheetDailyHours` (team view flags short days).
+- A section of the app (`/hours`, tabs like Reports) that replaces the separate DC Horas timesheet app. Obras are
+  villas. `TimesheetEntry` (person, villa, `date` @db.Date in the company time zone, optional HH:MM start/end,
+  minutes, description, createdBy) and `TimesheetTimer` (one per person); settings `Organization.timesheetEditDays`
+  (own past days editable) and `timesheetDailyHours` (the team view flags short days).
 - Work-order `TimeEntry` time is read alongside (`hoursRows()` in `lib/timesheet.ts`, scoped through the work order) in
   Today, Entries, Team, Report and the CSV (`/api/export/hours`), and counts towards the 24 h day limit; it is only
   changed on its work order. Pure rules in `lib/timesheet-rules.ts` (tested).
 - Permissions `timesheets.log` (own hours; default OWNER/ADMIN/MANAGER/TECHNICIAN) and `timesheets.manage` (everyone's,
-  team, report). Settings + import need `org.manage`. Companies with saved role overrides must tick them. Staff who
-  only log hours: a custom role with just `timesheets.log` (they still get `internal.view`, which reads the app).
-- Own address: `HOURS_HOST` (lib/hours-host.ts). There the proxy sends other paths to /horas, the menu keeps only
-  Hours and the profile, and `/horas/manifest.webmanifest` + `/icons/horas-*.png` make it install as its own app.
-- Import: DC Horas `scripts/export-json.js` → Hours → Settings → Import (`/api/horas/import`, check then apply;
-  people by e-mail, obras by villa code then name; identical entries skipped, so it can be repeated).
-- Not done: offline logging in Hours (the old app queued offline), hours cost per person, villa hour budgets.
+  team, report). The Hours settings need `org.manage`. Companies with saved role overrides must tick them.
+- Home-screen icon: /hours pages link `/hours/manifest.webmanifest` (id `/hours`, start `/hours`, scope `/`, icons
+  `/icons/hours-*.png`), so installing from there gives an Hours icon; the Today tab offers it (`install-button.tsx`:
+  `beforeinstallprompt`, steps for iOS). The main manifest has an Hours shortcut.
+- `HOURS_HOST` (lib/hours-host.ts): an address whose `/` (and sign-in) lands on /hours; otherwise the normal app.
+- Not done: offline logging, hours cost per person, villa hour budgets.
 
 ### Phase 10 — SaaS layer
 Stripe checkout and portal (`Subscription`), plan limits (seats, villas, storage), trial expiry

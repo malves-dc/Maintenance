@@ -62,7 +62,7 @@ export async function EntryRows({
             </div>
             {canEdit && (
               <div className="flex shrink-0 items-center gap-1">
-                <Link href={`/horas/${r.id}?next=${encodeURIComponent(next)}`} title={t("edit")} aria-label={t("edit")} className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-foreground">
+                <Link href={`/hours/${r.id}?next=${encodeURIComponent(next)}`} title={t("edit")} aria-label={t("edit")} className="rounded p-1.5 text-muted hover:bg-gray-100 hover:text-foreground">
                   <Pencil className="size-4" />
                 </Link>
                 <ConfirmIconButton action={deleteEntryAction.bind(null, r.id)} title={t("delete")} confirmText={t("deleteConfirm")} />

@@ -8,8 +8,6 @@ import { getContext } from "@/lib/context";
 import { unreadConversations } from "@/lib/conversations";
 import { brandStyle, logoSrc } from "@/lib/branding";
 import { getTranslations } from "next-intl/server";
-import { headers } from "next/headers";
-import { hoursHostNav, isHoursHost, requestHost } from "@/lib/hours-host";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getContext();
@@ -24,13 +22,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ctx.can("internal.view") ? unreadConversations(ctx) : 0,
     ctx.db.notification.count({ where: { userId: ctx.user.id, readAt: null } }),
   ]);
-  // On the Hours section's own address (HOURS_HOST) the menu holds only Hours and one's profile.
-  const hoursHost = isHoursHost(requestHost(await headers()));
   const badges: Record<string, number> = { "/requests": pendingRequests, "/purchase-orders": posToApprove, "/messages": unreadMessages };
   const groups = NAV.map((g) => ({
     ...g,
     items: g.items
-      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)) && (!hoursHost || hoursHostNav(i.href)))
+      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)))
       .map((i) => (badges[i.href] ? { ...i, badge: badges[i.href] } : i)),
   })).filter((g) => g.items.length > 0);
   const version = (await getServerSettings()).showVersion ? await runningVersion() : null;

@@ -25,10 +25,10 @@ async function villaOk(ctx: HoursCtx, villaId: string, keepId?: string | null) {
   return !!v && (!v.archivedAt || villaId === keepId);
 }
 
-/** Back to where the form was opened from: only paths inside /horas. */
+/** Back to where the form was opened from: only paths inside /hours. */
 const backTo = (form: FormData) => {
   const next = String(form.get("next") ?? "");
-  return /^\/horas(\/[\w/?=&.-]*)?$/.test(next) ? next : "/horas";
+  return /^\/hours(\/[\w/?=&.-]*)?$/.test(next) ? next : "/hours";
 };
 
 const entrySchema = z.object({
@@ -87,7 +87,7 @@ export async function saveEntryAction(entryId: string | null, _: FormResult, for
   } else {
     await ctx.db.timesheetEntry.create({ data: { ...data, organizationId: ctx.organization.id, createdById: ctx.user.id } });
   }
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
   redirect(backTo(form));
 }
 
@@ -101,7 +101,7 @@ export async function deleteEntryAction(entryId: string) {
   const { editDays } = timesheetSettings(ctx.organization);
   if (!withinEditWindow(dateToDay(e.date), todayOf(ctx), editDays, manager)) return;
   await ctx.db.timesheetEntry.delete({ where: { id: e.id } });
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
 }
 
 // ── Timer
@@ -117,7 +117,7 @@ export async function startTimerAction(_: FormResult, form: FormData): Promise<F
   await ctx.db.timesheetTimer.create({
     data: { organizationId: ctx.organization.id, userId: ctx.user.id, villaId: parsed.data.villaId, startedAt: new Date(), description: parsed.data.description },
   });
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
   return { ok: true };
 }
 
@@ -148,14 +148,14 @@ export async function stopTimerAction(_: FormResult, form: FormData): Promise<Fo
       },
     });
   }
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
   return { ok: true };
 }
 
 export async function discardTimerAction() {
   const ctx = await requirePermission("timesheets.log");
   await ctx.db.timesheetTimer.deleteMany({ where: { userId: ctx.user.id } });
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
 }
 
 // ── Settings
@@ -173,6 +173,6 @@ export async function saveHoursSettingsAction(_: FormResult, form: FormData): Pr
     where: { id: ctx.organization.id },
     data: { timesheetEditDays: parsed.data.editDays, timesheetDailyHours: parsed.data.dailyHours },
   });
-  revalidatePath("/horas", "layout");
+  revalidatePath("/hours", "layout");
   return { ok: true };
 }

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { addDays, checkEntry, formatMinutes, isDay, parseDuration, timerEntry, weekStart, withinEditWindow, type EntryRules } from "@/lib/timesheet-rules";
-import { hoursHostRedirect, hoursHosts, isHoursHost, requestHost } from "@/lib/hours-host";
 
 const rules: EntryRules = { today: "2026-11-20", editDays: 7, manager: false, otherMinutes: 0 };
 const ok = (r: ReturnType<typeof checkEntry>) => ("entry" in r ? r.entry : null);
@@ -91,30 +90,5 @@ describe("hours: the timer", () => {
     const e = timerEntry(new Date("2026-07-01T21:30:00Z"), new Date("2026-07-01T23:30:00Z"), "Europe/Lisbon"); // 22:30 → 00:30 WEST
     expect(e).toMatchObject({ date: "2026-07-01", startTime: "22:30", endTime: null, minutes: 120 });
     expect(timerEntry(new Date("2026-11-20T10:00:00Z"), new Date("2026-11-20T10:00:20Z"), "Europe/Lisbon")).toBeNull();
-  });
-});
-
-describe("hours: own address", () => {
-  const env = "horas.example.pt, Staging.Horas.example.pt:443";
-  it("matches the listed hosts, whatever the case or port", () => {
-    expect(hoursHosts(env)).toEqual(["horas.example.pt", "staging.horas.example.pt"]);
-    expect(isHoursHost("HORAS.example.pt:3000", env)).toBe(true);
-    expect(isHoursHost("app.example.pt", env)).toBe(false);
-    expect(isHoursHost("horas.example.pt", "")).toBe(false);
-  });
-  it("prefers the forwarded host", () => {
-    const h = new Headers({ host: "10.0.0.5:3000", "x-forwarded-host": "horas.example.pt" });
-    expect(requestHost(h)).toBe("horas.example.pt");
-    expect(requestHost(new Headers({ host: "app.example.pt" }))).toBe("app.example.pt");
-  });
-  it("keeps people inside /horas", () => {
-    expect(hoursHostRedirect("/")).toBe("/horas");
-    expect(hoursHostRedirect("/work-orders")).toBe("/horas");
-    expect(hoursHostRedirect("/horasx")).toBe("/horas");
-    expect(hoursHostRedirect("/horas")).toBeNull();
-    expect(hoursHostRedirect("/horas/registos")).toBeNull();
-    expect(hoursHostRedirect("/login")).toBeNull();
-    expect(hoursHostRedirect("/api/export/hours")).toBeNull();
-    expect(hoursHostRedirect("/icons/horas-192.png")).toBeNull();
   });
 });

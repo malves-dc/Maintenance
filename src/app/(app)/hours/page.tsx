@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Plus } from "lucide-react";
 import { Card } from "@/components/ui";
 import { getContext } from "@/lib/context";
-import { isHoursHost, requestHost } from "@/lib/hours-host";
 import { titled } from "@/lib/metadata";
 import { hoursRows, hoursVillas, timesheetSettings, todayOf, villaLabel } from "@/lib/timesheet";
 import { addDays, formatMinutes, monthStart, weekStart, withinEditWindow } from "@/lib/timesheet-rules";
 import { EntryRows } from "./entry-rows";
+import { InstallHours } from "./install-button";
 import { TimerCard } from "./timer-card";
 
 export const generateMetadata = titled("nav.hours");
@@ -17,7 +16,7 @@ export const generateMetadata = titled("nav.hours");
 /** Today: the timer, a button to log hours, today's time and the week so far. */
 export default async function HoursTodayPage() {
   const ctx = await getContext();
-  if (!ctx.can("timesheets.log")) redirect("/horas/registos");
+  if (!ctx.can("timesheets.log")) redirect("/hours/entries");
   const t = await getTranslations("hours");
   const format = await getFormatter();
   const { editDays, dailyMinutes } = timesheetSettings(ctx.organization);
@@ -33,10 +32,10 @@ export default async function HoursTodayPage() {
   const todays = rows.filter((r) => r.date === today);
   const week = Array.from({ length: 7 }, (_, i) => addDays(ws, i)).map((d) => ({ d, m: sum(d, d) }));
   const max = Math.max(dailyMinutes, ...week.map((w) => w.m));
-  const ownHost = isHoursHost(requestHost(await headers()));
 
   return (
     <div className="space-y-5">
+      <InstallHours />
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: t("today"), m: sum(today, today), sub: t("ofDay", { h: formatMinutes(dailyMinutes) }) },
@@ -57,7 +56,7 @@ export default async function HoursTodayPage() {
         startedLabel={timer ? t("startedAt", { time: format.dateTime(timer.startedAt, { hour: "2-digit", minute: "2-digit" }) }) : null}
       />
 
-      <Link href="/horas/novo" className="flex h-12 items-center justify-center gap-2 rounded-md bg-brand font-semibold text-brand-foreground hover:opacity-90">
+      <Link href="/hours/new" className="flex h-12 items-center justify-center gap-2 rounded-md bg-brand font-semibold text-brand-foreground hover:opacity-90">
         <Plus className="size-5" /> {t("logHours")}
       </Link>
 
@@ -67,8 +66,8 @@ export default async function HoursTodayPage() {
           <EntryRows
             rows={todays}
             editable={(r) => withinEditWindow(r.date, today, editDays, ctx.can("timesheets.manage"))}
-            linkWorkOrders={!ownHost && ctx.can("internal.view")}
-            next="/horas"
+            linkWorkOrders={ctx.can("internal.view")}
+            next="/hours"
           />
         ) : (
           <Card className="px-4 py-6 text-center text-sm text-muted">{t("nothingToday")}</Card>
@@ -79,7 +78,7 @@ export default async function HoursTodayPage() {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("thisWeek")}</h2>
         <Card className="grid grid-cols-7 gap-1 p-3">
           {week.map(({ d, m }) => (
-            <Link key={d} href={`/horas/registos?week=${ws}`} aria-label={`${format.dateTime(new Date(`${d}T12:00:00Z`), { weekday: "long", timeZone: "UTC" })}: ${formatMinutes(m)}`} className="flex flex-col items-center gap-1 text-xs">
+            <Link key={d} href={`/hours/entries?week=${ws}`} aria-label={`${format.dateTime(new Date(`${d}T12:00:00Z`), { weekday: "long", timeZone: "UTC" })}: ${formatMinutes(m)}`} className="flex flex-col items-center gap-1 text-xs">
               <div className="flex h-20 w-full items-end justify-center">
                 <div
                   className={`w-5 rounded-t ${m >= dailyMinutes ? "bg-brand" : m > 0 ? "bg-brand/50" : "bg-gray-100"}`}

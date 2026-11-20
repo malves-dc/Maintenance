@@ -32,7 +32,7 @@ export const PERMISSIONS = {
   "purchasing.approve": ["OWNER", "ADMIN"],
   "vendors.manage": ["OWNER", "ADMIN", "MANAGER"],
   "reports.view": ["OWNER", "ADMIN", "MANAGER", "VIEWER", "ACCOUNTANT"],
-  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // Hours (/horas): log one's own hours at villas
+  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // Hours (/hours): log one's own hours at villas
   "timesheets.manage": ["OWNER", "ADMIN", "MANAGER"], // Hours: everyone's hours, the team view, reports and settings
   "internal.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"], // anything not client-facing
 } as const satisfies Record<string, readonly Role[]>;

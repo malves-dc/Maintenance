@@ -7,11 +7,11 @@ const ICONS: Record<string, { size: number; pad: number; radius: number; mono?: 
   "maskable.png": { size: 512, pad: 0, radius: 0 }, // full bleed; the glyph stays inside the safe zone
   "apple.png": { size: 180, pad: 0, radius: 0 },
   "badge.png": { size: 96, pad: 0, radius: 0, mono: true }, // Android status-bar badge: white on transparent
-  // The Hours app (/horas on its own address): a clock, in the app's colours.
-  "horas-192.png": { size: 192, pad: 0, radius: 36, hours: true },
-  "horas-512.png": { size: 512, pad: 0, radius: 96, hours: true },
-  "horas-maskable.png": { size: 512, pad: 0, radius: 0, hours: true },
-  "horas-apple.png": { size: 180, pad: 0, radius: 0, hours: true },
+  // The Hours shortcut (/hours installed on its own): a clock, in the app's colours.
+  "hours-192.png": { size: 192, pad: 0, radius: 36, hours: true },
+  "hours-512.png": { size: 512, pad: 0, radius: 96, hours: true },
+  "hours-maskable.png": { size: 512, pad: 0, radius: 0, hours: true },
+  "hours-apple.png": { size: 180, pad: 0, radius: 0, hours: true },
 };
 
 /** A clock face, as an inline SVG (ImageResponse draws SVG images). */
@@ -31,7 +31,7 @@ export async function GET(_req: Request, { params }: RouteContext<"/icons/[file]
     return new ImageResponse(
       (
         <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#1f4f8f", borderRadius: radius }}>
-          {clock(Math.round(size * (file === "horas-maskable.png" ? 0.5 : 0.66)))}
+          {clock(Math.round(size * (file === "hours-maskable.png" ? 0.5 : 0.66)))}
         </div>
       ),
       { width: size, height: size, headers: { "Cache-Control": "public, max-age=86400" } },

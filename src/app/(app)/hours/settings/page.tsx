@@ -6,7 +6,6 @@ import { getContext } from "@/lib/context";
 import { hoursHosts } from "@/lib/hours-host";
 import { titled } from "@/lib/metadata";
 import { saveHoursSettingsAction } from "../actions";
-import { ImportPanel } from "./import-panel";
 
 export const generateMetadata = titled("hours.tabs.settings");
 
@@ -36,10 +35,6 @@ export default async function HoursSettingsPage() {
       <Card className="space-y-1 p-4 text-sm">
         <div className="font-medium">{t("whoLogs")}</div>
         <p className="text-muted">{t("whoLogsHint")}</p>
-      </Card>
-      <Card className="space-y-2 p-4">
-        <div className="text-sm font-medium">{t("import.title")}</div>
-        <ImportPanel />
       </Card>
     </div>
   );

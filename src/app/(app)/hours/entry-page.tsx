@@ -6,7 +6,7 @@ import type { AppContext } from "@/lib/context";
 import { hoursPeople, hoursVillas } from "@/lib/timesheet";
 import { EntryForm, type EntryDefaults } from "./entry-form";
 
-/** The add / change hours screen (shared by /horas/novo and /horas/[id]). */
+/** The add / change hours screen (shared by /hours/new and /hours/[id]). */
 export async function EntryPage({ ctx, entryId, defaults, next }: { ctx: AppContext; entryId: string | null; defaults: EntryDefaults; next: string }) {
   const t = await getTranslations("hours");
   const manager = ctx.can("timesheets.manage");
@@ -31,5 +31,5 @@ export async function EntryPage({ ctx, entryId, defaults, next }: { ctx: AppCont
   );
 }
 
-/** `next` from the query string, when it is a path inside /horas. */
-export const nextParam = (v: string | string[] | undefined) => (typeof v === "string" && /^\/horas(\/[\w/?=&.-]*)?$/.test(v) ? v : "/horas");
+/** `next` from the query string, when it is a path inside /hours. */
+export const nextParam = (v: string | string[] | undefined) => (typeof v === "string" && /^\/hours(\/[\w/?=&.-]*)?$/.test(v) ? v : "/hours");

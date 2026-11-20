@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 /** The Hours section's tabs, styled like the other sections' (see reports/report-nav.tsx). */
 export function HoursTabs({ tabs }: { tabs: { href: string; label: string }[] }) {
   const path = usePathname();
-  const current = (href: string) => (href === "/horas" ? path === "/horas" || path.startsWith("/horas/novo") : path.startsWith(href));
+  const current = (href: string) => (href === "/hours" ? path === "/hours" || path.startsWith("/hours/new") : path.startsWith(href));
   return (
     <nav className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-border">
       {tabs.map((t) => (

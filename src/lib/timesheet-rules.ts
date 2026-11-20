@@ -1,4 +1,4 @@
-// Rules of the Hours section (/horas): pure, shared by the server actions, the pages and the tests.
+// Rules of the Hours section (/hours): pure, shared by the server actions, the pages and the tests.
 // Days are "yyyy-mm-dd" in the company's time zone; times are "HH:MM".
 
 export const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;

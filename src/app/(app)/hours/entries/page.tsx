@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Card } from "@/components/ui";
 import { getContext } from "@/lib/context";
-import { isHoursHost, requestHost } from "@/lib/hours-host";
 import { titled } from "@/lib/metadata";
 import { hoursPeople, hoursRows, timesheetSettings, todayOf } from "@/lib/timesheet";
 import { addDays, formatMinutes, isDay, weekStart, withinEditWindow } from "@/lib/timesheet-rules";
@@ -14,7 +12,7 @@ import { PersonPicker } from "./person-picker";
 export const generateMetadata = titled("hours.tabs.entries");
 
 /** One week of someone's time, day by day: one's own, or anyone's with timesheets.manage. */
-export default async function HoursEntriesPage({ searchParams }: PageProps<"/horas/registos">) {
+export default async function HoursEntriesPage({ searchParams }: PageProps<"/hours/entries">) {
   const ctx = await getContext();
   const manager = ctx.can("timesheets.manage");
   const t = await getTranslations("hours");
@@ -30,9 +28,9 @@ export default async function HoursEntriesPage({ searchParams }: PageProps<"/hor
   const total = rows.reduce((s, r) => s + r.minutes, 0);
   const self = userId === ctx.user.id;
   const canAdd = manager || ctx.can("timesheets.log");
-  const q = (week: string) => `/horas/registos?week=${week}${self ? "" : `&user=${userId}`}`;
+  const q = (week: string) => `/hours/entries?week=${week}${self ? "" : `&user=${userId}`}`;
   const here = q(ws);
-  const linkWorkOrders = !isHoursHost(requestHost(await headers())) && ctx.can("internal.view");
+  const linkWorkOrders = ctx.can("internal.view");
   const dayTitle = (d: string) => format.dateTime(new Date(`${d}T12:00:00Z`), { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
 
   return (
@@ -74,7 +72,7 @@ export default async function HoursEntriesPage({ searchParams }: PageProps<"/hor
               <span className={`text-sm tabular-nums ${m > 0 && m < dailyMinutes && d < today ? "text-amber-700" : "text-muted"}`}>{formatMinutes(m)}</span>
               {open && (
                 <Link
-                  href={`/horas/novo?date=${d}${self ? "" : `&user=${userId}`}&next=${encodeURIComponent(here)}`}
+                  href={`/hours/new?date=${d}${self ? "" : `&user=${userId}`}&next=${encodeURIComponent(here)}`}
                   className="rounded p-1 text-muted hover:bg-gray-100 hover:text-foreground"
                   title={t("logHours")}
                   aria-label={t("logHours")}

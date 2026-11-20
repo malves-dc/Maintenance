@@ -7,7 +7,7 @@ import { EntryPage, nextParam } from "../entry-page";
 
 export const generateMetadata = titled("hours.logHours");
 
-export default async function NewHoursPage({ searchParams }: PageProps<"/horas/novo">) {
+export default async function NewHoursPage({ searchParams }: PageProps<"/hours/new">) {
   const ctx = await getContext();
   const manager = ctx.can("timesheets.manage");
   if (!ctx.can("timesheets.log") && !manager) redirect("/dashboard");

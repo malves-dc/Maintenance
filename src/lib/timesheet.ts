@@ -5,7 +5,7 @@ import { effectivePermissions } from "@/lib/rbac";
 import { docRef } from "@/lib/series";
 import { addDays, dateToDay, dayToDate, localDay, localTime } from "@/lib/timesheet-rules";
 
-// The Hours section (/horas): hours typed at villas (TimesheetEntry) plus the time logged on work orders (TimeEntry),
+// The Hours section (/hours): hours typed at villas (TimesheetEntry) plus the time logged on work orders (TimeEntry),
 // read together so a person's day, week and the reports add up both. Work-order time is only shown here: it is
 // changed on its work order.
 

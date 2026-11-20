@@ -28,7 +28,7 @@ function groupBy(rows: HoursRow[], key: (r: HoursRow) => string, label: (r: Hour
 }
 
 /** Managers: hours per villa and per person over a period, with a spreadsheet export. */
-export default async function HoursReportPage({ searchParams }: PageProps<"/horas/relatorio">) {
+export default async function HoursReportPage({ searchParams }: PageProps<"/hours/report">) {
   const ctx = await getContext();
   if (!ctx.can("timesheets.manage")) notFound();
   const t = await getTranslations("hours");

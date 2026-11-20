@@ -2655,8 +2655,6 @@
     "undoConfirm": "Mark this work order as not invoiced? The invoice number is removed."
   },
   "hours": {
-    "appName": "DC Horas",
-    "manifestDescription": "Hours worked per villa.",
     "tabs": {
       "today": "Today",
       "entries": "Entries",
@@ -2664,7 +2662,6 @@
       "report": "Report",
       "settings": "Settings"
     },
-    "noAccess": "This account doesn't log hours. Ask an administrator for the \"Log hours\" permission.",
     "today": "Today",
     "thisWeek": "This week",
     "thisMonth": "This month",
@@ -2735,9 +2732,6 @@
     "editDaysHint": "For how many days each person can still add, change or delete their hours (0 = only on the day). People who manage hours always can.",
     "dailyHours": "Hours in a working day",
     "dailyHoursHint": "In the team view, working days with fewer hours are flagged.",
-    "ownAddress": "Own address",
-    "ownAddressOn": "The Hours section opens directly at {hosts}, where it installs as an app of its own.",
-    "ownAddressOff": "It can have its own address (e.g. hours.company.com): point it at this server and set it in the HOURS_HOST variable.",
     "whoLogs": "Who logs hours",
     "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, create a role with just that permission.",
     "errors": {
@@ -2757,28 +2751,14 @@
       "timerRunning": "You already have a timer running.",
       "noTimer": "There's no timer running."
     },
-    "import": {
-      "title": "Import from DC Horas",
-      "intro": "Upload the file exported from the DC Horas app (scripts/export-json.js). People are matched by e-mail and obras to villas by code (or name). Check first; nothing is saved until you press Import. Safe to repeat: identical entries aren't duplicated.",
-      "check": "Check file",
-      "apply": "Import {n, plural, one {# entry} other {# entries}}",
-      "confirm": "Import {n, plural, one {# hours entry} other {# hours entries}}?",
-      "created": "Imported {n, plural, one {# entry} other {# entries}}.",
-      "people": "{n, plural, one {# person found} other {# people found}} in this company",
-      "obras": "{n, plural, one {# obra matched} other {# obras matched}} to villas",
-      "importable": "{n, plural, =0 {No new entries to import} one {# new entry to import} other {# new entries to import}}",
-      "duplicates": "{n, plural, one {# entry already exists} other {# entries already exist}} (left as they are)",
-      "skipped": "{n, plural, one {# entry is left out} other {# entries are left out}}: person or obra not matched (see below)",
-      "invalid": "{n, plural, one {# invalid entry skipped} other {# invalid entries skipped}}",
-      "missingUsers": "People without an account in this company (invite them with the same e-mail and import again):",
-      "missingObras": "Obras with no matching villa (create the villa with the same code and import again):",
-      "entries": "{n, plural, one {# entry} other {# entries}}",
-      "errors": {
-        "noFile": "Choose the file exported from DC Horas.",
-        "badFile": "This file isn't a DC Horas export.",
-        "tooBig": "The file is too large (15 MB at most).",
-        "forbidden": "Only an administrator can import."
-      }
+    "ownAddressOn": "The address {hosts} opens straight on this section.",
+    "ownAddressOff": "An address can open straight here (e.g. hours.company.com): point it at this server and set it in the HOURS_HOST variable.",
+    "ownAddress": "Direct address",
+    "install": {
+      "title": "Install the Hours icon to open this section directly.",
+      "button": "Install icon",
+      "ios": "On iPhone or iPad: tap Share, then \"Add to Home Screen\".",
+      "dismiss": "Don't show again"
     }
   }
 }
