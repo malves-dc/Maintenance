@@ -35,7 +35,9 @@ Click the pencil next to a client user's name to correct it, then click the tick
 
 ## Deactivating and erasing
 
-**Deactivate** removes their access; **Reactivate** gives it back. Once deactivated, **Erase data** deletes their personal data for good, as for staff.
+**Deactivate** removes their access; **Reactivate** gives it back. Once deactivated, **Erase data** deletes their personal data for good, as for staff (see [Staff](/help/users)).
+
+Client users can turn on two-factor sign-in in their profile. If one loses their phone and recovery codes, **Reset two-factor** in their row turns it off so they can sign in with their password; it is greyed out for those who never turned it on.
 
 ## Who can access it
 
@@ -73,7 +75,9 @@ Clique no lápis junto ao nome de um utilizador cliente para o corrigir e depois
 
 ## Desativar e apagar dados
 
-**Desativar** retira o acesso; **Reativar** devolve-o. Depois de desativado, **Apagar dados** elimina definitivamente os dados pessoais, tal como para os colaboradores.
+**Desativar** retira o acesso; **Reativar** devolve-o. Depois de desativado, **Apagar dados** elimina definitivamente os dados pessoais, tal como para os colaboradores (veja [Colaboradores](/help/users)).
+
+Os utilizadores clientes podem ativar a autenticação de dois fatores no seu perfil. Se um perder o telemóvel e os códigos de recuperação, **Repor dois fatores** na sua linha desativa-a para que possa entrar com a palavra-passe; o botão fica a cinzento para quem nunca a ativou.
 
 ## Quem pode aceder
 

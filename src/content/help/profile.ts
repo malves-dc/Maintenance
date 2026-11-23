@@ -13,10 +13,11 @@ Your own details, your password and the notifications you want to receive by e-m
 
 ![My profile: details and password on the left, push and notification choices on the right](profile-page)
 
-The page has five cards:
+The page has six cards:
 
 - **Details**: your name, e-mail and phone.
 - **Password**: change your password.
+- **Two-factor sign-in**: ask for a code from your phone as well as your password.
 - **Push notifications on this device**: turn alerts on for the phone or computer you are using.
 - **What to notify me about**: an e-mail and a push switch for each kind of event.
 - **Your data**: download a copy of your personal data and read the company's privacy notice.
@@ -35,6 +36,28 @@ Your name is what colleagues see on work orders, comments, messages and time ent
 3. Click **Change password**. You will see **Password changed.** when it is done.
 
 > If you forgot your password, you can't change it here: sign out and use the password reset link on the sign-in page instead. If you have no password yet, the current password field is not shown.
+
+## Two-factor sign-in
+
+With two-factor sign-in on, signing in asks for your password and then for a 6-digit code from an authenticator app on your phone (Microsoft Authenticator, Google Authenticator, 1Password…). Someone who learns your password still can't get in without your phone.
+
+To turn it on:
+
+1. In the **Two-factor sign-in** card, click **Set up**.
+2. In the authenticator app, add an account and scan the code shown (or type the key under it).
+3. Type the 6-digit code the app shows and click **Turn on**.
+4. Save the 8 **recovery codes** that appear, in a password manager or printed. Each one works once, in place of the app's code, if you lose your phone. They are not shown again.
+
+From then on, after your password the sign-in page asks for **Code from the app, or a recovery code**. A code works only once and changes every 30 seconds; wrong codes count towards the same lockout as wrong passwords.
+
+The card then offers:
+
+- **New recovery codes**: makes 8 new codes and the old ones stop working. Use it when you have used most of them or think they were seen.
+- **Turn off**: signing in asks only for your password again. It isn't there when your company requires two-factor sign-in for your role.
+
+Both ask for a current code from the app (or a recovery code) first.
+
+> Your company can require two-factor sign-in for administrators and for anyone who can see villa access codes (see [Organization](/help/organization)). If it does, you are sent to the setup page on your next visit and can't use the app until it is on. Lost your phone and your recovery codes? Ask an administrator to reset it from [Staff](/help/users), then set it up again.
 
 ## Language and theme
 
@@ -103,10 +126,11 @@ Os seus dados, a sua palavra-passe e as notificações que quer receber por e-ma
 
 ![O meu perfil: dados e palavra-passe à esquerda, push e escolha de notificações à direita](profile-page)
 
-A página tem cinco cartões:
+A página tem seis cartões:
 
 - **Dados**: o seu nome, e-mail e telefone.
 - **Palavra-passe**: alterar a palavra-passe.
+- **Autenticação de dois fatores**: pedir um código do telemóvel além da palavra-passe.
 - **Notificações push neste dispositivo**: ativar os alertas no telemóvel ou computador que está a usar.
 - **Notificações que quero receber**: um interruptor de e-mail e outro de push para cada tipo de evento.
 - **Os seus dados**: descarregar uma cópia dos seus dados pessoais e ler o aviso de privacidade da empresa.
@@ -125,6 +149,28 @@ O seu nome é o que os colegas veem nas ordens de trabalho, comentários, mensag
 3. Clique em **Alterar palavra-passe**. Quando terminar, aparece **Palavra-passe alterada.**
 
 > Se se esqueceu da palavra-passe, não a pode alterar aqui: termine a sessão e use a ligação de recuperação da palavra-passe na página de início de sessão. Se ainda não tem palavra-passe, o campo da palavra-passe atual não aparece.
+
+## Autenticação de dois fatores
+
+Com a autenticação de dois fatores ativa, o início de sessão pede a palavra-passe e depois um código de 6 dígitos de uma aplicação de autenticação no telemóvel (Microsoft Authenticator, Google Authenticator, 1Password…). Quem descobrir a sua palavra-passe continua sem conseguir entrar sem o seu telemóvel.
+
+Para a ativar:
+
+1. No cartão **Autenticação de dois fatores**, clique em **Configurar**.
+2. Na aplicação de autenticação, adicione uma conta e leia o código mostrado (ou escreva a chave que aparece por baixo).
+3. Escreva o código de 6 dígitos que a aplicação mostra e clique em **Ativar**.
+4. Guarde os 8 **códigos de recuperação** que aparecem, num gestor de palavras-passe ou impressos. Cada um funciona uma vez, em vez do código da aplicação, se perder o telemóvel. Não voltam a ser mostrados.
+
+A partir daí, depois da palavra-passe, a página de início de sessão pede **Código da aplicação ou código de recuperação**. Cada código só funciona uma vez e muda a cada 30 segundos; os códigos errados contam para o mesmo bloqueio que as palavras-passe erradas.
+
+O cartão passa a ter:
+
+- **Novos códigos de recuperação**: cria 8 códigos novos e os anteriores deixam de funcionar. Use-o quando já gastou a maioria ou acha que foram vistos.
+- **Desativar**: o início de sessão volta a pedir só a palavra-passe. Não aparece quando a empresa exige a autenticação de dois fatores para a sua função.
+
+Ambos pedem primeiro um código atual da aplicação (ou um código de recuperação).
+
+> A empresa pode exigir a autenticação de dois fatores aos administradores e a quem pode ver códigos de acesso das moradias (veja [Organização](/help/organization)). Nesse caso, é levado para a página de configuração na próxima visita e não pode usar a aplicação até a ativar. Perdeu o telemóvel e os códigos de recuperação? Peça a um administrador que a reponha em [Colaboradores](/help/users) e configure-a de novo.
 
 ## Idioma e tema
 

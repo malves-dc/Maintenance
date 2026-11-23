@@ -49,9 +49,17 @@ Pick a new role in the drop-down in the person's row. Staff can't be turned into
 
 When someone leaves, click **Deactivate** in their row. They can no longer open this company, but everything they did stays: work orders, time entries, comments and signatures keep their name. **Reactivate** gives the access back.
 
-Once a person is deactivated, an **Erase data** button appears. It removes their name, e-mail, phone, password and notifications for good, so they can no longer sign in. Their jobs and time stay, under "Former user". Use it when someone asks for their personal data to be deleted.
+Once a person is deactivated, an **Erase data** button appears. It removes their name, e-mail, phone, password, two-factor sign-in and notifications for good, so they can no longer sign in. Their jobs and time stay, under "Former user". Use it when someone asks for their personal data to be deleted.
 
-> Erasing can't be undone. If the person also belongs to another company on this server, their account can't be erased from here: deactivating them removes their access to your company.
+If the person also works for another company on this server, the account stays for that company: **Erase data** removes only what your company holds about them (its notifications, their place in your teams, the contact details on requests they made here) and they can't be reactivated. Their name stays on your past jobs until the account itself is erased, which happens when the last company erases them.
+
+> Erasing can't be undone. Former members are listed for review once they have been deactivated for the period set in [Organization](/help/organization) (**Former members and archived clients**); they are never erased on their own.
+
+## Two-factor sign-in
+
+When your company requires two-factor sign-in (see [Organization](/help/organization)), administrators and everyone whose role can see villa access codes must set it up before using the app. Each person sets it up in [My profile](/help/profile).
+
+If someone loses their phone and their recovery codes, click **Reset two-factor** in their row. They then sign in with their password only and, if their role requires it, are asked to set it up again. The button is greyed out for people who haven't turned two-factor sign-in on. Each reset is kept in the [Audit log](/help/audit).
 
 ## Changing someone's name
 
@@ -113,9 +121,17 @@ Escolha a nova função na lista na linha da pessoa. Um colaborador não pode pa
 
 Quando alguém sai, clique em **Desativar** na sua linha. A pessoa deixa de poder abrir esta empresa, mas tudo o que fez fica: ordens de trabalho, registos de tempo, comentários e assinaturas mantêm o seu nome. **Reativar** devolve-lhe o acesso.
 
-Depois de a pessoa estar desativada, aparece o botão **Apagar dados**. Remove definitivamente o nome, e-mail, telefone, palavra-passe e notificações, e a pessoa deixa de poder iniciar sessão. Os trabalhos e o tempo ficam, como "Antigo utilizador". Use-o quando alguém pede que os seus dados pessoais sejam apagados.
+Depois de a pessoa estar desativada, aparece o botão **Apagar dados**. Remove definitivamente o nome, e-mail, telefone, palavra-passe, autenticação de dois fatores e notificações, e a pessoa deixa de poder iniciar sessão. Os trabalhos e o tempo ficam, como "Antigo utilizador". Use-o quando alguém pede que os seus dados pessoais sejam apagados.
 
-> Apagar os dados não pode ser desfeito. Se a pessoa pertencer também a outra empresa neste servidor, a conta não pode ser apagada aqui: desativá-la remove o acesso à sua empresa.
+Se a pessoa trabalhar também para outra empresa neste servidor, a conta mantém-se para essa empresa: **Apagar dados** remove só o que a sua empresa tem sobre ela (as notificações, o lugar nas suas equipas, os contactos nos pedidos que fez aqui) e deixa de poder ser reativada. O nome fica nos trabalhos antigos até a própria conta ser apagada, o que acontece quando a última empresa a apagar.
+
+> Apagar os dados não pode ser desfeito. Os ex-membros são listados para revisão quando estão desativados há mais tempo do que o prazo definido em [Organização](/help/organization) (**Ex-membros e clientes arquivados**); nunca são apagados sozinhos.
+
+## Autenticação de dois fatores
+
+Quando a empresa exige a autenticação de dois fatores (veja [Organização](/help/organization)), os administradores e todas as pessoas cuja função pode ver códigos de acesso das moradias têm de a configurar antes de usar a aplicação. Cada pessoa configura-a em [O meu perfil](/help/profile).
+
+Se alguém perder o telemóvel e os códigos de recuperação, clique em **Repor dois fatores** na sua linha. A pessoa passa a entrar só com a palavra-passe e, se a função o exigir, terá de a configurar de novo. O botão fica a cinzento para quem não ativou a autenticação de dois fatores. Cada reposição fica no [Registo de auditoria](/help/audit).
 
 ## Mudar o nome de uma pessoa
 

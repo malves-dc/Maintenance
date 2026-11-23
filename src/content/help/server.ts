@@ -106,6 +106,7 @@ To a cloud folder:
 
 1. Choose **OneDrive / SharePoint**, **Google Drive** or **WebDAV** (for example Nextcloud).
 2. Set the **Folder** and **Which backups**. **Remove from the cloud the backups removed here** keeps the folder from filling up.
+   Keep **Only copy encrypted backups** ticked: it is on by default, and a backup that isn't encrypted (no BACKUP_PASSWORD on the server) is then not uploaded and the last copy shows as failed. A backup holds all the data and the encryption keys, so it should not sit unencrypted with a cloud provider.
 3. For OneDrive or Google Drive, follow the one-time setup shown on the card: register an app with Microsoft or Google using the redirect address shown (copy it with **Copy**), paste the **Client ID** and **Client secret**, click **Save**, then **Connect** and sign in. For WebDAV, fill in the **WebDAV address**, **Username** and **Password**.
 4. Click **Test upload** to check it works, then **Save**.
 
@@ -222,6 +223,7 @@ Para uma pasta na cloud:
 
 1. Escolha **OneDrive / SharePoint**, **Google Drive** ou **WebDAV** (por exemplo Nextcloud).
 2. Indique a **Pasta** e **Que backups**. **Remover da cloud os backups removidos aqui** evita que a pasta encha.
+   Mantenha **Copiar só backups encriptados** marcado: vem ativo por defeito, e um backup não encriptado (sem BACKUP_PASSWORD no servidor) não é então enviado e a última cópia aparece como falhada. Um backup tem todos os dados e as chaves de encriptação, por isso não deve ficar sem encriptação num fornecedor de cloud.
 3. No OneDrive ou Google Drive, siga a configuração única indicada no cartão: registe uma aplicação na Microsoft ou na Google com o endereço de redirecionamento mostrado (copie-o com **Copiar**), cole o **ID do cliente** e o **Segredo do cliente**, clique em **Guardar**, depois em **Ligar** e inicie sessão. No WebDAV, preencha o **Endereço WebDAV**, **Utilizador** e **Palavra-passe**.
 4. Clique em **Testar envio** para confirmar que funciona e depois em **Guardar**.
 
