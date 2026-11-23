@@ -129,7 +129,8 @@
     "onCall": "On call",
     "clientUsers": "Clients",
     "technical": "Technical",
-    "offices": "Offices"
+    "offices": "Offices",
+    "hours": "Hours"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -288,7 +289,9 @@
     "windowTooLong": "The period can't be longer than a year.",
     "slotRequired": "Confirm the date and time of the visit.",
     "officeNameTaken": "There is already an office with this name.",
-    "bothCoordinates": "Fill in both latitude and longitude, or neither."
+    "bothCoordinates": "Fill in both latitude and longitude, or neither.",
+    "villaRequired": "Choose the villa.",
+    "duration": "Type the hours as 8:00, 7.5 or 45min."
   },
   "clients": {
     "description": "Villa owners, family offices and property managers you work for.",
@@ -1816,9 +1819,7 @@
     "ownerOnly": "Only the Super Admin can change permissions.",
     "customised": "Changed",
     "reset": "Restore defaults",
-    "resetConfirm": "Put this role back to the default permissions?",
-    "staffApp": "Use the staff app",
-    "staffAppHint": "Always on for staff roles; client accounts only see the client portal."
+    "resetConfirm": "Put this role back to the default permissions?"
   },
   "permGroup": {
     "admin": "Administration",
@@ -1826,7 +1827,9 @@
     "sites": "Clients, villas and assets",
     "supply": "Stock and purchasing",
     "insights": "Reports",
-    "finance": "Finance"
+    "finance": "Finance",
+    "timesheets": "Hours",
+    "app": "App"
   },
   "perm": {
     "org": {
@@ -1979,6 +1982,22 @@
       "manage": {
         "label": "Manage on call",
         "hint": "Choose who is in the on-call team and give each week to someone."
+      }
+    },
+    "timesheets": {
+      "log": {
+        "label": "Log hours",
+        "hint": "Log one's own hours at villas, in the Hours section."
+      },
+      "manage": {
+        "label": "Manage hours",
+        "hint": "See and correct everyone's hours, the team view and the hours reports."
+      }
+    },
+    "internal": {
+      "view": {
+        "label": "Access the maintenance app",
+        "hint": "Open the staff app: work orders, villas, assets and the rest. Without it, someone only sees Hours (if they log hours), their profile and notifications."
       }
     }
   },
@@ -2669,5 +2688,112 @@
     "mark": "Mark as invoiced",
     "undo": "Undo: not invoiced",
     "undoConfirm": "Mark this work order as not invoiced? The invoice number is removed."
+  },
+  "hours": {
+    "tabs": {
+      "today": "Today",
+      "entries": "Entries",
+      "team": "Team",
+      "report": "Report",
+      "settings": "Settings"
+    },
+    "today": "Today",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "ofDay": "of {h}",
+    "startedAt": "Started at {time}",
+    "logHours": "Log hours",
+    "editHours": "Change hours",
+    "nothingToday": "No hours today yet.",
+    "woTimeNote": "Time logged on work orders shows here too.",
+    "back": "Back",
+    "edit": "Change",
+    "delete": "Delete",
+    "deleteConfirm": "Delete these hours?",
+    "workOrder": "Work order",
+    "noVilla": "No villa",
+    "pickVilla": "Choose the villa…",
+    "recentVillas": "Recent",
+    "allVillas": "All villas",
+    "timer": "Timer",
+    "whatDone": "What did you do?",
+    "descriptionOptional": "Description (you can write it at the end)",
+    "startTimer": "Start",
+    "stopTimer": "Stop and log",
+    "discard": "Discard",
+    "discardConfirm": "Discard the timer without logging the time?",
+    "save": "Save",
+    "person": "Person",
+    "me": "me",
+    "villa": "Villa",
+    "villaCode": "Code",
+    "date": "Date",
+    "byTimes": "Start and end time",
+    "byDuration": "Total hours",
+    "start": "Start",
+    "end": "End",
+    "breakMinutes": "Break (min)",
+    "duration": "Hours",
+    "durationHint": "For example 8:00, 7.5 or 45min.",
+    "total": "Total",
+    "description": "Working hours per villa: logged here and on work orders.",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "weekTotal": "{total} this week",
+    "noHours": "No hours.",
+    "onTheClock": "On the clock",
+    "since": "since {time}",
+    "noTimers": "Nobody has a timer running.",
+    "weekOf": "Week of {date}",
+    "teamNote": "In amber, past working days under {h}. Counts the time logged here and on work orders.",
+    "from": "From",
+    "to": "To",
+    "all": "All",
+    "apply": "Show",
+    "exportCsv": "Export to a spreadsheet (CSV)",
+    "typedHours": "Logged in Hours",
+    "woHours": "On work orders",
+    "byVilla": "By villa",
+    "byPerson": "By person",
+    "people": "People",
+    "villas": "Villas",
+    "splitHead": "Hours + WO",
+    "hoursCol": "Hours",
+    "source": "Source",
+    "typed": "Hours",
+    "csvName": "hours",
+    "saved": "Saved",
+    "editDays": "Days to change one's own entries",
+    "editDaysHint": "For how many days each person can still add, change or delete their hours (0 = only on the day). People who manage hours always can.",
+    "dailyHours": "Hours in a working day",
+    "dailyHoursHint": "In the team view, working days with fewer hours are flagged.",
+    "whoLogs": "Who logs hours",
+    "whoLogsHint": "Whoever has the \"Log hours\" permission (Settings → Roles). For staff who only log hours, create a role with just that permission and without \"Access the maintenance app\": they see only Hours, their profile and notifications.",
+    "errors": {
+      "date": "Invalid date.",
+      "future": "You can't log hours on future days.",
+      "locked": "This day can no longer be changed. Ask a manager.",
+      "start": "Invalid start time.",
+      "end": "Invalid end time.",
+      "endBeforeStart": "The end time must be after the start.",
+      "breakTooLong": "The break is longer than the time between start and end.",
+      "minutes": "Say how long you worked.",
+      "minutesMax": "An entry can't be over 24 hours.",
+      "dayOver24": "With these hours the day would go over 24 hours (time on work orders counts too).",
+      "description": "Write what you did.",
+      "notFound": "These hours no longer exist.",
+      "person": "That person isn't active in this company.",
+      "timerRunning": "You already have a timer running.",
+      "noTimer": "There's no timer running."
+    },
+    "ownAddressOn": "The address {hosts} opens straight on this section.",
+    "ownAddressOff": "An address can open straight here (e.g. hours.company.com): point it at this server and set it in the HOURS_HOST variable.",
+    "ownAddress": "Direct address",
+    "install": {
+      "title": "Install the Hours icon to open this section directly.",
+      "button": "Install icon",
+      "ios": "On iPhone or iPad: tap Share, then \"Add to Home Screen\".",
+      "dismiss": "Don't show again"
+    }
   }
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { membersWith } from "@/lib/notify";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requirePermission } from "@/lib/context";
@@ -61,7 +62,7 @@ export async function deleteOfficeAction(id: string) {
 
 async function assertStaff(ctx: Awaited<ReturnType<typeof requirePermission>>, userId: string) {
   const m = await ctx.db.membership.findFirst({ where: { userId, role: { not: "REQUESTER" } }, select: { id: true } });
-  if (!m) throw new Error("Invalid user");
+  if (!m || !(await membersWith(ctx.db, "internal.view")).includes(userId)) throw new Error("Invalid user");
 }
 
 export async function addOfficeMemberAction(officeId: string, userId: string) {
