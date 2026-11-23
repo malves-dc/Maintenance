@@ -40,14 +40,27 @@ The **Document footer** is printed at the bottom of service reports and purchase
 
 ## Privacy notice and data retention
 
-The company has a public privacy notice, linked from request forms, the client portal and e-mails. By default the app uses a built-in notice filled in with the company details above. To use your own text, write it in **Custom privacy notice** (plain text, a blank line between paragraphs). **View the public notice** opens it as others see it.
+The company has a public privacy notice, linked from request forms, the client portal and e-mails. By default the app uses a built-in notice filled in with the company details above: who is responsible, what is collected and where it comes from, why, who receives it, transfers outside the EU, how long it is kept (with the periods below, as set here), security and people's rights. To use your own text, write it in **Custom privacy notice** (plain text, a blank line between paragraphs). **View the public notice** opens it as others see it.
 
 **Data retention** sets how long old records are kept. Once a day, older ones are deleted (or, for QR request forms, the requester's contact details are removed). 0 keeps them forever.
 
 - **Notifications (days)**: entries under the bell. Default 90 days.
 - **Security log (months)**: the record of sign-ins and sensitive actions. Default 24 months.
 - **QR requester contact details (months after the decision)**: names, e-mails and phones left by people who reported a fault through a QR code. Default 24 months.
-- **Chat messages (months)**: default 0, kept forever.
+- **Chat messages (months)**: messages between staff. Default 24 months. Work-order comments are job records and are kept.
+- **Former members and archived clients: remind to erase after (months)**: default 24 months. Nothing is deleted: once a deactivated member or an archived client passes this period, a notice under the list shows how many there are, with links to [Staff](/help/users) and the archived clients, so you can review them and erase their data if nothing still needs it.
+
+Devices registered for push notifications are also removed once their user has no access left or hasn't used the app for 180 days.
+
+## Two-factor sign-in
+
+Tick **Require two-factor sign-in for admins and for staff who can see access codes** to make the Super Admin, administrators and every role with the **See access codes** permission sign in with a code from their phone as well as their password. Each of them is sent to the setup page on their next visit and can't use the app until it is on; see [My profile](/help/profile). It is off until you tick it.
+
+> Set up your own first, in [My profile](/help/profile), so you know the steps before your team is asked. People who lose their phone and recovery codes are reset from [Staff](/help/users).
+
+## Data of someone who made a request
+
+People without an account who reported a fault through a QR code can ask for a copy of their data. In the **Data of someone who made a request** card, type the e-mail address they used and click **Download**: you get a file (JSON) with every request they made under that address. Send it to them. Each export is kept in the [Audit log](/help/audit). For clients, use **Export data** on the client page (see [Clients](/help/clients)).
 
 ## Regional settings
 
@@ -134,14 +147,27 @@ O **Rodapé dos documentos** aparece no fundo dos relatórios de serviço e das 
 
 ## Aviso de privacidade e conservação de dados
 
-A empresa tem um aviso de privacidade público, com ligação nos formulários de pedido, no portal do cliente e nos e-mails. Por defeito, a aplicação usa um aviso incluído, preenchido com os dados da empresa acima. Para usar o seu próprio texto, escreva-o em **Aviso de privacidade personalizado** (texto simples, com uma linha em branco entre parágrafos). **Ver o aviso público** abre-o tal como os outros o veem.
+A empresa tem um aviso de privacidade público, com ligação nos formulários de pedido, no portal do cliente e nos e-mails. Por defeito, a aplicação usa um aviso incluído, preenchido com os dados da empresa acima: quem é o responsável, que dados se recolhem e de onde vêm, para quê, quem os recebe, as transferências para fora da UE, durante quanto tempo se guardam (com os prazos abaixo, tal como definidos aqui), a segurança e os direitos das pessoas. Para usar o seu próprio texto, escreva-o em **Aviso de privacidade personalizado** (texto simples, com uma linha em branco entre parágrafos). **Ver o aviso público** abre-o tal como os outros o veem.
 
 A **Conservação de dados** define durante quanto tempo se guardam os registos antigos. Uma vez por dia, os mais antigos são apagados (ou, nos formulários de pedido por QR, são removidos os contactos de quem fez o pedido). 0 guarda-os para sempre.
 
 - **Notificações (dias)**: as entradas do sino. Por defeito, 90 dias.
 - **Registo de segurança (meses)**: o registo de inícios de sessão e ações sensíveis. Por defeito, 24 meses.
 - **Contactos de quem fez pedidos por QR (meses após a decisão)**: nomes, e-mails e telefones deixados por quem comunicou uma avaria através de um código QR. Por defeito, 24 meses.
-- **Mensagens de chat (meses)**: por defeito 0, guardadas para sempre.
+- **Mensagens de chat (meses)**: mensagens entre colaboradores. Por defeito, 24 meses. Os comentários das ordens de trabalho são registos dos trabalhos e ficam guardados.
+- **Ex-membros e clientes arquivados: lembrar de apagar ao fim de (meses)**: por defeito, 24 meses. Nada é apagado: quando um membro desativado ou um cliente arquivado ultrapassa este prazo, um aviso por baixo da lista mostra quantos são, com ligações para [Colaboradores](/help/users) e para os clientes arquivados, para que os reveja e apague os dados se já nada precisar deles.
+
+Os dispositivos registados para notificações push também são removidos quando o utilizador deixa de ter acesso ou não usa a aplicação há 180 dias.
+
+## Autenticação de dois fatores
+
+Marque **Exigir autenticação de dois fatores aos administradores e aos colaboradores que veem códigos de acesso** para que o Super Admin, os administradores e todas as funções com a permissão **Ver códigos de acesso** entrem com um código do telemóvel além da palavra-passe. Cada um é levado para a página de configuração na próxima visita e não pode usar a aplicação até a ativar; veja [O meu perfil](/help/profile). Está desligada até a marcar.
+
+> Configure primeiro a sua, em [O meu perfil](/help/profile), para conhecer os passos antes de a pedir à equipa. Quem perder o telemóvel e os códigos de recuperação é reposto em [Colaboradores](/help/users).
+
+## Dados de quem fez um pedido
+
+Quem não tem conta e comunicou uma avaria por código QR pode pedir uma cópia dos seus dados. No cartão **Dados de quem fez um pedido**, escreva o endereço de e-mail que a pessoa usou e clique em **Descarregar**: obtém um ficheiro (JSON) com todos os pedidos feitos com esse endereço. Envie-o à pessoa. Cada exportação fica no [Registo de auditoria](/help/audit). Para clientes, use **Exportar dados** na página do cliente (veja [Clientes](/help/clients)).
 
 ## Definições regionais
 

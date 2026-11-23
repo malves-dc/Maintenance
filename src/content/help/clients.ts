@@ -69,7 +69,16 @@ A portal user of an owner only ever sees that owner's villas. A portal user of a
 
 **Archive** hides the client from the lists and the pick lists; its villas, jobs and contracts stay. **Restore** brings it back.
 
-If a former client asks to have their personal data removed, archive the client first. **Erase personal data** then removes the name, e-mail, phone, tax number, billing address, notes and all contacts for good; villas, jobs and contracts stay, under "Former client". This can't be undone, and it is refused while the client still has active portal users: deactivate and erase those users first.
+If a client asks for a copy of their personal data, click **Export data** at the top of the client page. It downloads a file (JSON) with the client's details, contacts, portal users, villas (with access notes, never access codes), jobs shared with the client and requests, including the request chats. Send it to the client. Each export is kept in the [Audit log](/help/audit).
+
+If a former client asks to have their personal data removed, archive the client first. **Erase personal data** then removes for good:
+
+- the name, e-mail, phone, tax number, billing address, notes and all contacts;
+- their addresses in the "sent to" lists of past service reports;
+- on the villas they own, the names typed by whoever signed for a job (the signature stays, as proof the work was accepted, without a name) and the details left on QR requests;
+- on those villas that are archived too, the access notes, access codes and photos.
+
+Villas, jobs and contracts stay, under "Former client". This can't be undone, and it is refused while the client still has active portal users: deactivate and erase those users first. Archived clients are listed for review once the period set in [Organization](/help/organization) has passed; they are never erased on their own.
 
 ## Who can do what
 
@@ -140,7 +149,16 @@ Um utilizador do portal de um proprietário só vê as moradias desse proprietá
 
 **Arquivar** esconde o cliente das listas e das escolhas; as suas moradias, trabalhos e contratos mantêm-se. **Restaurar** volta a mostrá-lo.
 
-Se um antigo cliente pedir a remoção dos seus dados pessoais, arquive primeiro o cliente. **Apagar dados pessoais** remove então definitivamente o nome, email, telefone, NIF, morada de faturação, notas e todas as pessoas de contacto; as moradias, trabalhos e contratos ficam, como "Antigo cliente". Não é possível desfazer, e é recusado enquanto o cliente tiver utilizadores do portal ativos: desative e apague primeiro esses utilizadores.
+Se um cliente pedir uma cópia dos seus dados pessoais, clique em **Exportar dados** no topo da página do cliente. Descarrega um ficheiro (JSON) com os dados do cliente, as pessoas de contacto, os utilizadores do portal, as moradias (com as notas de acesso, nunca os códigos de acesso), os trabalhos partilhados com o cliente e os pedidos, incluindo as conversas dos pedidos. Envie-o ao cliente. Cada exportação fica no [Registo de auditoria](/help/audit).
+
+Se um antigo cliente pedir a remoção dos seus dados pessoais, arquive primeiro o cliente. **Apagar dados pessoais** remove então definitivamente:
+
+- o nome, email, telefone, NIF, morada de faturação, notas e todas as pessoas de contacto;
+- os seus endereços nas listas de envio dos relatórios de serviço antigos;
+- nas moradias de que é proprietário, os nomes de quem assinou os trabalhos (a assinatura fica, como prova de que o trabalho foi aceite, sem nome) e os dados deixados em pedidos por QR;
+- nessas moradias que também estejam arquivadas, as notas de acesso, os códigos de acesso e as fotografias.
+
+As moradias, trabalhos e contratos ficam, como "Antigo cliente". Não é possível desfazer, e é recusado enquanto o cliente tiver utilizadores do portal ativos: desative e apague primeiro esses utilizadores. Os clientes arquivados são listados para revisão quando passa o prazo definido em [Organização](/help/organization); nunca são apagados sozinhos.
 
 ## Quem pode fazer o quê
 
