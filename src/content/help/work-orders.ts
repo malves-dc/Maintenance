@@ -66,7 +66,7 @@ The buttons above the filters switch between **List**, **Board** and **Calendar*
 5. Choose the **Villa**, then the **Area / room** and the **Asset**. The asset sets the **System** for you.
 6. Set the **Type** (Reactive, Preventive, Inspection, Installation, Corrective or Emergency) and the **Priority**.
 7. Set the **Start** and **Due** dates and the **Estimated hours** if you know them.
-8. Choose a **Team** and the people under **Assigned to**. Picking a team selects its members when nobody is assigned yet.
+8. Choose a **Team** and the people under **Assigned to**. Picking a team selects its members when nobody is assigned yet; picking another team then swaps them for its members, unless you changed the people by hand.
 9. Tick any **Categories** that apply (for example Warranty or Billable).
 10. Click **Create**. You're taken to the new work order, and the people assigned are notified.
 
@@ -297,7 +297,7 @@ Os botões acima dos filtros alternam entre **Lista**, **Quadro** e **Calendári
 5. Escolha a **Moradia**, depois a **Área / divisão** e o **Equipamento**. O equipamento define o **Sistema** por si.
 6. Defina o **Tipo** (Reativa, Preventiva, Inspeção, Instalação, Corretiva ou Emergência) e a **Prioridade**.
 7. Defina as datas de **Início** e **Prazo** e as **Horas estimadas**, se as souber.
-8. Escolha uma **Equipa** e as pessoas em **Atribuída a**. Ao escolher uma equipa, os seus membros ficam selecionados se ainda não houver ninguém atribuído.
+8. Escolha uma **Equipa** e as pessoas em **Atribuída a**. Ao escolher uma equipa, os seus membros ficam selecionados se ainda não houver ninguém atribuído; se depois escolher outra equipa, as pessoas passam a ser os membros dessa, a não ser que as tenha alterado à mão.
 9. Marque as **Categorias** que se aplicam (por exemplo, Garantia ou Faturável).
 10. Clique em **Criar**. Abre-se a nova ordem de trabalho e as pessoas atribuídas são notificadas.
 

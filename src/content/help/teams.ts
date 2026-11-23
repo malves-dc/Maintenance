@@ -11,7 +11,7 @@ Group technicians by specialty, such as network and A/V or electrical, so that w
 
 A team is a named group of people with an optional specialty and a colour. Teams are used in three places:
 
-- **Work orders**: the **Team** field says which team is responsible. When you pick a team and nobody is assigned yet, its members are pre-selected in **Assigned to**; you can still change them. See [Work orders](/help/work-orders).
+- **Work orders**: the **Team** field says which team is responsible. When you pick a team and nobody is assigned yet, its members are pre-selected in **Assigned to**; picking another team swaps them for its members, as long as you haven't changed the people by hand. You can always change them. See [Work orders](/help/work-orders).
 - **Preventive schedules**: the same **Team** field, with the same shortcut, so every generated work order goes to that team. See [Preventive maintenance](/help/preventive).
 - **Messages**: each team has its own chat channel, which appears automatically for its current members. See [Messages](/help/messages).
 
@@ -50,7 +50,7 @@ Agrupe os técnicos por especialidade, como rede e áudio/vídeo ou eletricidade
 
 Uma equipa é um grupo de pessoas com um nome, uma especialidade opcional e uma cor. As equipas usam-se em três sítios:
 
-- **Ordens de trabalho**: o campo **Equipa** diz qual a equipa responsável. Quando escolhe uma equipa e ainda ninguém está atribuído, os seus membros ficam pré-selecionados em **Atribuída a**; pode sempre alterá-los. Veja [Ordens de trabalho](/help/work-orders).
+- **Ordens de trabalho**: o campo **Equipa** diz qual a equipa responsável. Quando escolhe uma equipa e ainda ninguém está atribuído, os seus membros ficam pré-selecionados em **Atribuída a**; se escolher outra equipa, passam a ser os membros dessa, desde que não tenha alterado as pessoas à mão. Pode sempre alterá-las. Veja [Ordens de trabalho](/help/work-orders).
 - **Planos preventivos**: o mesmo campo **Equipa**, com o mesmo atalho, para que todas as ordens geradas vão para essa equipa. Veja [Manutenção preventiva](/help/preventive).
 - **Mensagens**: cada equipa tem o seu canal de conversa, que aparece automaticamente aos membros atuais. Veja [Mensagens](/help/messages).
 
