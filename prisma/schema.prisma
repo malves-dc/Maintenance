@@ -903,6 +903,7 @@ model WorkOrder {
   attachments    Attachment[]
   request        Request?
   meterReadings  MeterReading[]
+  reportSends    ReportSend[]
   stockMovements StockMovement[]
   purchaseOrders PurchaseOrder[]
   conversation   Conversation?
@@ -1032,6 +1033,19 @@ model TimeEntry {
 
   @@index([workOrderId])
   @@index([userId, startedAt])
+}
+
+/// One e-mail of the service report to one address (lib/report-email.ts): shown under each recipient as "sent on".
+/// Scoped through its work order, like TimeEntry.
+model ReportSend {
+  id          String   @id @default(cuid())
+  workOrderId String
+  email       String
+  sentAt      DateTime @default(now())
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId, email])
 }
 
 model WorkOrderPart {

@@ -130,6 +130,7 @@ export async function anonymizeClient(ctx: AppContext, clientId: string, placeho
     prisma.clientContact.deleteMany({ where: { clientId } }),
     prisma.client.update({ where: { id: clientId, organizationId }, data: anonymizedClientData(placeholder) }),
     ...sent.map((w) => prisma.workOrder.update({ where: { id: w.id, organizationId }, data: { reportSentTo: withoutAddresses(w.reportSentTo, addresses) } })),
+    prisma.reportSend.deleteMany({ where: { email: { in: addresses }, workOrder: { organizationId } } }),
     prisma.workOrder.updateMany({ where: { organizationId, villaId: { in: villaIds }, signedByName: { not: null } }, data: { signedByName: placeholder } }),
     prisma.request.updateMany({
       where: { organizationId, villaId: { in: villaIds }, requesterId: null },

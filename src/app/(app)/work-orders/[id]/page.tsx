@@ -134,6 +134,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   // Trips the contract includes: shown on the job at no charge.
   const includedTrips = travel.rule.included ? countTrips(wo.timeEntries, travel.timeZone, travel.rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes }) : 0;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
+  const day = (d: Date) => format.dateTime(d, { day: "2-digit", month: "2-digit", year: "numeric" });
   const reportEmail = ctx.can("workOrders.sendReport") ? await reportRecipients(ctx, wo.id) : null;
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
   // The conversation with the client on the request this job came from (participants only).
@@ -499,7 +500,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
               <p className="mb-3 text-xs text-muted">{t("reportEmail.hint")}</p>
               <SendReportPanel
                 woId={wo.id}
-                recipients={reportEmail.recipients}
+                recipients={reportEmail.recipients.map((r) => ({ ...r, sentOn: [...new Set((reportEmail.sentOn.get(r.email) ?? []).map(day))] }))}
                 lastSent={reportEmail.wo.reportSentAt ? { at: dt(reportEmail.wo.reportSentAt), count: reportEmail.wo.reportSentTo.length } : null}
               />
             </Card>

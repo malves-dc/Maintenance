@@ -552,7 +552,14 @@ export async function sendReportAction(woId: string, _: FormResult, form: FormDa
   if (extra.emails.length > MAX_EXTRA) return { error: "validation", fieldErrors: { extra: "too_big" } };
   const to = [...new Set([...ticked, ...extra.emails])];
   if (to.length === 0) return { error: "reportEmail.noRecipients" };
-  await sendServiceReport(ctx, woId, to);
+  try {
+    await sendServiceReport(ctx, woId, to);
+  } catch (e) {
+    // The addresses that did get it are already recorded (shown as "sent on" on the page).
+    console.error("Service report e-mail failed", e);
+    revalidatePath(path(woId));
+    return { error: "reportEmail.failed" };
+  }
   revalidatePath(path(woId));
   return { ok: true };
 }

@@ -35,6 +35,7 @@ export async function reportRecipients(ctx: Pick<AppContext, "db" | "organizatio
       year: true, number: true,
       reportSentAt: true,
       reportSentTo: true,
+      reportSends: { select: { email: true, sentAt: true }, orderBy: { sentAt: "asc" } },
       villa: { select: { client: { select: recipientFields }, manager: { select: recipientFields }, billTo: true } },
     },
   });
@@ -62,8 +63,13 @@ export async function reportRecipients(ctx: Pick<AppContext, "db" | "organizatio
     (client?.reportEmails ?? []).map((email): Recipient => ({ email, name: null, source: "clientExtra" })),
     members.map((m): Recipient => ({ email: m.user.email, name: m.user.name, source: "company" })),
     company.emails.map((email): Recipient => ({ email, name: null, source: "company" })),
+    // Addresses it was sent to before that aren't suggested any more (typed by hand, or since removed): offered, not ticked.
+    wo.reportSends.map((s): Recipient => ({ email: s.email, name: null, source: "previous" })),
   );
-  return { wo, recipients };
+  // When the report was e-mailed to each address, oldest first.
+  const sentOn = new Map<string, Date[]>();
+  for (const s of wo.reportSends) sentOn.set(s.email, [...(sentOn.get(s.email) ?? []), s.sentAt]);
+  return { wo, recipients, sentOn };
 }
 
 /** Renders the report in the company's language and sends it to each address separately (no one sees the others). */
@@ -82,8 +88,21 @@ export async function sendServiceReport(ctx: AppContext, workOrderId: string, to
     privacy: { label: t("privacy"), url: brand.privacyUrl },
   });
   const attachments = [{ filename: reportFilename(report.number, report.revision), content: report.pdf }];
-  for (const email of to) await sendEmail({ to: email, subject, ...mail, attachments });
-
-  await ctx.db.workOrder.update({ where: { id: workOrderId }, data: { reportSentAt: new Date(), reportSentTo: to } });
-  await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, { to });
+  // Each address is recorded once its e-mail went out, so a failure half-way still shows who did get it.
+  const sent: string[] = [];
+  try {
+    for (const email of to) {
+      await sendEmail({ to: email, subject, ...mail, attachments });
+      sent.push(email);
+    }
+  } finally {
+    if (sent.length) {
+      const now = new Date();
+      await ctx.db.workOrder.update({
+        where: { id: workOrderId },
+        data: { reportSentAt: now, reportSentTo: sent, reportSends: { create: sent.map((email) => ({ email: email.toLowerCase(), sentAt: now })) } },
+      });
+      await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, { to: sent });
+    }
+  }
 }

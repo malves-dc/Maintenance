@@ -9,7 +9,16 @@ import type { Recipient } from "@/lib/report-recipients";
 import { sendReportAction } from "../actions";
 
 /** E-mail the PDF service report: default recipients ticked, untick or add more, then send. */
-export function SendReportPanel({ woId, recipients, lastSent }: { woId: string; recipients: Recipient[]; lastSent: { at: string; count: number } | null }) {
+export function SendReportPanel({
+  woId,
+  recipients,
+  lastSent,
+}: {
+  woId: string;
+  // sentOn: the days (dd/mm/yyyy) the report was e-mailed to that address.
+  recipients: (Recipient & { sentOn: string[] })[];
+  lastSent: { at: string; count: number } | null;
+}) {
   const t = useTranslations();
   const [state, submit, pending] = useActionForm(sendReportAction.bind(null, woId));
   const error = state?.error && state.error !== "validation" ? (t.has(state.error) ? t(state.error) : t("common.somethingWrong")) : null;
@@ -24,10 +33,11 @@ export function SendReportPanel({ woId, recipients, lastSent }: { woId: string; 
             {recipients.map((r) => (
               <li key={r.email}>
                 <label className="flex items-start gap-2">
-                  <input type="checkbox" name="to" value={r.email} defaultChecked className="mt-0.5 size-4 accent-brand" />
+                  <input type="checkbox" name="to" value={r.email} defaultChecked={r.source !== "previous"} className="mt-0.5 size-4 accent-brand" />
                   <span className="min-w-0">
                     <span className="block truncate">{r.name ? `${r.name} · ${r.email}` : r.email}</span>
                     <span className="block text-xs text-muted">{t(`reportEmail.source.${r.source}`)}</span>
+                    {r.sentOn.length > 0 && <span className="block text-xs text-green-700">{t("reportEmail.sentOn", { dates: r.sentOn.join(", ") })}</span>}
                   </span>
                 </label>
               </li>

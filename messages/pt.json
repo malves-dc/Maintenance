@@ -2073,11 +2073,14 @@
     "lastSent": "Último envio {at} para {count, plural, one {# endereço} other {# endereços}}.",
     "notConfigured": "O e-mail não está configurado neste servidor (Definições → Servidor → E-mail), por isso o relatório não pode ser enviado.",
     "noRecipients": "Escolha ou escreva pelo menos um endereço.",
+    "sentOn": "Enviado a {dates}",
+    "failed": "Não foi possível enviar o relatório a todos os endereços. Os assinalados com \"Enviado a\" receberam-no; tente os restantes de novo.",
     "source": {
       "client": "Cliente",
       "contact": "Contacto do cliente",
       "clientExtra": "Cópia do cliente",
-      "company": "Cópia da empresa"
+      "company": "Cópia da empresa",
+      "previous": "Enviado anteriormente"
     },
     "clientEmails": "Cópias dos relatórios de serviço",
     "clientEmailsHint": "Endereços extra sugeridos ao enviar os relatórios de serviço deste cliente (por exemplo, um family office), um por linha.",
