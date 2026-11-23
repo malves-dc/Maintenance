@@ -253,6 +253,9 @@ model User {
   syncOperations     SyncOperation[]
   articlesCreated    KnowledgeArticle[] @relation("ArticleCreatedBy")
   articlesUpdated    KnowledgeArticle[] @relation("ArticleUpdatedBy")
+  timesheetEntries   TimesheetEntry[]   @relation("TimesheetEntryUser")
+  timesheetCreated   TimesheetEntry[]   @relation("TimesheetEntryCreatedBy")
+  timesheetTimers    TimesheetTimer[]
 }
 
 model Organization {
@@ -301,6 +304,10 @@ model Organization {
   require2fa    Boolean  @default(false)
   // Cost per hour of the built-in roles, e.g. {"TECHNICIAN": 45}; custom roles carry their own (JobRole).
   roleRates     Json?
+  // Hours (/horas, lib/timesheet.ts): days during which people may still change their own past hours (0 = only
+  // today), and the length of a working day, used to show who is short of hours.
+  timesheetEditDays   Int     @default(7)
+  timesheetDailyHours Decimal @default(8) @db.Decimal(4, 2)
   timezone      String   @default("Europe/Lisbon")
   currency      String   @default("EUR")
   defaultLocale String   @default("en")
@@ -340,6 +347,8 @@ model Organization {
   subscription   Subscription?
   syncOperations SyncOperation[]
   articles       KnowledgeArticle[]
+  timesheetEntries TimesheetEntry[]
+  timesheetTimers  TimesheetTimer[]
 }
 
 model Membership {
@@ -564,6 +573,8 @@ model Villa {
   articles     KnowledgeArticle[]
   defaultOffice   Office?               @relation(fields: [defaultOfficeId], references: [id], onDelete: SetNull)
   officeDistances VillaOfficeDistance[]
+  timesheetEntries TimesheetEntry[]
+  timesheetTimers  TimesheetTimer[]
 
   @@index([organizationId, clientId])
   @@index([managerId])
@@ -961,6 +972,48 @@ model WorkOrderComment {
   attachments Attachment[]
 
   @@index([workOrderId, createdAt])
+}
+
+/// Hours worked at a villa, from the Hours section (/horas): typed by hand or from its timer. Time on work orders stays
+/// in TimeEntry; the timesheet shows both and counts both towards a person's day (lib/timesheet.ts).
+model TimesheetEntry {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  villaId        String
+  date           DateTime @db.Date // the day worked, in the company's time zone
+  startTime      String? // HH:MM, optional (minutes alone are enough)
+  endTime        String? // HH:MM; null with a start = ran past midnight
+  minutes        Int
+  description    String
+  createdById    String // who typed it: the person, or a manager on their behalf
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation("TimesheetEntryUser", fields: [userId], references: [id])
+  createdBy    User         @relation("TimesheetEntryCreatedBy", fields: [createdById], references: [id])
+  villa        Villa        @relation(fields: [villaId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, date])
+  @@index([organizationId, userId, date])
+  @@index([villaId, date])
+}
+
+/// The Hours timer: one running per person per company; stopping it writes a TimesheetEntry.
+model TimesheetTimer {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  villaId        String
+  startedAt      DateTime
+  description    String?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  villa        Villa        @relation(fields: [villaId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
 }
 
 model TimeEntry {

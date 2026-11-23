@@ -27,7 +27,7 @@ import { MAX_EXTRA, parseEmailList } from "@/lib/report-recipients";
 const STAFF_REPORT_ROLES: string[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "VIEWER"];
 import { erasedName, eraseMember, ErasureError } from "@/lib/erasure";
 import { emailLayout, sendEmail } from "@/lib/email";
-import { background } from "@/lib/notify";
+import { background, membersWith } from "@/lib/notify";
 import { audit, auditUser, changesOf } from "@/lib/audit";
 import { TIME_ROUNDING_OPTIONS } from "@/lib/billing-time";
 import { clearTwoFactor } from "@/lib/two-factor";
@@ -93,7 +93,7 @@ export async function updateOrgAction(_: FormResult, form: FormData): Promise<Fo
   const reportEmails = parseEmailList(String(form.get("reportCompanyEmails") ?? ""));
   if (reportEmails.invalid.length) return { error: "validation", fieldErrors: { reportCompanyEmails: "badEmails" } };
   const wantedUsers = form.getAll("reportUserIds").map(String);
-  const staffIds = new Set((await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: wantedUsers } }, select: { userId: true } })).map((m) => m.userId));
+  const staffIds = new Set((await ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: (await membersWith(ctx.db, "internal.view")).filter((u) => wantedUsers.includes(u)) } }, select: { userId: true } })).map((m) => m.userId));
   const jobIds = new Set((await ctx.db.jobRole.findMany({ select: { id: true } })).map((j) => `job:${j.id}`));
   const reportRecipients = {
     userIds: wantedUsers.filter((id) => staffIds.has(id)),

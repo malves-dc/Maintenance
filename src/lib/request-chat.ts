@@ -1,8 +1,17 @@
 import "server-only";
 import type { AppContext } from "@/lib/context";
-import { membersWith, notify } from "@/lib/notify";
+import { notify } from "@/lib/notify";
 import { excerpt } from "@/lib/mentions";
-import { mayChat, REQUEST_MESSAGE_MAX, type ChatPayload, type ChatViewer } from "@/lib/request-chat-rules";
+import { effectivePermissions } from "@/lib/rbac";
+import {
+  chatParticipants,
+  mayChat,
+  REQUEST_MESSAGE_MAX,
+  type ChatParticipant,
+  type ChatPayload,
+  type ChatViewer,
+  type ParticipantKind,
+} from "@/lib/request-chat-rules";
 import { docRef } from "@/lib/series";
 
 // The chat on a support request (RequestMessage). It belongs to the request and is shown on the request
@@ -42,15 +51,19 @@ const allowed = (ctx: AppContext, r: Found) => mayChat(viewerOf(ctx), { requeste
 export async function openRequestChat(ctx: AppContext, by: Lookup): Promise<ChatPayload | null> {
   const r = await findRequest(ctx, by);
   if (!r || !allowed(ctx, r)) return null;
-  const rows = await ctx.db.requestMessage.findMany({
-    where: { requestId: r.id },
-    select: { id: true, body: true, createdAt: true, fromClient: true, userId: true, user: { select: { name: true } } },
-    orderBy: { createdAt: "desc" },
-    take: SHOWN,
-  });
+  const [rows, participants] = await Promise.all([
+    ctx.db.requestMessage.findMany({
+      where: { requestId: r.id },
+      select: { id: true, body: true, createdAt: true, fromClient: true, userId: true, user: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+      take: SHOWN,
+    }),
+    participantsOf(ctx, r),
+  ]);
   return {
     requestId: r.id,
     number: docRef(r),
+    participants: participants.map((p) => ({ ...p, mine: p.userId === ctx.user.id })),
     messages: rows.reverse().map((m) => ({
       id: m.id,
       body: m.body,
@@ -79,20 +92,43 @@ export async function postRequestMessage(ctx: AppContext, requestId: string, tex
   await notifyParticipants(ctx, r, body);
 }
 
+/**
+ * Everyone who can read and write the chat. Candidates are the client side (the requester and the portal users
+ * of the villa's owner and property manager) and all active staff; chatParticipants() keeps only those mayChat()
+ * lets in, so this list and the access check can't drift apart.
+ */
+async function participantsOf(ctx: AppContext, r: Found): Promise<ChatParticipant[]> {
+  const clientIds = [r.villa?.clientId, r.villa?.managerId].filter((x): x is string => !!x);
+  const rows = await ctx.db.membership.findMany({
+    where: {
+      active: true,
+      OR: [
+        { role: { not: "REQUESTER" } },
+        ...(r.requesterId ? [{ userId: r.requesterId }] : []),
+        ...(clientIds.length ? [{ role: "REQUESTER" as const, clientId: { in: clientIds } }] : []),
+      ],
+    },
+    select: {
+      userId: true, role: true, clientId: true,
+      user: { select: { name: true } },
+      jobRole: { select: { permissions: true } },
+      organization: { select: { rolePermissions: true } },
+    },
+  });
+  const candidates = rows.map((m) => {
+    const portal = m.role === "REQUESTER";
+    const canManage = !portal && effectivePermissions(m.role, m.organization.rolePermissions, m.jobRole?.permissions).has("requests.chat");
+    return { userId: m.userId, name: m.user.name, portal, clientId: m.clientId, canManage };
+  });
+  return chatParticipants(candidates, { requesterId: r.requesterId, villa: r.villa, assigneeIds: assigneeIds(r) });
+}
+
 /** Tells the other participants, each with a link to where they see the chat. */
 async function notifyParticipants(ctx: AppContext, r: Found, body: string) {
-  const clientIds = [r.villa?.clientId, r.villa?.managerId].filter((x): x is string => !!x);
-  const [portalUsers, managers] = await Promise.all([
-    clientIds.length
-      ? ctx.db.membership.findMany({ where: { active: true, role: "REQUESTER", clientId: { in: clientIds } }, select: { userId: true } })
-      : [],
-    membersWith(ctx.db, "requests.chat", { excludeRoles: ["REQUESTER"] }),
-  ]);
-  const portal = new Set([...(r.requesterId ? [r.requesterId] : []), ...portalUsers.map((m) => m.userId)]);
-  const staff = new Set(managers.filter((id) => !portal.has(id)));
-  const technicians = assigneeIds(r).filter((id) => !portal.has(id) && !staff.has(id));
+  const others = (await participantsOf(ctx, r)).filter((p) => p.userId !== ctx.user.id);
+  const ids = (kind: ParticipantKind) => others.filter((p) => p.kind === kind).map((p) => p.userId);
   const data = { number: docRef(r), title: r.title, actor: ctx.user.name, excerpt: excerpt(body, 140) };
-  await notify(ctx, [...portal], { type: "REQUEST_MESSAGE", data, link: `/portal/requests/${r.id}` });
-  await notify(ctx, [...staff], { type: "REQUEST_MESSAGE", data, link: `/requests/${r.id}` });
-  if (r.workOrder) await notify(ctx, technicians, { type: "REQUEST_MESSAGE", data, link: `/work-orders/${r.workOrder.id}` });
+  await notify(ctx, ids("client"), { type: "REQUEST_MESSAGE", data, link: `/portal/requests/${r.id}` });
+  await notify(ctx, ids("staff"), { type: "REQUEST_MESSAGE", data, link: `/requests/${r.id}` });
+  if (r.workOrder) await notify(ctx, ids("technician"), { type: "REQUEST_MESSAGE", data, link: `/work-orders/${r.workOrder.id}` });
 }

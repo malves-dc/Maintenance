@@ -6,7 +6,7 @@ vi.mock("server-only", () => ({}));
 // tenantDb() hands its extension to prisma.$extends: return it so the guard can be called directly.
 vi.mock("@/lib/db/client", () => ({ prisma: { $extends: (ext: unknown) => ext } }));
 
-import { breaksAppendOnly, mayChat, type ChatRequest, type ChatViewer } from "@/lib/request-chat-rules";
+import { breaksAppendOnly, chatParticipants, mayChat, type ChatRequest, type ChatViewer } from "@/lib/request-chat-rules";
 import { portalScopes } from "@/lib/portal-scope";
 import { defaultPermissions, effectivePermissions } from "@/lib/rbac";
 import { tenantDb } from "@/lib/db/tenant";
@@ -70,6 +70,29 @@ describe("request chat: who takes part", () => {
     expect(defaultPermissions("TECHNICIAN")).not.toContain("requests.chat");
     expect(defaultPermissions("VIEWER")).not.toContain("requests.chat");
     expect(effectivePermissions("REQUESTER", { REQUESTER: ["requests.chat"] }).has("requests.chat")).toBe(false);
+  });
+});
+
+describe("request chat: participant list", () => {
+  it("lists exactly who mayChat lets in, client side first, then staff, then technicians", () => {
+    const named = (v: ChatViewer, name: string) => ({ ...v, name });
+    const list = chatParticipants(
+      [
+        named(staff("rui", false), "Rui"), // assigned technician
+        named(staff("ana", true), "Ana"), // manager
+        named(staff("tom", false), "Tom"), // technician not on the job
+        named(portal("james", "whitmore"), "James"),
+        named(portal("agent", "pm"), "Agent"),
+        named(portal("eva", "bergstrom"), "Eva"), // another client
+      ],
+      request,
+    );
+    expect(list.map((p) => [p.userId, p.kind])).toEqual([
+      ["agent", "client"],
+      ["james", "client"],
+      ["ana", "staff"],
+      ["rui", "technician"],
+    ]);
   });
 });
 

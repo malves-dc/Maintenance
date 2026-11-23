@@ -1,3 +1,4 @@
+import { membersWith } from "@/lib/notify";
 import { getContext } from "@/lib/context";
 import { ACTIVE_STATUSES, jobTechnicians } from "@/lib/work-orders";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
@@ -35,7 +36,7 @@ export async function GET() {
   const villaIds = [...new Set(wos.map((w) => w.villa?.id).filter((x): x is string => !!x))];
   const [assets, members, articles] = await Promise.all([
     ctx.db.asset.findMany({ where: { villaId: { in: villaIds }, archivedAt: null }, select: { id: true, name: true, qrToken: true, villa: { select: { name: true } } } }),
-    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } }),
+    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: await membersWith(ctx.db, "internal.view") } }, select: { user: { select: { id: true, name: true } } } }),
     // The villas' knowledge base (text; files need a connection). Staff only, like the rest of the app.
     ctx.can("internal.view")
       ? ctx.db.knowledgeArticle.findMany({ where: { villaId: { in: villaIds } }, select: { ...ARTICLE_LIST_SELECT, villaId: true }, take: MAX_ARTICLES })

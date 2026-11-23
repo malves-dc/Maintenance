@@ -131,7 +131,8 @@
     "onCall": "Prevenção",
     "clientUsers": "Clientes",
     "technical": "Técnico",
-    "offices": "Escritórios"
+    "offices": "Escritórios",
+    "hours": "Horas"
   },
   "roles": {
     "OWNER": "Super Admin",
@@ -290,7 +291,9 @@
     "windowTooLong": "O período não pode ter mais de um ano.",
     "slotRequired": "Confirme a data e a hora da visita.",
     "officeNameTaken": "Já existe um escritório com este nome.",
-    "bothCoordinates": "Preencha a latitude e a longitude, ou nenhuma."
+    "bothCoordinates": "Preencha a latitude e a longitude, ou nenhuma.",
+    "villaRequired": "Escolha a moradia.",
+    "duration": "Escreva as horas como 8:00, 7,5 ou 45min."
   },
   "clients": {
     "description": "Proprietários, family offices e gestores de propriedades para quem trabalha.",
@@ -1877,9 +1880,7 @@
     "ownerOnly": "Só o Super Admin pode alterar as permissões.",
     "customised": "Alterada",
     "reset": "Repor as permissões por defeito",
-    "resetConfirm": "Repor as permissões por defeito desta função?",
-    "staffApp": "Usar a app da equipa",
-    "staffAppHint": "Sempre ativo nas funções da equipa; as contas de cliente só veem o portal do cliente."
+    "resetConfirm": "Repor as permissões por defeito desta função?"
   },
   "permGroup": {
     "admin": "Administração",
@@ -1887,7 +1888,9 @@
     "sites": "Clientes, moradias e ativos",
     "supply": "Stock e compras",
     "insights": "Relatórios",
-    "finance": "Finanças"
+    "finance": "Finanças",
+    "timesheets": "Horas",
+    "app": "Aplicação"
   },
   "perm": {
     "org": {
@@ -2040,6 +2043,22 @@
       "manage": {
         "label": "Gerir prevenção",
         "hint": "Escolher quem faz parte da equipa de prevenção e atribuir cada semana a alguém."
+      }
+    },
+    "timesheets": {
+      "log": {
+        "label": "Registar horas",
+        "hint": "Registar as próprias horas nas moradias, na secção Horas."
+      },
+      "manage": {
+        "label": "Gerir horas",
+        "hint": "Ver e corrigir as horas de todos, a vista da equipa e os relatórios de horas."
+      }
+    },
+    "internal": {
+      "view": {
+        "label": "Acesso à app de manutenção",
+        "hint": "Abrir a app da equipa: ordens de trabalho, moradias, equipamentos e o resto. Sem esta permissão, a pessoa só vê as Horas (se as registar), o perfil e as notificações."
       }
     }
   },
@@ -2735,7 +2754,14 @@
     "sendFailed": "Não foi possível enviar. Verifique a ligação e tente de novo.",
     "emptyMessage": "Escreva primeiro uma mensagem.",
     "tooLong": "A mensagem é demasiado longa.",
-    "forbidden": "Não pode participar nesta conversa."
+    "forbidden": "Não pode participar nesta conversa.",
+    "participants": "{count, plural, one {# participante} other {# participantes}}",
+    "participantsHint": "Estas pessoas podem ler esta conversa e escrever nela.",
+    "kind": {
+      "client": "Cliente",
+      "staff": "Gestão",
+      "technician": "Técnico"
+    }
   },
   "billing": {
     "title": "Faturação",
@@ -2747,5 +2773,112 @@
     "mark": "Marcar como faturada",
     "undo": "Anular: por faturar",
     "undoConfirm": "Marcar esta ordem de trabalho como por faturar? O número da fatura é removido."
+  },
+  "hours": {
+    "tabs": {
+      "today": "Hoje",
+      "entries": "Registos",
+      "team": "Equipa",
+      "report": "Relatório",
+      "settings": "Definições"
+    },
+    "today": "Hoje",
+    "thisWeek": "Esta semana",
+    "thisMonth": "Este mês",
+    "ofDay": "de {h}",
+    "startedAt": "Começou às {time}",
+    "logHours": "Registar horas",
+    "editHours": "Alterar horas",
+    "nothingToday": "Ainda não há horas hoje.",
+    "woTimeNote": "O tempo registado nas ordens de trabalho também aparece aqui.",
+    "back": "Voltar",
+    "edit": "Alterar",
+    "delete": "Eliminar",
+    "deleteConfirm": "Eliminar este registo de horas?",
+    "workOrder": "Ordem de trabalho",
+    "noVilla": "Sem moradia",
+    "pickVilla": "Escolha a moradia…",
+    "recentVillas": "Recentes",
+    "allVillas": "Todas as moradias",
+    "timer": "Cronómetro",
+    "whatDone": "O que fez?",
+    "descriptionOptional": "Descrição (pode escrever no fim)",
+    "startTimer": "Iniciar",
+    "stopTimer": "Parar e registar",
+    "discard": "Descartar",
+    "discardConfirm": "Descartar o cronómetro sem registar o tempo?",
+    "save": "Guardar",
+    "person": "Colaborador",
+    "me": "eu",
+    "villa": "Moradia",
+    "villaCode": "Código",
+    "date": "Data",
+    "byTimes": "Hora de início e fim",
+    "byDuration": "Total de horas",
+    "start": "Início",
+    "end": "Fim",
+    "breakMinutes": "Pausa (min)",
+    "duration": "Horas",
+    "durationHint": "Por exemplo 8:00, 7,5 ou 45min.",
+    "total": "Total",
+    "description": "Horas de trabalho por moradia: registadas aqui e nas ordens de trabalho.",
+    "prevWeek": "Semana anterior",
+    "nextWeek": "Semana seguinte",
+    "weekTotal": "{total} na semana",
+    "noHours": "Sem horas.",
+    "onTheClock": "Com o cronómetro a contar",
+    "since": "desde as {time}",
+    "noTimers": "Ninguém tem o cronómetro a contar.",
+    "weekOf": "Semana de {date}",
+    "teamNote": "A amarelo, os dias úteis passados com menos de {h}. Conta o tempo registado aqui e nas ordens de trabalho.",
+    "from": "De",
+    "to": "Até",
+    "all": "Todos",
+    "apply": "Ver",
+    "exportCsv": "Exportar para folha de cálculo (CSV)",
+    "typedHours": "Registadas em Horas",
+    "woHours": "Em ordens de trabalho",
+    "byVilla": "Por moradia",
+    "byPerson": "Por colaborador",
+    "people": "Pessoas",
+    "villas": "Moradias",
+    "splitHead": "Horas + OT",
+    "hoursCol": "Horas",
+    "source": "Origem",
+    "typed": "Horas",
+    "csvName": "horas",
+    "saved": "Guardado",
+    "editDays": "Dias para alterar os próprios registos",
+    "editDaysHint": "Durante quantos dias cada pessoa ainda pode acrescentar, alterar ou eliminar as suas horas (0 = só no próprio dia). Quem gere horas pode sempre.",
+    "dailyHours": "Horas de um dia de trabalho",
+    "dailyHoursHint": "Na vista da equipa, os dias úteis com menos horas ficam assinalados.",
+    "whoLogs": "Quem regista horas",
+    "whoLogsHint": "Quem tem a permissão «Registar horas» (Definições → Funções). Para colaboradores que só registam horas, crie uma função só com essa permissão e sem «Acesso à app de manutenção»: veem apenas as Horas, o perfil e as notificações.",
+    "errors": {
+      "date": "Data inválida.",
+      "future": "Não pode registar horas em dias futuros.",
+      "locked": "Este dia já não pode ser alterado. Peça a um responsável.",
+      "start": "Hora de início inválida.",
+      "end": "Hora de fim inválida.",
+      "endBeforeStart": "A hora de fim tem de ser depois da de início.",
+      "breakTooLong": "A pausa é maior do que o tempo entre o início e o fim.",
+      "minutes": "Indique quanto tempo trabalhou.",
+      "minutesMax": "Um registo não pode passar de 24 horas.",
+      "dayOver24": "Com este registo o dia passaria de 24 horas (conta também o tempo nas ordens de trabalho).",
+      "description": "Escreva o que fez.",
+      "notFound": "Este registo já não existe.",
+      "person": "Esse colaborador não está ativo nesta empresa.",
+      "timerRunning": "Já tem um cronómetro a contar.",
+      "noTimer": "Não há nenhum cronómetro a contar."
+    },
+    "ownAddressOn": "O endereço {hosts} abre diretamente nesta secção.",
+    "ownAddressOff": "Pode ter um endereço que abre diretamente aqui (por exemplo horas.empresa.pt): aponte-o para este servidor e indique-o na variável HOURS_HOST.",
+    "ownAddress": "Endereço direto",
+    "install": {
+      "title": "Instale o ícone das Horas para abrir diretamente esta secção.",
+      "button": "Instalar ícone",
+      "ios": "No iPhone ou iPad: toque em Partilhar e depois em «Adicionar ao ecrã principal».",
+      "dismiss": "Não mostrar mais"
+    }
   }
 }

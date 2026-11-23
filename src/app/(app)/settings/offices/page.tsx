@@ -1,3 +1,4 @@
+import { membersWith } from "@/lib/notify";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Star, Trash2 } from "lucide-react";
@@ -22,7 +23,7 @@ export default async function OfficesPage() {
       },
       orderBy: { name: "asc" },
     }),
-    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" } }, select: { user: { select: { id: true, name: true } } } }),
+    ctx.db.membership.findMany({ where: { active: true, role: { not: "REQUESTER" }, userId: { in: await membersWith(ctx.db, "internal.view") } }, select: { user: { select: { id: true, name: true } } } }),
     ctx.db.villa.count({ where: { archivedAt: null } }),
   ]);
   const people = members.map((m) => m.user).sort((a, b) => a.name.localeCompare(b.name));

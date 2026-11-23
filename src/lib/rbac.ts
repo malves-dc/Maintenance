@@ -32,7 +32,11 @@ export const PERMISSIONS = {
   "purchasing.approve": ["OWNER", "ADMIN"],
   "vendors.manage": ["OWNER", "ADMIN", "MANAGER"],
   "reports.view": ["OWNER", "ADMIN", "MANAGER", "VIEWER", "ACCOUNTANT"],
-  "internal.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"], // anything not client-facing
+  "timesheets.log": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // Hours (/hours): log one's own hours at villas
+  "timesheets.manage": ["OWNER", "ADMIN", "MANAGER"], // Hours: everyone's hours, the team view, reports and settings
+  // The staff app itself: anything not client-facing. On for every staff role by default; without it someone only sees
+  // the Hours (with timesheets.log), their profile, notifications and help (see appOffAllows).
+  "internal.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCOUNTANT"],
 } as const satisfies Record<string, readonly Role[]>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -43,16 +47,15 @@ export const EDITABLE_ROLES = ["ADMIN", "MANAGER", "TECHNICIAN", "VIEWER", "ACCO
 export type EditableRole = (typeof EDITABLE_ROLES)[number];
 export const isEditableRole = (r: string): r is EditableRole => (EDITABLE_ROLES as readonly string[]).includes(r);
 
-/** Always on for staff roles: it is access to the staff app itself (without it an account can't open anything). */
-export const STAFF_BASE: Permission[] = ["internal.view"];
-
 /** Permissions shown in Settings → Roles, by section. */
 export const PERMISSION_GROUPS: { key: string; permissions: Permission[] }[] = [
+  { key: "app", permissions: ["internal.view"] },
   { key: "admin", permissions: ["org.manage", "users.manage", "onCall.manage", "teams.manage", "audit.view"] },
   { key: "work", permissions: ["workOrders.create", "workOrders.execute", "workOrders.manage", "workOrders.sendReport", "requests.create", "requests.approve", "requests.chat", "pm.manage", "procedures.manage"] },
   { key: "sites", permissions: ["clients.manage", "contracts.manage", "assets.manage", "secrets.view", "knowledge.manage"] },
   { key: "supply", permissions: ["inventory.use", "inventory.manage", "vendors.manage", "purchasing.manage", "purchasing.approve"] },
   { key: "insights", permissions: ["reports.view"] },
+  { key: "timesheets", permissions: ["timesheets.log", "timesheets.manage"] },
   { key: "finance", permissions: ["costs.view", "billing.view", "billing.manage"] },
 ];
 export const GRANTABLE: Permission[] = PERMISSION_GROUPS.flatMap((g) => g.permissions);
@@ -95,20 +98,29 @@ export function jobRolePermissionsFor(access: string, own: unknown, overrides: R
 
 /**
  * Effective permissions of a member: everything for the Super Admin, the fixed set for clients, else the
- * custom role's own list, or its access level's (possibly overridden) list — plus access to the staff app.
+ * custom role's own list, or its access level's (possibly overridden) list. Access to the staff app (internal.view)
+ * is one of them: a role can do without it (e.g. people who only log hours).
  */
 export function effectivePermissions(role: Role, orgOverrides: unknown, jobRolePermissions?: unknown): Set<Permission> {
   if (role === "OWNER") return new Set(ALL_PERMISSIONS);
   if (!isEditableRole(role)) return new Set(defaultPermissions(role));
   const own = parsePermissionList(jobRolePermissions);
   const list = own ?? rolePermissionsFor(role, parseRolePermissions(orgOverrides));
-  return new Set([...STAFF_BASE, ...list.filter(isPermission)]);
+  return new Set(list.filter(isPermission));
 }
 
 /** Default matrix check (no company overrides); prefer ctx.can(), which applies them. */
 export function can(role: Role, permission: Permission): boolean {
   return (PERMISSIONS[permission] as readonly Role[]).includes(role);
 }
+
+/** Staff without the staff app may open the Hours, their profile, notifications and help; anything else → home. */
+export function appOffAllows(pathname: string) {
+  return /^\/(hours|settings\/profile|notifications|help)(\/|$)/.test(pathname);
+}
+
+/** Where staff without the staff app land: the Hours when they log hours, else their profile. */
+export const appOffHome = (logsHours: boolean) => (logsHours ? "/hours" : "/settings/profile");
 
 export const ASSIGNABLE_ROLES: Role[] = ["ADMIN", "MANAGER", "TECHNICIAN", "ACCOUNTANT", "REQUESTER", "VIEWER"];
 

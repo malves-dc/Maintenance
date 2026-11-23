@@ -8,11 +8,17 @@ import { getContext } from "@/lib/context";
 import { unreadConversations } from "@/lib/conversations";
 import { brandStyle, logoSrc } from "@/lib/branding";
 import { getTranslations } from "next-intl/server";
+import { headers } from "next/headers";
+import { appOffAllows, appOffHome } from "@/lib/rbac";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getContext();
   // Client users live in the portal.
   if (ctx.role === "REQUESTER") redirect("/portal");
+  // Staff without "Access the maintenance app" (e.g. a role that only logs hours) see the hours, their profile,
+  // notifications and help; any other page sends them home.
+  const appOff = !ctx.can("internal.view");
+  if (appOff && !appOffAllows((await headers()).get("x-pathname") ?? "/")) redirect(appOffHome(ctx.can("timesheets.log")));
   const t = await getTranslations();
 
   const [pendingRequests, posToApprove, unreadMessages, unreadNotifications] = await Promise.all([
@@ -26,7 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const groups = NAV.map((g) => ({
     ...g,
     items: g.items
-      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)))
+      .filter((i) => i.ready && (!i.permission || ctx.can(i.permission)) && (!appOff || appOffAllows(i.href)))
       .map((i) => (badges[i.href] ? { ...i, badge: badges[i.href] } : i)),
   })).filter((g) => g.items.length > 0);
   const version = (await getServerSettings()).showVersion ? await runningVersion() : null;

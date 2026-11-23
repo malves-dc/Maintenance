@@ -9,7 +9,7 @@ import { resetRolePermissionsAction } from "../../actions";
 type Group = { key: string; title: string; items: { permission: string; label: string; hint: string }[] };
 
 /** One row per permission: its name and what it allows on the left, a single checkbox ("perm") on the right. */
-export function PermissionList({ groups, granted, staffApp, disabled }: { groups: Group[]; granted: string[]; staffApp: boolean; disabled: boolean }) {
+export function PermissionList({ groups, granted, disabled }: { groups: Group[]; granted: string[]; disabled: boolean }) {
   const t = useTranslations("perms");
   const [on, setOn] = useState(() => new Set(granted));
   const toggle = (p: string, checked: boolean) =>
@@ -22,9 +22,6 @@ export function PermissionList({ groups, granted, staffApp, disabled }: { groups
 
   return (
     <Card className="overflow-hidden [&>section:last-child>label:last-child]:border-0">
-      <Row label={t("staffApp")} hint={t("staffAppHint")}>
-        <input type="checkbox" checked={staffApp} disabled readOnly aria-label={t("staffApp")} className="size-5 accent-brand disabled:opacity-60" />
-      </Row>
       {groups.map((g) => (
         <section key={g.key}>
           <div className="flex items-baseline justify-between border-b border-border bg-gray-50 px-5 pb-2 pt-4 text-xs text-muted">
