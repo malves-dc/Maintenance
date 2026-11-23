@@ -1745,6 +1745,10 @@
         "title": "Quem os recebe",
         "body": "Apenas os nossos colaboradores que deles precisam para o seu trabalho, e prestadores de serviços que alojam o sistema ou enviam e-mails em nosso nome, ao abrigo de um acordo de tratamento de dados. Não vendemos os seus dados nem os usamos para publicidade."
       },
+      "transfers": {
+        "title": "Transferências para fora da UE",
+        "body": "Alguns destes prestadores, como o serviço de envio de e-mails ou o armazenamento na cloud onde ficam as cópias de segurança encriptadas, podem estar fora do Espaço Económico Europeu (por exemplo, nos Estados Unidos). Essas transferências baseiam-se numa decisão de adequação da Comissão Europeia (incluindo o Quadro de Privacidade de Dados UE-EUA) ou nas cláusulas contratuais-tipo da Comissão. Pode pedir-nos a lista destes prestadores e uma cópia das garantias."
+      },
       "retention": {
         "title": "Durante quanto tempo os guardamos",
         "body": "Enquanto lhe prestarmos serviços e, depois, pelos prazos exigidos por lei (por exemplo, registos contabilísticos). Os dados que deixem de ser necessários são apagados ou anonimizados."
