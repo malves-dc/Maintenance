@@ -2,8 +2,10 @@ import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { companyLines, logoSrc, type LogoOrg } from "@/lib/branding";
 import { paragraphs, PRIVACY_SECTIONS } from "@/lib/privacy";
+import { parseRetention, retentionNoticeLines } from "@/lib/retention-rules";
 
 type Org = LogoOrg & {
+  retention: unknown;
   name: string;
   legalName: string | null;
   taxId: string | null;
@@ -47,6 +49,17 @@ export async function PrivacyNotice({ org }: { org: Org }) {
             <section key={s}>
               <h2 className="mb-1 font-medium">{t(`privacy.default.${s}.title`)}</h2>
               <p className="whitespace-pre-line text-muted">{t(`privacy.default.${s}.body`, { company, contact })}</p>
+              {/* The company's own periods (Settings → Organization), so the notice says what the system really does. */}
+              {s === "retention" && (
+                <>
+                  <p className="mt-2 text-muted">{t("privacy.default.retention.periods")}</p>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted">
+                    {retentionNoticeLines(parseRetention(org.retention)).map((l) => (
+                      <li key={l.key}>{t(`privacy.default.retention.${l.key}`, { n: l.n })}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </section>
           ))
         )}

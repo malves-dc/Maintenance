@@ -8,7 +8,7 @@ import { emailLayout, sendEmail } from "@/lib/email";
 import { dataDir, getAppName, getServerSettings, updateServerSettings } from "@/lib/server-settings";
 import { isEncrypted } from "@/lib/backup-crypto";
 import { parseBackupName } from "@/lib/backup-schedule";
-import { cloudReady, emailPlan, isCopyKind, type BackupCopies } from "@/lib/backup-copies-settings";
+import { cloudPlan, cloudReady, emailPlan, type BackupCopies } from "@/lib/backup-copies-settings";
 import type { CloudTarget } from "@/lib/cloud/target";
 import { webdavTarget } from "@/lib/cloud/webdav";
 import { onedriveTarget } from "@/lib/cloud/onedrive";
@@ -100,12 +100,15 @@ async function emailCopy(e: BackupCopies["email"], file: string, name: string, k
   }
 }
 
-async function cloudCopy(c: BackupCopies["cloud"], file: string, name: string, kind: string, size: number, removed: string[]) {
+async function cloudCopy(c: BackupCopies["cloud"], file: string, name: string, kind: string, size: number, encrypted: boolean, removed: string[]) {
   const target = cloudTarget(c);
   if (!target) return;
-  const upload = isCopyKind(kind) && c.kinds.includes(kind);
+  const plan = cloudPlan(c, { kind, encrypted });
+  const upload = plan === "upload";
   // Only backups this app names (and of kinds sent there) are ever deleted remotely.
   const toRemove = c.mirrorDeletes ? removed.filter((n) => parseBackupName(n)) : [];
+  // An unencrypted backup never leaves the server; the failure shows in Settings → Server.
+  if (plan === "notEncrypted") await record("cloud", { name, ok: false, detail: "notEncrypted" });
   if (!upload && !toRemove.length) return;
   try {
     if (upload) await target.upload(file, name, size);
@@ -123,7 +126,7 @@ export async function copyBackup(file: string, kind: string, removed: string[] =
     const name = path.basename(file);
     const size = (await stat(file)).size;
     const encrypted = await isEncrypted(file);
-    await Promise.all([emailCopy(settings.email, file, name, kind, size, encrypted), cloudCopy(settings.cloud, file, name, kind, size, removed)]);
+    await Promise.all([emailCopy(settings.email, file, name, kind, size, encrypted), cloudCopy(settings.cloud, file, name, kind, size, encrypted, removed)]);
   } catch (err) {
     console.error("[backup-copies]", err);
   }

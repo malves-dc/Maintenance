@@ -58,8 +58,8 @@ export default async function ClientUsersPage() {
               {members.map((m) => (
                 <tr key={m.id} className={m.active ? "" : "opacity-60"}>
                   <td>
-                    {m.user.erasedAt ? <div className="font-medium">{m.user.name}</div> : <MemberName id={m.id} name={m.user.name} />}
-                    {!m.user.erasedAt && <div className="text-xs text-muted">{m.user.email}</div>}
+                    {(m.erasedAt || m.user.erasedAt) ? <div className="font-medium">{m.user.name}</div> : <MemberName id={m.id} name={m.user.name} />}
+                    {!(m.erasedAt || m.user.erasedAt) && <div className="text-xs text-muted">{m.user.email}</div>}
                   </td>
                   <td>
                     {m.client ? (
@@ -78,10 +78,10 @@ export default async function ClientUsersPage() {
                   </td>
                   <td>
                     <Badge className={m.active ? "bg-green-50 text-green-700" : ""}>
-                      {m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
+                      {m.erasedAt || m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
                     </Badge>
                   </td>
-                  <td className="text-right">{!m.user.erasedAt && <MemberControls id={m.id} active={m.active} />}</td>
+                  <td className="text-right">{!(m.erasedAt || m.user.erasedAt) && <MemberControls id={m.id} active={m.active} twoFactor={!!m.user.totpEnabledAt} />}</td>
                 </tr>
               ))}
             </tbody>

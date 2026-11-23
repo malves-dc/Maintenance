@@ -310,6 +310,7 @@ export default async function ServerSettingsPage({ searchParams }: PageProps<"/s
                 provider: bc.provider,
                 kinds: bc.kinds,
                 folder: bc.folder,
+                encryptedOnly: bc.encryptedOnly,
                 mirrorDeletes: bc.mirrorDeletes,
                 onedrive: { tenant: bc.onedrive.tenant, clientId: bc.onedrive.clientId, hasSecret: !!bc.onedrive.clientSecretEnc, siteUrl: bc.onedrive.siteUrl, account: bc.onedrive.account, connected: !!bc.onedrive.refreshTokenEnc },
                 gdrive: { clientId: bc.gdrive.clientId, hasSecret: !!bc.gdrive.clientSecretEnc, account: bc.gdrive.account, connected: !!bc.gdrive.refreshTokenEnc },

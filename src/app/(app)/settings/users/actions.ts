@@ -19,8 +19,9 @@ export async function renameMemberAction(membershipId: string, _: FormResult, fo
   const ctx = await requirePermission("users.manage");
   const parsed = parseForm(nameSchema, form);
   if (parsed.error) return parsed.error;
-  const m = await ctx.db.membership.findUnique({ where: { id: membershipId }, select: { role: true, userId: true, user: { select: { name: true, erasedAt: true } } } });
-  if (!m || m.user.erasedAt || (m.role === "OWNER" && ctx.role !== "OWNER")) return { error: "somethingWrong" };
+  const m = await ctx.db.membership.findUnique({ where: { id: membershipId }, select: { role: true, userId: true, erasedAt: true, user: { select: { name: true, erasedAt: true } } } });
+  // A member this company erased (lib/erasure.ts) is no longer its to rename.
+  if (!m || m.erasedAt || m.user.erasedAt || (m.role === "OWNER" && ctx.role !== "OWNER")) return { error: "somethingWrong" };
   const name = parsed.data.name;
   if (name !== m.user.name) {
     // User isn't a tenant model: the membership above is the company check.
