@@ -14,6 +14,7 @@ import { villaClient } from "@/lib/villa-client";
 import { chargesTravel, countTrips, dayKey, TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelRuleFor } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
+import { copyReportToAccountants } from "@/lib/accountant-copy";
 import { docRef } from "@/lib/series";
 
 // The client-facing PDF service report of a work order (no costs). Used by the download route and by
@@ -50,7 +51,10 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   });
   if (!wo) return null;
 
-  const revision = await syncReportRevision(ctx.db, wo.id);
+  const { revision, changed } = await syncReportRevision(ctx.db, wo.id);
+  // A completed job whose report changed since it was last produced: the accountants get the new revision. Only a raise:
+  // a job completed before reports were fingerprinted is fingerprinted here the first time, and that isn't news.
+  if ("user" in ctx && changed === "raised") copyReportToAccountants(ctx as Pick<AppContext, "db" | "organization" | "user">, wo.id, changed);
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const load = (attId: string) => {
     const att = wo.attachments.find((a) => a.id === attId);

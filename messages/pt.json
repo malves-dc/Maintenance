@@ -2096,6 +2096,7 @@
     "onePerLine": "Um por linha.",
     "subject": "Relatório de serviço n.º {number}: {title}",
     "subjectRevision": "Relatório de serviço n.º {number} (revisão {revision}): {title}",
+    "subjectUpdated": "ACTUALIZADA - Revisão {revision} · Relatório de serviço n.º {number}: {title}",
     "body": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\".",
     "bodyVilla": "Segue em anexo o relatório de serviço da ordem de trabalho n.º {number}, \"{title}\", na {villa}.",
     "signature": "Com os melhores cumprimentos,\n{company}",

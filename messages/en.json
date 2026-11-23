@@ -2096,6 +2096,7 @@
     "onePerLine": "One per line.",
     "subject": "Service report {number}: {title}",
     "subjectRevision": "Service report {number} (revision {revision}): {title}",
+    "subjectUpdated": "UPDATED - Revision {revision} · Service report {number}: {title}",
     "body": "Please find attached the service report for work order {number}, \"{title}\".",
     "bodyVilla": "Please find attached the service report for work order {number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",

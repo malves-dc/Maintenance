@@ -72,15 +72,29 @@ export async function reportRecipients(ctx: Pick<AppContext, "db" | "organizatio
   return { wo, recipients, sentOn };
 }
 
-/** Renders the report in the company's language and sends it to each address separately (no one sees the others). */
-export async function sendServiceReport(ctx: AppContext, workOrderId: string, to: string[]) {
+/**
+ * Renders the report in the company's language and sends it to each address separately (no one sees the others).
+ * `updated`: a new revision of a report already sent (the accountants' automatic copy), marked "UPDATED - Revision X" in
+ * the subject. `auto`: sent by the app, not by hand (kept in the audit log).
+ */
+export async function sendServiceReport(
+  ctx: Pick<AppContext, "db" | "organization" | "user">,
+  workOrderId: string,
+  to: string[],
+  opts: { updated?: boolean; auto?: boolean } = {},
+) {
   const locale = isLocale(ctx.organization.defaultLocale) ? ctx.organization.defaultLocale : "en";
   const report = await renderServiceReport(ctx, { id: workOrderId }, locale);
   if (!report) throw new Error("Not found");
   const brand = await orgBrand(ctx.organization.id, await appOrigin());
   const t = createTranslator({ locale, messages: locale === "pt" ? pt : en, namespace: "reportEmail" });
   const vars = { number: report.number, title: report.title, villa: report.villa ?? "", company: ctx.organization.name };
-  const subject = report.revision ? t("subjectRevision", { ...vars, revision: report.revision }) : t("subject", vars);
+  const subject =
+    opts.updated && report.revision
+      ? t("subjectUpdated", { ...vars, revision: report.revision })
+      : report.revision
+        ? t("subjectRevision", { ...vars, revision: report.revision })
+        : t("subject", vars);
   const mail = emailLayout({
     ...brand,
     heading: subject,
@@ -102,7 +116,7 @@ export async function sendServiceReport(ctx: AppContext, workOrderId: string, to
         where: { id: workOrderId },
         data: { reportSentAt: now, reportSentTo: sent, reportSends: { create: sent.map((email) => ({ email: email.toLowerCase(), sentAt: now })) } },
       });
-      await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, { to: sent });
+      await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, opts.auto ? { to: sent, auto: "accountants", revision: report.revision } : { to: sent });
     }
   }
 }
