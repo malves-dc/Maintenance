@@ -10,6 +10,7 @@ import { contractFor } from "@/lib/contracts";
 import { effectivePermissions } from "@/lib/rbac";
 import { parseRoleRates, workOrderRateFor } from "@/lib/roles";
 import { billedTime, type TimeEntryLike } from "@/lib/billing-time";
+import { prepCost } from "@/lib/prep-time";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { syncReportRevision } from "@/lib/report-revision";
 import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-surcharge";
@@ -323,11 +324,13 @@ export async function stopRunningTimers(ctx: WoCtx, workOrderId: string, at = ne
 
 /**
  * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes per day rounded up
- * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged.
+ * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged. Labour also
+ * holds the preparation time (`prep`, lib/prep-time.ts), which isn't rounded and isn't part of the urgent surcharge.
  */
 export function workOrderCosts(
   wo: {
     priority?: string | null;
+    prepMinutes?: number | null;
     timeEntries: (TimeEntryLike & Partial<TripEntry>)[];
     otherCosts: { amount: unknown }[];
     parts?: { quantity: unknown; unitCost: unknown }[];
@@ -341,6 +344,8 @@ export function workOrderCosts(
   urgentRule: UrgentRule = NO_SURCHARGE,
   /** The company's trip charges (see lib/travel-charge.ts); none when omitted. */
   travel: TravelContext | null = null,
+  /** Cost per hour of the preparation time (prepRateOf); none when omitted. */
+  prepRate = 0,
 ) {
   const time = billedTime(wo.timeEntries, block, travel?.timeZone);
   const other = wo.otherCosts.reduce((s, c) => s + Number(c.amount), 0);
@@ -348,10 +353,13 @@ export function workOrderCosts(
   const urgent = urgentSurcharge(wo.priority, time.labor, urgentRule);
   const trips = travel ? travelCharge(wo.timeEntries, { villa: wo.villa, assignees: wo.assignees }, travel) : null;
   const travelCost = trips?.amount ?? 0;
+  const prep = prepCost(wo.prepMinutes, prepRate);
   return {
     minutes: time.minutes,
     billedMinutes: time.billed,
-    labor: time.labor,
+    labor: time.labor + prep,
+    prepMinutes: wo.prepMinutes ?? 0,
+    prep,
     parts,
     other,
     urgent,
@@ -359,7 +367,7 @@ export function workOrderCosts(
     trips: trips?.trips ?? 0,
     perTrip: trips?.perTrip ?? 0,
     tripLines: trips?.lines ?? [],
-    total: time.labor + parts + other + urgent + travelCost,
+    total: time.labor + prep + parts + other + urgent + travelCost,
   };
 }
 

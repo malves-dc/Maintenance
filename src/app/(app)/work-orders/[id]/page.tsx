@@ -16,6 +16,7 @@ import { ACTIVE_STATUSES, jobTechnicians, workOrderCosts } from "@/lib/work-orde
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
+import { canChangePrep, prepRateOf } from "@/lib/prep-time";
 import { countTrips, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { cn } from "@/lib/utils";
@@ -130,7 +131,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const urgentRule = urgentRuleFor(ctx.organization, wo.contract);
   const travel = travelOf(ctx.organization, wo.contract, homes);
   const officeName = (id: string | null) => offices.find((o) => o.id === id)?.name ?? null;
-  const costs = workOrderCosts(wo, block, urgentRule, travel);
+  const costs = workOrderCosts(wo, block, urgentRule, travel, prepRateOf(ctx.organization));
   // Trips the contract includes: shown on the job at no charge.
   const includedTrips = travel.rule.included ? countTrips(wo.timeEntries, travel.timeZone, travel.rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes }) : 0;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
@@ -444,9 +445,20 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
             <CostsPanel
               woId={wo.id}
               canExecute={canExecute}
+              prep={{
+                minutes: wo.prepMinutes,
+                amount: money(costs.prep),
+                editable: canChangePrep({
+                  hasPermission: ctx.can("workOrders.prepTime"),
+                  canExecute,
+                  assigned: wo.assignees.some((a) => a.userId === ctx.user.id),
+                  closed,
+                  invoiced: !!wo.invoicedAt,
+                }),
+              }}
               costs={wo.otherCosts.map((c) => ({ id: c.id, description: c.description, amount: money(Number(c.amount)) }))}
               summary={{
-                labor: money(costs.labor),
+                labor: money(costs.labor - costs.prep),
                 parts: costs.parts ? money(costs.parts) : null,
                 other: money(costs.other),
                 total: money(costs.total),

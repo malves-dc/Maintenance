@@ -6,6 +6,7 @@ import { SLA_STATUS_LOGS, slaCalendar, slaStates } from "@/lib/sla";
 import { workOrderCosts } from "@/lib/work-orders";
 import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
+import { prepRateOf } from "@/lib/prep-time";
 import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { csvResponse, money, moneyColumns, toCsv, type Cell, type Column } from "@/lib/csv";
@@ -58,7 +59,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
         ...(billing ? [t("billing.title")] : []),
       ];
       rows = wos.map((w) => {
-        const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes));
+        const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes), prepRateOf(ctx.organization));
         const s = w.contract ? slaStates(w, w.contract, now, slaCalendar(ctx.organization)) : null;
         return [
           docRef(w), w.title, t(`woType.${w.type}`), t(`woStatus.${w.status}`), t(`priority.${w.priority}`), sys(w.system),

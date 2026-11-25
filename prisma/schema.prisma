@@ -860,6 +860,9 @@ model WorkOrder {
   firstResponseAt  DateTime? // SLA tracking
   completedAt      DateTime?
   estimatedMinutes Int?
+  // Office time on the job ("Preparação / Planeamento"), charged at the Technician rate (lib/prep-time.ts). Each new
+  // work order starts with the default; its assigned technicians, and those with workOrders.prepTime, can change it.
+  prepMinutes      Int             @default(15)
   // Client sign-off
   signatureUrl     String?
   signedByName     String?

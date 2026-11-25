@@ -6,6 +6,7 @@ import { countByBucket, hoursBetween, mean, median, pmCompliance, sumBy, timeInS
 import { ACTIVE_STATUSES, workOrderCosts } from "@/lib/work-orders";
 import { billedTime, timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
+import { prepRateOf } from "@/lib/prep-time";
 import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { villaAccess } from "@/lib/portal-scope";
@@ -37,6 +38,7 @@ const inRange = (f: ReportFilters) => ({ gte: f.from, lte: f.to });
 const CONTRACT_COST_FIELDS = { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } as const;
 const costSelect = {
   priority: true,
+  prepMinutes: true,
   contract: { select: CONTRACT_COST_FIELDS },
   timeEntries: { select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, mode: true } },
   villa: { select: TRAVEL_VILLA_SELECT },
@@ -77,7 +79,7 @@ export async function overview(ctx: Ctx, f: ReportFilters, now = new Date()) {
   const calendar = slaCalendar(ctx.organization);
   const sla = opened.filter((w) => w.contract).map((w) => slaStates(w, w.contract, now, calendar));
   const block = timeRoundingOf(ctx.organization.timeRounding);
-  const cost = opened.reduce((s, w) => s + workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes)).total, 0);
+  const cost = opened.reduce((s, w) => s + workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes), prepRateOf(ctx.organization)).total, 0);
   const trend = countByBucket({ opened: opened.map((w) => w.createdAt), completed: completed.map((w) => w.completedAt) }, f.from, f.to);
 
   return {
@@ -211,7 +213,7 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
     }),
   ]);
   const block = timeRoundingOf(ctx.organization.timeRounding);
-  const rows = wos.map((w) => ({ ...w, cost: workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes)) }));
+  const rows = wos.map((w) => ({ ...w, cost: workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes), prepRateOf(ctx.organization)) }));
   type Row = (typeof rows)[number];
   const group = (key: (r: Row) => { id: string; name: string } | null) => {
     const m = new Map<string, { id: string; name: string; labor: number; parts: number; other: number; urgent: number; travel: number; total: number; count: number }>();

@@ -17,6 +17,7 @@ import { ClockTimeFields } from "@/components/clock-time-fields";
 import { formatDuration } from "@/lib/offline/manual-time";
 import { cn } from "@/lib/utils";
 import type { WorkMode } from "@/generated/prisma/enums";
+import { PREP_MAX_MINUTES } from "@/lib/prep-time";
 import {
   addCommentAction,
   addCostAction,
@@ -27,6 +28,7 @@ import {
   deleteTimeAction,
   deleteWorkOrderAction,
   setClientAbsentAction,
+  setPrepMinutesAction,
   setTimeModeAction,
   signOffAction,
   startTimerAction,
@@ -227,8 +229,10 @@ export function CostsPanel({
   costs,
   summary,
   canExecute,
+  prep,
 }: {
   woId: string;
+  prep: { minutes: number; amount: string; editable: boolean };
   costs: { id: string; description: string; amount: string }[];
   summary: { labor: string; parts: string | null; other: string; total: string; urgent: { amount: string; rule: string } | null; travel: { amount: string; trips: number; rule: string } | null };
   canExecute: boolean;
@@ -242,6 +246,7 @@ export function CostsPanel({
         <span className="text-muted">{t("costs.labor")}</span>
         <span className="tabular-nums">{summary.labor}</span>
       </div>
+      <PrepTime woId={woId} {...prep} />
       {summary.parts && (
         <div className="flex justify-between">
           <span className="text-muted">{t("costs.parts")}</span>
@@ -293,6 +298,45 @@ export function CostsPanel({
             + {t("costs.add")}
           </button>
         ))}
+    </div>
+  );
+}
+
+/** "Preparação / Planeamento": the office time on the job, in minutes; editable by those allowed (lib/prep-time.ts). */
+function PrepTime({ woId, minutes, amount, editable }: { woId: string; minutes: number; amount: string; editable: boolean }) {
+  const t = useTranslations();
+  const [editing, setEditing] = useState(false);
+  if (editing)
+    return (
+      <ActionForm
+        action={setPrepMinutesAction.bind(null, woId)}
+        submitLabel={t("common.save")}
+        onSuccess={() => setEditing(false)}
+        className="rounded-md border border-border p-3"
+        footer={
+          <button type="button" className="text-sm text-muted hover:text-foreground" onClick={() => setEditing(false)}>
+            {t("common.cancel")}
+          </button>
+        }
+      >
+        <label className="block text-xs text-muted" htmlFor="prepMinutes">
+          {t("costs.prepMinutes")}
+        </label>
+        <Input id="prepMinutes" name="minutes" type="number" min={0} max={PREP_MAX_MINUTES} step={1} defaultValue={minutes} required autoFocus />
+        <FieldError name="minutes" />
+      </ActionForm>
+    );
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-muted">
+        {t("costs.prep")} <span className="text-xs">({formatDuration(minutes)})</span>
+        {editable && (
+          <button className="ml-1 rounded p-0.5 align-middle text-muted hover:text-brand" title={t("costs.prepEdit")} aria-label={t("costs.prepEdit")} onClick={() => setEditing(true)}>
+            <Pencil className="size-3.5" />
+          </button>
+        )}
+      </span>
+      <span className="tabular-nums">{amount}</span>
     </div>
   );
 }

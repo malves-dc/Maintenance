@@ -12,6 +12,7 @@ import { fileUrl } from "@/lib/storage";
 import { assignableUsers, workOrderCosts } from "@/lib/work-orders";
 import { timeRoundingOf } from "@/lib/billing-time";
 import { urgentRuleFor } from "@/lib/urgent-surcharge";
+import { prepRateOf } from "@/lib/prep-time";
 import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { approveRequestAction, declineRequestAction, scheduleRequestAction } from "../actions";
@@ -45,6 +46,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           year: true, number: true,
           status: true,
           priority: true,
+          prepMinutes: true,
           contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
           villa: { select: TRAVEL_VILLA_SELECT },
           assignees: { select: TRAVEL_ASSIGNEE_SELECT },
@@ -131,7 +133,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           )}
           {r.status === "APPROVED" && r.workOrder && ctx.can("costs.view") && (() => {
             // What this request has cost so far: time (at each person's role rate), parts and other costs.
-            const c = workOrderCosts(r.workOrder, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, r.workOrder.contract), travelOf(ctx.organization, r.workOrder.contract, homes));
+            const c = workOrderCosts(r.workOrder, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, r.workOrder.contract), travelOf(ctx.organization, r.workOrder.contract, homes), prepRateOf(ctx.organization));
             const money = (n: number) => format.number(n, { style: "currency", currency: ctx.organization.currency });
             return (
               <Card className="p-5 text-sm">
