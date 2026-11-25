@@ -234,7 +234,7 @@ export function CostsPanel({
   woId: string;
   prep: { minutes: number; amount: string; editable: boolean };
   costs: { id: string; description: string; amount: string }[];
-  summary: { labor: string; parts: string | null; other: string; total: string; urgent: { amount: string; rule: string } | null; travel: { amount: string; trips: number; rule: string } | null };
+  summary: { labor: string; frozenAt: string | null; parts: string | null; other: string; total: string; urgent: { amount: string; rule: string } | null; travel: { amount: string; trips: number; rule: string } | null };
   canExecute: boolean;
 }) {
   const t = useTranslations();
@@ -286,6 +286,7 @@ export function CostsPanel({
         <span>{t("costs.total")}</span>
         <span className="tabular-nums">{summary.total}</span>
       </div>
+      {summary.frozenAt && <p className="text-xs text-muted">{t("costs.pricesFrozen", { date: summary.frozenAt })}</p>}
       {canExecute &&
         (adding ? (
           <ActionForm action={addCostAction.bind(null, woId)} submitLabel={t("common.add")} className="rounded-md border border-border p-3">

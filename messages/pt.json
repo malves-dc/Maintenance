@@ -650,7 +650,8 @@
     "trips": "{count, plural, one {# deslocação} other {# deslocações}}",
     "prep": "Preparação / Planeamento",
     "prepMinutes": "Preparação / Planeamento (minutos)",
-    "prepEdit": "Alterar o tempo de preparação"
+    "prepEdit": "Alterar o tempo de preparação",
+    "pricesFrozen": "Aos preços em vigor quando foi concluída ({date})."
   },
   "files": {
     "title": "Fotografias e ficheiros",
@@ -2465,7 +2466,8 @@
       "updatedById": "Atualizado por",
       "onCallHours": "Horário de prevenção",
       "defaultOfficeId": "Escritório por defeito",
-      "prepMinutes": "Preparação / Planeamento (minutos)"
+      "prepMinutes": "Preparação / Planeamento (minutos)",
+      "prices": "Preços à conclusão"
     }
   },
   "van": {

@@ -650,7 +650,8 @@
     "trips": "{count, plural, one {# trip} other {# trips}}",
     "prep": "Preparation / Planning",
     "prepMinutes": "Preparation / Planning (minutes)",
-    "prepEdit": "Change the preparation time"
+    "prepEdit": "Change the preparation time",
+    "pricesFrozen": "At the prices in force when it was completed ({date})."
   },
   "files": {
     "title": "Photos & files",
@@ -2465,7 +2466,8 @@
       "updatedById": "Updated by",
       "onCallHours": "On-call hours",
       "defaultOfficeId": "Default office",
-      "prepMinutes": "Preparation / Planning (minutes)"
+      "prepMinutes": "Preparation / Planning (minutes)",
+      "prices": "Prices at completion"
     }
   },
   "van": {

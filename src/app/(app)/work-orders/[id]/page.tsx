@@ -12,12 +12,13 @@ import { CategoryChip, PriorityText, SlaBadge, SystemBadge, WorkOrderStatusBadge
 import { slaCalendar, slaStates } from "@/lib/sla";
 import { getContext } from "@/lib/context";
 import { fileUrl } from "@/lib/storage";
-import { ACTIVE_STATUSES, jobTechnicians, workOrderCosts } from "@/lib/work-orders";
+import { ACTIVE_STATUSES, jobTechnicians, livePrepRates, workOrderCosts } from "@/lib/work-orders";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
-import { billedTime, timeRoundingOf } from "@/lib/billing-time";
-import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
-import { canChangePrep, prepRateOf } from "@/lib/prep-time";
-import { countTrips, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { billedTime } from "@/lib/billing-time";
+import { urgentApplies } from "@/lib/urgent-surcharge";
+import { canChangePrep } from "@/lib/prep-time";
+import { costArgs, parsePrices } from "@/lib/work-order-prices";
+import { countTrips, TRAVEL_VILLA_SELECT } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { cn } from "@/lib/utils";
 import { StatusBar } from "./status-bar";
@@ -127,11 +128,10 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const overdue = !!wo.dueDate && wo.dueDate < now && ACTIVE_STATUSES.includes(wo.status);
 
   const money = (n: number) => format.number(n, { style: "currency", currency: ctx.organization.currency });
-  const block = timeRoundingOf(ctx.organization.timeRounding);
-  const urgentRule = urgentRuleFor(ctx.organization, wo.contract);
-  const travel = travelOf(ctx.organization, wo.contract, homes);
+  // The prices saved when it was completed, else today's (lib/work-order-prices.ts).
+  const [block, urgentRule, travel, prepRate] = costArgs(ctx.organization, wo, homes, (await livePrepRates(ctx, [wo.id])).get(wo.id) ?? 0);
   const officeName = (id: string | null) => offices.find((o) => o.id === id)?.name ?? null;
-  const costs = workOrderCosts(wo, block, urgentRule, travel, prepRateOf(ctx.organization));
+  const costs = workOrderCosts(wo, block, urgentRule, travel, prepRate);
   // Trips the contract includes: shown on the job at no charge.
   const includedTrips = travel.rule.included ? countTrips(wo.timeEntries, travel.timeZone, travel.rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes }) : 0;
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
@@ -459,6 +459,7 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
               costs={wo.otherCosts.map((c) => ({ id: c.id, description: c.description, amount: money(Number(c.amount)) }))}
               summary={{
                 labor: money(costs.labor - costs.prep),
+                frozenAt: wo.status === "DONE" && parsePrices(wo.prices) && wo.completedAt ? dt(wo.completedAt) : null,
                 parts: costs.parts ? money(costs.parts) : null,
                 other: money(costs.other),
                 total: money(costs.total),

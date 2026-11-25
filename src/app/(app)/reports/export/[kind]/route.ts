@@ -3,11 +3,9 @@ import { getContext } from "@/lib/context";
 import { parseReportFilters } from "@/lib/report-filters";
 import { assetReport, costReport, slaReport, technicianReport, woScope } from "@/lib/reports";
 import { SLA_STATUS_LOGS, slaCalendar, slaStates } from "@/lib/sla";
-import { workOrderCosts } from "@/lib/work-orders";
-import { timeRoundingOf } from "@/lib/billing-time";
-import { urgentRuleFor } from "@/lib/urgent-surcharge";
-import { prepRateOf } from "@/lib/prep-time";
-import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { livePrepRates, workOrderCosts } from "@/lib/work-orders";
+import { costArgs } from "@/lib/work-order-prices";
+import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { csvResponse, money, moneyColumns, toCsv, type Cell, type Column } from "@/lib/csv";
 import { villaClient } from "@/lib/villa-client";
@@ -50,7 +48,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
         },
         orderBy: [{ year: "asc" }, { number: "asc" }],
       });
-      const homes = await homeOffices(ctx.db);
+      const [homes, prep] = await Promise.all([homeOffices(ctx.db), livePrepRates(ctx, wos.map((w) => w.id))]);
       header = [
         t("reports.csv.number"), t("wo.title"), t("wo.type"), t("common.status"), t("wo.priority"), t("assets.system"),
         t("villas.client"), t("assets.villa"), t("wo.asset"), t("wo.createdAt"), t("reports.csv.firstResponse"), t("wo.completedAt"),
@@ -59,7 +57,7 @@ export async function GET(req: Request, { params }: RouteContext<"/reports/expor
         ...(billing ? [t("billing.title")] : []),
       ];
       rows = wos.map((w) => {
-        const c = workOrderCosts(w, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes), prepRateOf(ctx.organization));
+        const c = workOrderCosts(w, ...costArgs(ctx.organization, w, homes, prep.get(w.id) ?? 0));
         const s = w.contract ? slaStates(w, w.contract, now, slaCalendar(ctx.organization)) : null;
         return [
           docRef(w), w.title, t(`woType.${w.type}`), t(`woStatus.${w.status}`), t(`priority.${w.priority}`), sys(w.system),
