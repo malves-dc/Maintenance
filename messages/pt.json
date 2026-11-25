@@ -352,7 +352,15 @@
     "distanceKm": "Distância à empresa",
     "distanceHint": "Distância por estrada em km, só ida. Define o valor da deslocação no trabalho no local (Definições → Empresa).",
     "distanceValue": "{km, number} km",
-    "distanceUnset": "Não definida (valor fixo de deslocação)"
+    "distanceUnset": "Não definida (valor fixo de deslocação)",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blocked": "Bloqueada",
+    "blockConfirm": "Bloquear esta villa? Não será possível criar ordens de trabalho para ela — à mão, a partir de pedidos dos clientes ou por planos preventivos — até ser desbloqueada. Os clientes continuam a poder enviar pedidos.",
+    "unblockConfirm": "Desbloquear esta villa? Volta a ser possível criar ordens de trabalho para ela.",
+    "blockedTitle": "Esta villa está bloqueada",
+    "blockedBody": "Não é possível criar ordens de trabalho para ela (à mão, a partir de pedidos ou por planos preventivos); as ordens preventivas que ficam por criar são comunicadas por e-mail aos gestores. Bloqueada a {when} por {who}.",
+    "blockedHint": "Não é possível criar ordens de trabalho para esta villa"
   },
   "areas": {
     "title": "Pisos e divisões",
@@ -540,7 +548,8 @@
     "relatedNumber": "Número da ordem de trabalho",
     "relatedRemove": "Remover a ligação",
     "linkNotFound": "Não existe nenhuma ordem de trabalho com esse número.",
-    "linkSelf": "Esse é o número desta ordem de trabalho."
+    "linkSelf": "Esse é o número desta ordem de trabalho.",
+    "villaBlocked": "Esta villa está bloqueada: não é possível criar ordens de trabalho para ela. Quem tem permissão para bloquear villas pode desbloqueá-la."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -779,7 +788,8 @@
     "pause": "Pausar",
     "resume": "Retomar",
     "deleteConfirm": "Eliminar este plano? As ordens de trabalho já criadas são mantidas.",
-    "planned": "Planeada"
+    "planned": "Planeada",
+    "runBlocked": "{count, plural, one {# não criada (villa bloqueada)} other {# não criadas (villas bloqueadas)}}"
   },
   "meters": {
     "description": "Leituras como a carga da bateria da UPS, horas de disco ou horas da lâmpada do projetor. Valores fora dos limites podem abrir ordens de trabalho.",
@@ -844,7 +854,8 @@
     "moveVisit": "Alterar visita",
     "visitSaved": "Guardado. O cliente foi avisado.",
     "outsideWindow": "Fora da disponibilidade do cliente.",
-    "notSchedulable": "Já não é possível alterar a visita deste pedido."
+    "notSchedulable": "Já não é possível alterar a visita deste pedido.",
+    "villaBlocked": "{villa} está bloqueada: este pedido não pode passar a ordem de trabalho até a villa ser desbloqueada."
   },
   "portal": {
     "title": "Portal do cliente",
@@ -1166,6 +1177,10 @@
     "REQUEST_PHOTOS": {
       "title": "Novas fotografias no pedido {number}: {title}",
       "body": "{actor} adicionou {count, plural, one {# fotografia} other {# fotografias}}"
+    },
+    "PM_BLOCKED": {
+      "title": "Ordem preventiva não criada: {villa} está bloqueada",
+      "body": "{schedule}, prevista para {due}, não foi criada porque a villa está bloqueada."
     }
   },
   "email": {
@@ -1251,7 +1266,8 @@
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",
       "PO_UPDATE": "Atualizações das minhas notas de encomenda",
       "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido",
-      "REQUEST_PHOTOS": "Um cliente adiciona fotografias a um pedido"
+      "REQUEST_PHOTOS": "Um cliente adiciona fotografias a um pedido",
+      "PM_BLOCKED": "Ordens preventivas não criadas (villa bloqueada)"
     },
     "appearance": "Idioma e aspeto",
     "language": "Idioma"
@@ -2060,6 +2076,12 @@
         "label": "Acesso à app de manutenção",
         "hint": "Abrir a app da equipa: ordens de trabalho, moradias, equipamentos e o resto. Sem esta permissão, a pessoa só vê as Horas (se as registar), o perfil e as notificações."
       }
+    },
+    "villas": {
+      "block": {
+        "label": "Bloquear villas",
+        "hint": "Bloquear ou desbloquear uma villa: enquanto estiver bloqueada, não é possível criar ordens de trabalho para ela nem passar pedidos a ordem de trabalho."
+      }
     }
   },
   "reportEmail": {
@@ -2456,7 +2478,9 @@
       "assets": "Equipamentos",
       "updatedById": "Atualizado por",
       "onCallHours": "Horário de prevenção",
-      "defaultOfficeId": "Escritório por defeito"
+      "defaultOfficeId": "Escritório por defeito",
+      "blockedAt": "Bloqueada",
+      "blockedById": "Bloqueada por"
     }
   },
   "van": {

@@ -22,7 +22,7 @@ export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGR
 export const notStarted = (status: WorkOrderStatus) => status === "OPEN" || status === "EN_ROUTE";
 
 export class WorkOrderError extends Error {
-  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned") {
+  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned" | "villaBlocked") {
     super(code);
   }
 }
@@ -123,8 +123,16 @@ export async function validateCategories(ctx: WoCtx, ids: string[] = []) {
   return unique;
 }
 
+/** A blocked villa (Villa.blockedAt) takes no new work orders: by hand, from a request or from a schedule. */
+export async function assertVillaNotBlocked(ctx: Pick<WoCtx, "db">, villaId: string | null) {
+  if (!villaId) return;
+  const villa = await ctx.db.villa.findUnique({ where: { id: villaId }, select: { blockedAt: true } });
+  if (villa?.blockedAt) throw new WorkOrderError("villaBlocked");
+}
+
 export async function createWorkOrder(ctx: WoCtx, input: WorkOrderInput) {
   const refs = await resolveRefs(ctx, input);
+  await assertVillaNotBlocked(ctx, refs.villaId);
   const assigneeIds = await validateAssignees(ctx, input.assigneeIds);
   const categoryIds = await validateCategories(ctx, input.categoryIds);
 

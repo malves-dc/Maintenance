@@ -7,7 +7,7 @@ import { membersWith, notify, notifyExternal, type NotifyActor } from "@/lib/not
 import { requestOnCallUsers } from "@/lib/on-call-db";
 import { canReschedule, needsConfirmedSlot, slotText } from "@/lib/request-window";
 import { putObject } from "@/lib/storage";
-import { createWorkOrder, notifyClients, type WoCtx, type WorkOrderInput } from "@/lib/work-orders";
+import { assertVillaNotBlocked, createWorkOrder, notifyClients, type WoCtx, type WorkOrderInput } from "@/lib/work-orders";
 import type { Priority, SystemType } from "@/generated/prisma/enums";
 
 export const MAX_REQUEST_PHOTOS = 4;
@@ -129,6 +129,8 @@ export async function notifyRequester(
 export async function approveRequest(ctx: WoCtx, requestId: string, overrides: Partial<WorkOrderInput>, scheduledFor: Date | null = null) {
   const req = await ctx.db.request.findUnique({ where: { id: requestId } });
   if (!req || req.status !== "PENDING") throw new RequestError("notPending");
+  // A blocked villa takes no work orders (lib/villa-block.ts): say so first, before anything else is asked for.
+  await assertVillaNotBlocked(ctx, req.villaId);
   if (!scheduledFor && needsConfirmedSlot(req)) throw new RequestError("slotRequired");
   // Requests from before the shared series can have a number some other work order already uses.
   const taken = await ctx.db.workOrder.count({ where: { year: req.year, number: req.number } });

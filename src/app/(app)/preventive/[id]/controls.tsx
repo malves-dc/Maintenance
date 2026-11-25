@@ -11,7 +11,10 @@ export function PMControls({ id, active }: { id: string; active: boolean }) {
   const [pending, start] = useTransition();
   return (
     <>
-      <Button variant="secondary" disabled={pending} onClick={() => confirm(t("pm.generateConfirm")) && start(() => generateNowAction(id))}>
+      <Button variant="secondary" disabled={pending} onClick={() => confirm(t("pm.generateConfirm")) && start(async () => {
+            const res = await generateNowAction(id);
+            if (res?.error) alert(t(res.error as never));
+          })}>
         <Zap className="size-4" />
         {t("pm.generateNow")}
       </Button>

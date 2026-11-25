@@ -34,7 +34,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   const r = await ctx.db.request.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
+      villa: { select: { id: true, name: true, blockedAt: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { id: true, name: true, status: true } },
       requester: { select: { name: true, email: true, phone: true } },
@@ -193,6 +193,11 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           {canApprove && (
             <Card className="p-5">
               <h2 className="mb-4 font-medium">{t("requests.approveTitle")}</h2>
+              {r.villa?.blockedAt && (
+                <p role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50/60 p-3 text-sm text-red-900">
+                  {t("requests.villaBlocked", { villa: r.villa.name })}
+                </p>
+              )}
               <ActionForm action={approveRequestAction.bind(null, r.id)} submitLabel={t("requests.approve")}>
                 <ApproveFields
                   title={r.title}

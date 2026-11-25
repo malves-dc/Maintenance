@@ -104,6 +104,15 @@ export async function setVillaArchivedAction(id: string, archived: boolean) {
   revalidatePath(`/villas/${id}`);
 }
 
+/** Blocks or unblocks a villa: while blocked, no work orders can be created for it (lib/villa-block.ts). */
+export async function setVillaBlockedAction(id: string, blocked: boolean) {
+  const ctx = await requirePermission("villas.block");
+  await ctx.db.villa.update({ where: { id }, data: blocked ? { blockedAt: new Date(), blockedById: ctx.user.id } : { blockedAt: null, blockedById: null } });
+  revalidatePath("/villas");
+  revalidatePath(`/villas/${id}`);
+  revalidatePath("/requests");
+}
+
 /** "Check now" on the villa page: probes the villa's DynDNS name or VPN address and stores the result. */
 export async function checkConnectivityAction(id: string) {
   const ctx = await requirePermission("internal.view");
