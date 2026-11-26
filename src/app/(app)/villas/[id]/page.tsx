@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { MapPin, Pencil, Plus, QrCode } from "lucide-react";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { BackLink } from "@/components/back-link";
@@ -18,16 +18,19 @@ import { villaClient } from "@/lib/villa-client";
 import { isFar, travelRuleFor } from "@/lib/travel-charge";
 import { villaOffices } from "@/lib/offices";
 import { ConnectivityCard } from "./connectivity-card";
+import { BlockVillaButton } from "./block-button";
 
 export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
   const { id } = await params;
   const ctx = await getContext();
   if (!ctx.can("internal.view")) notFound();
   const t = await getTranslations();
+  const format = await getFormatter();
 
   const villa = await ctx.db.villa.findUnique({
     where: { id },
     include: {
+      blockedBy: { select: { name: true } },
       client: { include: { contacts: { orderBy: { isPrimary: "desc" }, take: 3 } } },
       manager: { include: { contacts: { orderBy: { isPrimary: "desc" }, take: 3 } } },
       areas: { include: { _count: { select: { assets: { where: { archivedAt: null } } } } } },
@@ -70,6 +73,7 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
         description={villa.code ?? undefined}
         actions={
           <>
+            {ctx.can("villas.block") && <BlockVillaButton id={villa.id} blocked={!!villa.blockedAt} />}
             {canManage && <ArchiveButton archived={!!villa.archivedAt} action={setVillaArchivedAction.bind(null, villa.id)} />}
             {canManage && (
               <Link href={`/villas/${villa.id}/edit`}>
@@ -91,6 +95,17 @@ export default async function VillaPage({ params }: PageProps<"/villas/[id]">) {
         }
       />
       {villa.archivedAt && <Badge className="mb-4">{t("common.archived")}</Badge>}
+      {villa.blockedAt && (
+        <Card className="mb-4 border-red-200 bg-red-50/60 p-4 text-sm text-red-900">
+          <p className="font-medium">{t("villas.blockedTitle")}</p>
+          <p>
+            {t("villas.blockedBody", {
+              when: format.dateTime(villa.blockedAt, { dateStyle: "medium", timeStyle: "short" }),
+              who: villa.blockedBy?.name ?? "—",
+            })}
+          </p>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">

@@ -352,7 +352,15 @@
     "distanceKm": "Distance from the company",
     "distanceHint": "Road distance in km, one way. Decides the trip charge for on-site work (Settings → Organization).",
     "distanceValue": "{km, number} km",
-    "distanceUnset": "Not set (fixed trip fee)"
+    "distanceUnset": "Not set (fixed trip fee)",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blocked": "Blocked",
+    "blockConfirm": "Block this villa? No work orders can be created for it — by hand, from client requests or by preventive schedules — until it is unblocked. Clients can still send requests.",
+    "unblockConfirm": "Unblock this villa? Work orders can be created for it again.",
+    "blockedTitle": "This villa is blocked",
+    "blockedBody": "No work orders can be created for it (by hand, from requests or by preventive schedules); skipped preventive work orders are e-mailed to the managers. Blocked on {when} by {who}.",
+    "blockedHint": "No work orders can be created for this villa"
   },
   "areas": {
     "title": "Floors & rooms",
@@ -541,7 +549,8 @@
     "relatedRemove": "Remove the link",
     "linkNotFound": "There is no work order with that number.",
     "linkSelf": "That is this work order.",
-    "prepNotAllowed": "You can't change this work order's preparation time."
+    "prepNotAllowed": "You can't change this work order's preparation time.",
+    "villaBlocked": "This villa is blocked: no work orders can be created for it. Someone with the permission to block villas can unblock it."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -784,7 +793,8 @@
     "pause": "Pause",
     "resume": "Resume",
     "deleteConfirm": "Delete this schedule? Work orders it already created are kept.",
-    "planned": "Planned"
+    "planned": "Planned",
+    "runBlocked": "{count, plural, one {# skipped (blocked villa)} other {# skipped (blocked villas)}}"
   },
   "meters": {
     "description": "Readings such as UPS battery charge, disk hours or projector lamp hours. Out-of-range values can open work orders.",
@@ -849,7 +859,8 @@
     "moveVisit": "Change visit",
     "visitSaved": "Saved. The client was told.",
     "outsideWindow": "Outside the client's availability.",
-    "notSchedulable": "This request's visit can no longer be changed."
+    "notSchedulable": "This request's visit can no longer be changed.",
+    "villaBlocked": "{villa} is blocked: this request can't be turned into a work order until the villa is unblocked."
   },
   "portal": {
     "title": "Client portal",
@@ -1171,6 +1182,10 @@
     "REQUEST_PHOTOS": {
       "title": "New photos on request {number}: {title}",
       "body": "{actor} added {count, plural, one {# photo} other {# photos}}"
+    },
+    "PM_BLOCKED": {
+      "title": "Preventive work order not created: {villa} is blocked",
+      "body": "{schedule}, due {due}, was skipped because the villa is blocked."
     }
   },
   "email": {
@@ -1256,7 +1271,8 @@
       "PO_APPROVAL": "Purchase orders waiting for approval",
       "PO_UPDATE": "Updates on my purchase orders",
       "REQUEST_MESSAGE": "New messages in a request's conversation",
-      "REQUEST_PHOTOS": "A client adds photos to a request"
+      "REQUEST_PHOTOS": "A client adds photos to a request",
+      "PM_BLOCKED": "Preventive work orders skipped (blocked villa)"
     },
     "appearance": "Language and appearance",
     "language": "Language"
@@ -2076,6 +2092,12 @@
         "label": "Access the maintenance app",
         "hint": "Open the staff app: work orders, villas, assets and the rest. Without it, someone only sees Hours (if they log hours), their profile and notifications."
       }
+    },
+    "villas": {
+      "block": {
+        "label": "Block villas",
+        "hint": "Block or unblock a villa: while blocked, no work orders can be created for it, and requests can't be turned into work orders."
+      }
     }
   },
   "reportEmail": {
@@ -2475,7 +2497,9 @@
       "defaultOfficeId": "Default office",
       "prepMinutes": "Preparation / Planning (minutes)",
       "prices": "Prices at completion",
-      "require2fa": "Two-factor sign-in required"
+      "require2fa": "Two-factor sign-in required",
+      "blockedAt": "Blocked",
+      "blockedById": "Blocked by"
     }
   },
   "van": {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Plus } from "lucide-react";
+import { Lock, Plus } from "lucide-react";
 import { Button, Card, PageHeader, Select, Table } from "@/components/ui";
 import { FilterBar, Pagination } from "@/components/list-controls";
 import { EmptyState } from "@/components/empty-state";
@@ -108,6 +108,12 @@ export default async function VillasPage({ searchParams }: PageProps<"/villas">)
                       {v.name}
                     </Link>
                     {v.code && <span className="ml-2 font-mono text-xs text-muted">{v.code}</span>}
+                    {v.blockedAt && (
+                      <span className="ml-2 inline-flex items-center gap-1 rounded bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-800" title={t("villas.blockedHint")}>
+                        <Lock className="size-3" />
+                        {t("villas.blocked")}
+                      </span>
+                    )}
                   </td>
                   <td>
                     {(v.client ?? v.manager) && (

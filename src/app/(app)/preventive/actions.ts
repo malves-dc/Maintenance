@@ -8,7 +8,7 @@ import { assertOwned } from "@/lib/db/tenant";
 import { enumOf, optEnumOf, optId, optNumber, optStr, parseForm, str, type FormResult } from "@/lib/forms";
 import { generateWorkOrder, initialNextDue, MAX_LEAD_DAYS, recurrenceOf, runDueSchedules } from "@/lib/pm";
 import { nextOccurrence } from "@/lib/pm-schedule";
-import { validateAssignees, WorkOrderError } from "@/lib/work-orders";
+import { assertVillaNotBlocked, validateAssignees, WorkOrderError } from "@/lib/work-orders";
 import { Frequency, PMTrigger, Priority, SystemType } from "@/generated/prisma/enums";
 
 const isoDate = () => z.preprocess((v) => (v ? v : undefined), z.coerce.date().optional()).transform((v) => v ?? null);
@@ -161,6 +161,14 @@ export async function generateNowAction(id: string) {
   const ctx = await requirePermission("pm.manage");
   const s = await ctx.db.pMSchedule.findUnique({ where: { id }, include: { assignees: { select: { userId: true } } } });
   if (!s) throw new Error("Not found");
+  // A blocked villa takes no work orders (lib/villa-block.ts): say so before the occurrence is used up.
+  const villaId = s.villaId ?? (s.assetId ? (await ctx.db.asset.findUnique({ where: { id: s.assetId }, select: { villaId: true } }))?.villaId ?? null : null);
+  try {
+    await assertVillaNotBlocked(ctx, villaId);
+  } catch (e) {
+    if (e instanceof WorkOrderError) return { error: `wo.${e.code}` };
+    throw e;
+  }
   const r = recurrenceOf(s, ctx.organization.timezone);
   const due = s.trigger === "TIME" && s.nextDueAt ? s.nextDueAt : new Date();
   if (s.trigger === "TIME" && r && s.nextDueAt) {

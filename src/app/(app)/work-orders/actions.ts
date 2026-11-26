@@ -13,6 +13,7 @@ import { consumePart, InventoryError, returnPart } from "@/lib/inventory";
 import { contractFor } from "@/lib/contracts";
 import {
   assertCanLogTime,
+  assertVillaNotBlocked,
   changeStatus,
   createWorkOrder,
   myRateOn,
@@ -89,6 +90,8 @@ export async function saveWorkOrderAction(id: string | null, _: FormResult, form
     if (id) {
       const before = await editableWorkOrder(ctx, id);
       const refs = await resolveRefs(ctx, input);
+      // Moving a job to a blocked villa would be a way round the block.
+      if (refs.villaId !== before.villaId) await assertVillaNotBlocked(ctx, refs.villaId);
       const ids = await validateAssignees(ctx, assigneeIds);
       const cats = await validateCategories(ctx, categoryIds);
       const wo = await ctx.db.workOrder.update({

@@ -2,7 +2,8 @@ import "server-only";
 import { prisma } from "@/lib/db/client";
 import { tenantDb } from "@/lib/db/tenant";
 import { nextOccurrence, type Recurrence } from "@/lib/pm-schedule";
-import { createWorkOrder, stillAssignable, type WoCtx } from "@/lib/work-orders";
+import { createWorkOrder, stillAssignable, WorkOrderError, type WoCtx } from "@/lib/work-orders";
+import { notifyPreventiveBlocked } from "@/lib/villa-block";
 import type { PMSchedule } from "@/generated/prisma/client";
 
 const DAY = 86_400_000;
@@ -25,6 +26,8 @@ export function initialNextDue(s: Parameters<typeof recurrenceOf>[0], timeZone: 
   const from = r.startDate > now ? r.startDate : now;
   return nextOccurrence(r, new Date(from.getTime() - 1));
 }
+
+const villaBlocked = (e: unknown) => e instanceof WorkOrderError && e.code === "villaBlocked";
 
 /** Creates the preventive work order for one occurrence of a schedule. */
 export async function generateWorkOrder(ctx: WoCtx, s: ScheduleWithAssignees, dueDate: Date) {
@@ -82,6 +85,7 @@ export async function runDueSchedules(opts: { organizationId?: string; now?: Dat
   });
 
   let created = 0;
+  let blocked = 0;
   for (const s of candidates) {
     const due = s.nextDueAt!;
     if (due.getTime() - s.leadDays * DAY > now.getTime()) continue;
@@ -102,12 +106,18 @@ export async function runDueSchedules(opts: { organizationId?: string; now?: Dat
       await generateWorkOrder(ctx, s, due);
       created++;
     } catch (e) {
+      // Blocked villa: this occurrence is skipped for good (the schedule moves on) and the managers are told.
+      if (villaBlocked(e)) {
+        blocked++;
+        await notifyPreventiveBlocked(ctx, s, due).catch((err) => console.error(`[pm] schedule ${s.id}: blocked-villa notice failed`, err));
+        continue;
+      }
       // Roll the claim back so the next run retries (e.g. a referenced asset was deleted mid-run).
       await prisma.pMSchedule.update({ where: { id: s.id }, data: { nextDueAt: due, active: true } });
       console.error(`[pm] schedule ${s.id} failed`, e);
     }
   }
-  return { checked: candidates.length, created };
+  return { checked: candidates.length, created, blocked };
 }
 
 /** Meter-based schedules: create a WO every `meterInterval` units since the last one. */
@@ -130,8 +140,14 @@ export async function onMeterReading(ctx: WoCtx, meterId: string, value: number)
       data: { lastMeterValue: value, lastGeneratedAt: new Date() },
     });
     if (claimed.count !== 1) continue;
-    await generateWorkOrder(ctx, s, new Date(Date.now() + Math.max(1, s.leadDays) * DAY));
-    created++;
+    const due = new Date(Date.now() + Math.max(1, s.leadDays) * DAY);
+    try {
+      await generateWorkOrder(ctx, s, due);
+      created++;
+    } catch (e) {
+      if (!villaBlocked(e)) throw e;
+      await notifyPreventiveBlocked(ctx, s, due); // skipped: its villa is blocked
+    }
   }
   return created;
 }

@@ -25,7 +25,9 @@ export async function recordReading(ctx: WoCtx, meterId: string, value: number, 
   const outOfRange = isOutOfRange(meter, value);
   if (outOfRange && meter.alertWorkOrder) {
     const open = await ctx.db.workOrder.findFirst({ where: { alertMeterId: meterId, status: { in: ACTIVE_STATUSES } } });
-    if (!open) {
+    const villaBlocked = !open && (await ctx.db.asset.findUnique({ where: { id: meter.asset.id }, select: { villa: { select: { blockedAt: true } } } }))?.villa?.blockedAt;
+    // A blocked villa takes no work orders (lib/villa-block.ts): the reading is kept, no alert job is opened.
+    if (!open && !villaBlocked) {
       const wo = await createWorkOrder(ctx, {
         title: `${meter.asset.name}: ${meter.name} ${value} ${meter.unit}`,
         description: [

@@ -71,6 +71,9 @@ describe("renderNotification", () => {
     qty: 2,
     vendor: "Redes Lusas",
     when: "05/11/2026, 14:30",
+    villa: "Villa QL7",
+    schedule: "Quarterly check",
+    due: "2026-12-01",
   };
 
   it.each(NOTIFICATION_TYPES.flatMap((t) => [["en", t] as const, ["pt", t] as const]))("renders %s %s", (locale, type) => {

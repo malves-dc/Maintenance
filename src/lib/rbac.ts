@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   "clients.manage": ["OWNER", "ADMIN", "MANAGER"],
   "contracts.manage": ["OWNER", "ADMIN", "MANAGER"],
   "assets.manage": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"],
+  "villas.block": ["OWNER", "ADMIN", "MANAGER", "ACCOUNTANT"], // block a villa: no work orders can be created for it
   "secrets.view": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"],
   "knowledge.manage": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"], // write villa knowledge-base articles (reading = internal.view)
   "workOrders.create": ["OWNER", "ADMIN", "MANAGER", "TECHNICIAN"],
@@ -53,7 +54,7 @@ export const PERMISSION_GROUPS: { key: string; permissions: Permission[] }[] = [
   { key: "app", permissions: ["internal.view"] },
   { key: "admin", permissions: ["org.manage", "users.manage", "onCall.manage", "teams.manage", "audit.view"] },
   { key: "work", permissions: ["workOrders.create", "workOrders.execute", "workOrders.manage", "workOrders.sendReport", "workOrders.prepTime", "requests.create", "requests.approve", "requests.chat", "pm.manage", "procedures.manage"] },
-  { key: "sites", permissions: ["clients.manage", "contracts.manage", "assets.manage", "secrets.view", "knowledge.manage"] },
+  { key: "sites", permissions: ["clients.manage", "contracts.manage", "villas.block", "assets.manage", "secrets.view", "knowledge.manage"] },
   { key: "supply", permissions: ["inventory.use", "inventory.manage", "vendors.manage", "purchasing.manage", "purchasing.approve"] },
   { key: "insights", permissions: ["reports.view"] },
   { key: "timesheets", permissions: ["timesheets.log", "timesheets.manage"] },
