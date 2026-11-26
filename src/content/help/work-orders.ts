@@ -211,7 +211,7 @@ To send it, use the **E-mail the service report** panel:
 2. Add other addresses under **Other addresses (one per line)** if needed.
 3. Click **Send report**.
 
-Each address gets its own e-mail, so recipients don't see each other. The panel then shows when the report was last sent and to how many addresses.
+Each address gets its own e-mail, so recipients don't see each other. Under each address that got it, the panel shows **Sent on** with the day (or days, if it was sent more than once), plus when the report was last sent and to how many addresses. Addresses it was sent to before that aren't suggested any more (for example typed by hand) stay in the list as **Sent before**, unticked, so they can be ticked to send it again. If sending fails half-way, the addresses that did get it are already marked **Sent on**: tick the others and send again.
 
 > If e-mail isn't set up on the server, the report can't be sent. An administrator sets it up in [Settings → Server](/help/server). The company's report copies are set in [Settings → Organization](/help/organization).
 
@@ -442,7 +442,7 @@ Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 2. Acrescente outros endereços em **Outros endereços (um por linha)**, se necessário.
 3. Clique em **Enviar relatório**.
 
-Cada endereço recebe o seu próprio e-mail, por isso os destinatários não se veem uns aos outros. O painel passa a mostrar quando foi o último envio e para quantos endereços.
+Cada endereço recebe o seu próprio e-mail, por isso os destinatários não se veem uns aos outros. Por baixo de cada endereço que o recebeu, o painel mostra **Enviado a** com o dia (ou os dias, se foi enviado mais do que uma vez), e ainda quando foi o último envio e para quantos endereços. Os endereços a que já foi enviado e que deixaram de ser sugeridos (por exemplo, escritos à mão) continuam na lista como **Enviado anteriormente**, desmarcados, para se poder voltar a enviar. Se o envio falhar a meio, os endereços que o receberam já ficam assinalados com **Enviado a**: marque os restantes e envie de novo.
 
 > Se o e-mail não estiver configurado no servidor, o relatório não pode ser enviado. Um administrador configura-o em [Definições → Servidor](/help/server). As cópias dos relatórios para a empresa definem-se em [Definições → Organização](/help/organization).
 

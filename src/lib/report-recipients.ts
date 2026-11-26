@@ -5,7 +5,7 @@
 //  - Per send: the sender ticks/unticks these and can add more addresses.
 
 export type CompanyRecipients = { userIds: string[]; roles: string[]; emails: string[] };
-export type RecipientSource = "client" | "contact" | "clientExtra" | "company";
+export type RecipientSource = "client" | "contact" | "clientExtra" | "company" | "previous";
 export type Recipient = { email: string; name: string | null; source: RecipientSource };
 
 export const MAX_EXTRA = 20;

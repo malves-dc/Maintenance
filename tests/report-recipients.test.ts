@@ -20,6 +20,17 @@ describe("service report recipients", () => {
     ]);
   });
 
+  it("adds addresses it was sent to before last, without relabelling suggested ones", () => {
+    const merged = mergeRecipients(
+      [{ email: "owner@x.pt", name: "Whitmore", source: "client" }],
+      [{ email: "owner@x.pt", name: null, source: "previous" }, { email: "typed@other.pt", name: null, source: "previous" }],
+    );
+    expect(merged.map((r) => [r.email, r.source])).toEqual([
+      ["owner@x.pt", "client"],
+      ["typed@other.pt", "previous"],
+    ]);
+  });
+
   it("reads the company settings defensively", () => {
     expect(parseCompanyRecipients(null)).toEqual({ userIds: [], roles: [], emails: [] });
     expect(parseCompanyRecipients({ userIds: ["u1", 3], roles: ["ACCOUNTANT"], emails: ["a@b.pt", "nope"] })).toEqual({ userIds: ["u1"], roles: ["ACCOUNTANT"], emails: ["a@b.pt"] });

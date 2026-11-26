@@ -50,6 +50,7 @@ export async function exportClientData(ctx: AppContext, clientId: string) {
         signedAt: true,
         reportSentAt: true,
         reportSentTo: true,
+        reportSends: { select: { email: true, sentAt: true }, orderBy: { sentAt: "asc" } },
         villa: { select: { name: true } },
       },
     }),

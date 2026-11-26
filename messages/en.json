@@ -2111,11 +2111,14 @@
     "lastSent": "Last sent {at} to {count, plural, one {# address} other {# addresses}}.",
     "notConfigured": "E-mail isn't set up on this server (Settings → Server → E-mail), so the report can't be sent.",
     "noRecipients": "Choose or type at least one address.",
+    "sentOn": "Sent on {dates}",
+    "failed": "The report could not be sent to every address. The ones marked \"Sent on\" got it; try the others again.",
     "source": {
       "client": "Client",
       "contact": "Client contact",
       "clientExtra": "Client copy",
-      "company": "Company copy"
+      "company": "Company copy",
+      "previous": "Sent before"
     },
     "clientEmails": "Service report copies",
     "clientEmailsHint": "Extra addresses offered when e-mailing this client's service reports (e.g. a family office), one per line.",
