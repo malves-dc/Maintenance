@@ -213,6 +213,8 @@ To send it, use the **E-mail the service report** panel:
 
 Each address gets its own e-mail, so recipients don't see each other. Under each address that got it, the panel shows **Sent on** with the day (or days, if it was sent more than once), plus when the report was last sent and to how many addresses. Addresses it was sent to before that aren't suggested any more (for example typed by hand) stay in the list as **Sent before**, unticked, so they can be ticked to send it again. If sending fails half-way, the addresses that did get it are already marked **Sent on**: tick the others and send again.
 
+**Accountants get a copy automatically.** When a work order is completed, everyone with the **Accountant** role receives the service report by e-mail, without anyone sending it. If a completed job is changed afterwards (for example reopened, more time logged and closed again), they receive the new version with **UPDATED - Revision X** at the start of the subject. Closing a job again without changing anything sends nothing. These copies show up as **Sent on** under their address like any other send.
+
 > If e-mail isn't set up on the server, the report can't be sent. An administrator sets it up in [Settings → Server](/help/server). The company's report copies are set in [Settings → Organization](/help/organization).
 
 ## Contracts and SLA
@@ -443,6 +445,8 @@ Para o enviar, use o painel **Enviar o relatório de serviço por e-mail**:
 3. Clique em **Enviar relatório**.
 
 Cada endereço recebe o seu próprio e-mail, por isso os destinatários não se veem uns aos outros. Por baixo de cada endereço que o recebeu, o painel mostra **Enviado a** com o dia (ou os dias, se foi enviado mais do que uma vez), e ainda quando foi o último envio e para quantos endereços. Os endereços a que já foi enviado e que deixaram de ser sugeridos (por exemplo, escritos à mão) continuam na lista como **Enviado anteriormente**, desmarcados, para se poder voltar a enviar. Se o envio falhar a meio, os endereços que o receberam já ficam assinalados com **Enviado a**: marque os restantes e envie de novo.
+
+**Os contabilistas recebem uma cópia automaticamente.** Quando uma ordem de trabalho é concluída, todas as pessoas com a função **Contabilista** recebem o relatório de serviço por e-mail, sem ninguém o enviar. Se um trabalho concluído for alterado depois (por exemplo, reaberto, registado mais tempo e fechado de novo), recebem a nova versão com **ACTUALIZADA - Revisão X** no início do assunto. Fechar de novo um trabalho sem alterar nada não envia nada. Estas cópias aparecem como **Enviado a** por baixo do endereço, como qualquer outro envio.
 
 > Se o e-mail não estiver configurado no servidor, o relatório não pode ser enviado. Um administrador configura-o em [Definições → Servidor](/help/server). As cópias dos relatórios para a empresa definem-se em [Definições → Organização](/help/organization).
 

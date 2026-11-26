@@ -15,6 +15,7 @@ import { CONTRACT_PRICE_FIELDS, currentPrices } from "@/lib/work-order-prices";
 import { Prisma } from "@/generated/prisma/client";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { syncReportRevision } from "@/lib/report-revision";
+import { copyReportToAccountants } from "@/lib/accountant-copy";
 import { NO_SURCHARGE, urgentSurcharge, type UrgentRule } from "@/lib/urgent-surcharge";
 import { travelCharge, type AssigneeOffice, type TravelContext, type TripEntry, type VillaPlaces } from "@/lib/travel-charge";
 import type { ChecklistItemType, Priority, SystemType, WorkOrderStatus, WorkOrderType } from "@/generated/prisma/enums";
@@ -265,7 +266,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       statusLogs: { create: { fromStatus: wo.status, toStatus: to, userId: ctx.user.id, note: note || null } },
     },
   });
-  if (to === "DONE") await syncReportRevision(ctx.db, workOrderId);
+  if (to === "DONE") copyReportToAccountants(ctx, workOrderId, (await syncReportRevision(ctx.db, workOrderId)).changed);
   await notifyStatus(ctx, updated, note);
   return updated;
 }

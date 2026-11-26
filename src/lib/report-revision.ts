@@ -66,17 +66,21 @@ export function reportFingerprint(wo: ReportContent) {
   return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
 }
 
-/** The revision of a completed job's report, raised if its content changed since the last fingerprint. */
-export async function syncReportRevision(db: AppContext["db"], workOrderId: string) {
+/**
+ * The revision of a completed job's report, raised if its content changed since the last fingerprint. `changed` says
+ * whether this call fingerprinted it for the first time ("first", the job was just completed) or raised the revision
+ * ("raised"); the accountants' copy is sent then (lib/accountant-copy.ts).
+ */
+export async function syncReportRevision(db: AppContext["db"], workOrderId: string): Promise<{ revision: number; changed: "first" | "raised" | null }> {
   const wo = await db.workOrder.findUnique({ where: { id: workOrderId }, select: SELECT });
-  if (!wo) return 0;
-  if (wo.status !== "DONE") return wo.reportRevision;
+  if (!wo) return { revision: 0, changed: null };
+  if (wo.status !== "DONE") return { revision: wo.reportRevision, changed: null };
   const fingerprint = reportFingerprint(wo as unknown as ReportContent);
-  if (fingerprint === wo.reportFingerprint) return wo.reportRevision;
+  if (fingerprint === wo.reportFingerprint) return { revision: wo.reportRevision, changed: null };
   const reportRevision = wo.reportFingerprint ? wo.reportRevision + 1 : wo.reportRevision;
-  // Guarded, so two reports produced at once raise it only once.
-  await db.workOrder.updateMany({ where: { id: workOrderId, reportFingerprint: wo.reportFingerprint }, data: { reportFingerprint: fingerprint, reportRevision } });
-  return reportRevision;
+  // Guarded, so two reports produced at once raise it only once (and only one of them sends the copy).
+  const { count } = await db.workOrder.updateMany({ where: { id: workOrderId, reportFingerprint: wo.reportFingerprint }, data: { reportFingerprint: fingerprint, reportRevision } });
+  return { revision: reportRevision, changed: count ? (wo.reportFingerprint ? "raised" : "first") : null };
 }
 
 export const reportFilename = (number: string, revision: number) => `WO-${number}${revision ? `-rev${revision}` : ""}.pdf`;
