@@ -1805,7 +1805,7 @@
     "orgSettingHint": "Ser-lhes-á pedido que a configurem na próxima visita, com uma aplicação de autenticação (Microsoft Authenticator, Google Authenticator, 1Password…).",
     "on": "Ativa desde {date}.",
     "off": "Desativada. O início de sessão pede apenas a palavra-passe.",
-    "required": "A sua empresa exige-a para a sua função.",
+    "required": "A sua empresa exige-a para si.",
     "setUp": "Configurar",
     "turnOff": "Desativar",
     "turnOffConfirm": "Desativar a autenticação de dois fatores? O início de sessão passa a pedir apenas a palavra-passe.",
@@ -1816,7 +1816,7 @@
     "codeHint": "6 dígitos. Perdeu o telemóvel? Escreva um dos seus códigos de recuperação.",
     "invalidCode": "Código errado ou expirado.",
     "setupTitle": "Configurar a autenticação de dois fatores",
-    "setupIntro": "A sua empresa pede um segundo passo no início de sessão, porque a sua conta pode ver códigos de acesso das moradias ou gerir a empresa. Precisa de uma aplicação de autenticação no telemóvel.",
+    "setupIntro": "A sua empresa pede um segundo passo no início de sessão. Precisa de uma aplicação de autenticação no telemóvel.",
     "setupIntroOptional": "O início de sessão passa a pedir um código de uma aplicação de autenticação no telemóvel, além da palavra-passe.",
     "step1": "1. Na aplicação de autenticação, adicione uma conta e leia este código.",
     "manualKey": "Não consegue ler o código? Escreva esta chave:",
@@ -1831,7 +1831,14 @@
     "resetUnavailable": "Esta pessoa não ativou a autenticação de dois fatores, por isso não há nada a repor.",
     "resetConfirm": "Repor a autenticação de dois fatores desta pessoa? Passa a entrar só com a palavra-passe e, se a função o exigir, terá de a configurar de novo.",
     "notAllowed": "A sua empresa exige a autenticação de dois fatores para a sua função.",
-    "signOut": "Terminar sessão"
+    "signOut": "Terminar sessão",
+    "ruleLabel": "Autenticação de dois fatores",
+    "ruleHint": "Se esta pessoa tem de iniciar sessão com um segundo fator: uma regra própria, ou a da empresa (Definições → Organização).",
+    "rule": {
+      "company": "2FA: regra da empresa",
+      "required": "2FA: obrigatória",
+      "notRequired": "2FA: não obrigatória"
+    }
   },
   "erasure": {
     "formerUser": "Antigo utilizador",
@@ -2467,7 +2474,8 @@
       "onCallHours": "Horário de prevenção",
       "defaultOfficeId": "Escritório por defeito",
       "prepMinutes": "Preparação / Planeamento (minutos)",
-      "prices": "Preços à conclusão"
+      "prices": "Preços à conclusão",
+      "require2fa": "Autenticação de dois fatores obrigatória"
     }
   },
   "van": {

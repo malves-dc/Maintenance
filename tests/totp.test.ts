@@ -11,7 +11,7 @@ import {
   totpCode,
   verifyTotp,
 } from "@/lib/totp";
-import { needsTwoFactor } from "@/lib/two-factor-rules";
+import { needsTwoFactor, twoFactorOwnOf, twoFactorSettingOf } from "@/lib/two-factor-rules";
 import { effectivePermissions } from "@/lib/rbac";
 
 // RFC 6238 appendix B (SHA-1): the shared secret "12345678901234567890", codes cut to 6 digits.
@@ -76,6 +76,17 @@ describe("who must use two-factor sign-in", () => {
     expect(needsTwoFactor(true, "ACCOUNTANT", perms("ACCOUNTANT"))).toBe(false);
     expect(needsTwoFactor(true, "REQUESTER", perms("REQUESTER"))).toBe(false);
     expect(needsTwoFactor(false, "OWNER", perms("OWNER"))).toBe(false);
+  });
+
+  it("follows the person's own rule over the company's", () => {
+    expect(needsTwoFactor(false, "REQUESTER", perms("REQUESTER"), true)).toBe(true); // a client the admins require it of
+    expect(needsTwoFactor(false, "ACCOUNTANT", perms("ACCOUNTANT"), true)).toBe(true);
+    expect(needsTwoFactor(true, "ADMIN", perms("ADMIN"), false)).toBe(false); // not required for this person
+    expect(needsTwoFactor(true, "ADMIN", perms("ADMIN"), null)).toBe(true); // the company's rule
+    expect(twoFactorOwnOf("company")).toBeNull();
+    expect(twoFactorOwnOf("required")).toBe(true);
+    expect(twoFactorOwnOf("notRequired")).toBe(false);
+    for (const own of [null, true, false]) expect(twoFactorOwnOf(twoFactorSettingOf(own))).toBe(own);
   });
 
   it("follows the company's permission settings", () => {

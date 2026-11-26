@@ -1805,7 +1805,7 @@
     "orgSettingHint": "They'll be asked to set it up on their next visit, with an authenticator app (Microsoft Authenticator, Google Authenticator, 1Password…).",
     "on": "On since {date}.",
     "off": "Off. Each sign-in asks only for your password.",
-    "required": "Your company requires it for your role.",
+    "required": "Your company requires it for you.",
     "setUp": "Set up",
     "turnOff": "Turn off",
     "turnOffConfirm": "Turn off two-factor sign-in? Signing in will ask only for your password.",
@@ -1816,7 +1816,7 @@
     "codeHint": "6 digits. Lost your phone? Type one of your recovery codes.",
     "invalidCode": "Wrong or expired code.",
     "setupTitle": "Set up two-factor sign-in",
-    "setupIntro": "Your company asks for a second step when you sign in, because your account can see villa access codes or manage the company. You need an authenticator app on your phone.",
+    "setupIntro": "Your company asks for a second step when you sign in. You need an authenticator app on your phone.",
     "setupIntroOptional": "Signing in will ask for a code from an authenticator app on your phone, as well as your password.",
     "step1": "1. In the authenticator app, add an account and scan this code.",
     "manualKey": "Can't scan it? Type this key:",
@@ -1831,7 +1831,14 @@
     "resetUnavailable": "This person hasn't turned on two-factor sign-in, so there is nothing to reset.",
     "resetConfirm": "Reset this person's two-factor sign-in? They'll sign in with their password only and, if their role requires it, be asked to set it up again.",
     "notAllowed": "Your company requires two-factor sign-in for your role.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "ruleLabel": "Two-factor sign-in",
+    "ruleHint": "Whether this person must sign in with a second factor: their own rule, or the company's (Settings → Organization).",
+    "rule": {
+      "company": "2FA: company rule",
+      "required": "2FA: required",
+      "notRequired": "2FA: not required"
+    }
   },
   "erasure": {
     "formerUser": "Former user",
@@ -2467,7 +2474,8 @@
       "onCallHours": "On-call hours",
       "defaultOfficeId": "Default office",
       "prepMinutes": "Preparation / Planning (minutes)",
-      "prices": "Prices at completion"
+      "prices": "Prices at completion",
+      "require2fa": "Two-factor sign-in required"
     }
   },
   "van": {
