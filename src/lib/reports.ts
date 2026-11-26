@@ -3,10 +3,10 @@ import type { AppContext } from "@/lib/context";
 import type { ReportFilters } from "@/lib/report-filters";
 import { compliance, SLA_STATUS_LOGS, slaCalendar, slaStates, type SlaState } from "@/lib/sla";
 import { countByBucket, hoursBetween, mean, median, pmCompliance, sumBy, timeInStatus, workingDays } from "@/lib/report-math";
-import { ACTIVE_STATUSES, workOrderCosts } from "@/lib/work-orders";
-import { billedTime, timeRoundingOf } from "@/lib/billing-time";
-import { urgentRuleFor } from "@/lib/urgent-surcharge";
-import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { ACTIVE_STATUSES, livePrepRates, workOrderCosts } from "@/lib/work-orders";
+import { billedTime } from "@/lib/billing-time";
+import { costArgs, CONTRACT_PRICE_FIELDS, pricesOf } from "@/lib/work-order-prices";
+import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { villaAccess } from "@/lib/portal-scope";
 import type { Prisma } from "@/generated/prisma/client";
@@ -34,9 +34,13 @@ export function woScope(f: ReportFilters): Prisma.WorkOrderWhereInput {
 const inRange = (f: ReportFilters) => ({ gte: f.from, lte: f.to });
 
 // Contract fields that change what a work order costs: its urgent surcharge and trips.
-const CONTRACT_COST_FIELDS = { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } as const;
+const CONTRACT_COST_FIELDS = CONTRACT_PRICE_FIELDS;
 const costSelect = {
+  id: true,
   priority: true,
+  prepMinutes: true,
+  status: true,
+  prices: true,
   contract: { select: CONTRACT_COST_FIELDS },
   timeEntries: { select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, mode: true } },
   villa: { select: TRAVEL_VILLA_SELECT },
@@ -55,7 +59,6 @@ export async function overview(ctx: Ctx, f: ReportFilters, now = new Date()) {
       where: { ...scope, createdAt: inRange(f) },
       select: {
         type: true,
-        status: true,
         createdAt: true,
         firstResponseAt: true,
         completedAt: true,
@@ -76,8 +79,8 @@ export async function overview(ctx: Ctx, f: ReportFilters, now = new Date()) {
   const responses = opened.filter((w) => REACTIVE_TYPES.includes(w.type) && w.firstResponseAt).map((w) => hoursBetween(w.createdAt, w.firstResponseAt!));
   const calendar = slaCalendar(ctx.organization);
   const sla = opened.filter((w) => w.contract).map((w) => slaStates(w, w.contract, now, calendar));
-  const block = timeRoundingOf(ctx.organization.timeRounding);
-  const cost = opened.reduce((s, w) => s + workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes)).total, 0);
+  const prep = await livePrepRates(ctx, opened.map((w) => w.id));
+  const cost = opened.reduce((s, w) => s + workOrderCosts(w, ...costArgs(ctx.organization, w, homes, prep.get(w.id) ?? 0)).total, 0);
   const trend = countByBucket({ opened: opened.map((w) => w.createdAt), completed: completed.map((w) => w.completedAt) }, f.from, f.to);
 
   return {
@@ -187,7 +190,6 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
     ctx.db.workOrder.findMany({
       where: { ...woScope(f), createdAt: inRange(f) },
       select: {
-        id: true,
         year: true, number: true,
         title: true,
         system: true,
@@ -210,8 +212,8 @@ export async function costReport(ctx: Ctx, f: ReportFilters) {
       select: { clientId: true, monthlyFee: true, startDate: true, endDate: true },
     }),
   ]);
-  const block = timeRoundingOf(ctx.organization.timeRounding);
-  const rows = wos.map((w) => ({ ...w, cost: workOrderCosts(w, block, urgentRuleFor(ctx.organization, w.contract), travelOf(ctx.organization, w.contract, homes)) }));
+  const prep = await livePrepRates(ctx, wos.map((w) => w.id));
+  const rows = wos.map((w) => ({ ...w, cost: workOrderCosts(w, ...costArgs(ctx.organization, w, homes, prep.get(w.id) ?? 0)) }));
   type Row = (typeof rows)[number];
   const group = (key: (r: Row) => { id: string; name: string } | null) => {
     const m = new Map<string, { id: string; name: string; labor: number; parts: number; other: number; urgent: number; travel: number; total: number; count: number }>();
@@ -260,16 +262,16 @@ export async function technicianReport(ctx: Ctx, f: ReportFilters) {
   const [withTime, completed] = await Promise.all([
     ctx.db.workOrder.findMany({
       where: { ...scope, timeEntries: { some: { startedAt: inRange(f) } } },
-      select: { timeEntries: { where: { startedAt: inRange(f), minutes: { not: null } }, select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, user: { select: { name: true } } } } },
+      select: { status: true, prices: true, timeEntries: { where: { startedAt: inRange(f), minutes: { not: null } }, select: { userId: true, minutes: true, hourlyRate: true, startedAt: true, user: { select: { name: true } } } } },
     }),
     ctx.db.workOrder.findMany({ where: { ...scope, status: "DONE", completedAt: inRange(f), completedById: { not: null } }, select: { completedById: true } }),
   ]);
   const people = new Map<string, { id: string; name: string; minutes: number; billed: number; labor: number; jobs: Set<number>; completed: number }>();
-  const block = timeRoundingOf(ctx.organization.timeRounding);
   // Hours worked are the minutes logged (utilisation); labour and billed hours use each technician's time per
-  // work order and day rounded up to the billing period.
+  // work order and day rounded up to the billing period (the one saved on a completed job, see lib/work-order-prices).
   withTime.forEach((w, i) => {
     const names = new Map(w.timeEntries.map((e) => [e.userId, e.user.name]));
+    const { block } = pricesOf(ctx.organization, w);
     for (const t of billedTime(w.timeEntries, block, ctx.organization.timezone).people) {
       const p = people.get(t.userId) ?? { id: t.userId, name: names.get(t.userId) ?? "", minutes: 0, billed: 0, labor: 0, jobs: new Set<number>(), completed: 0 };
       p.minutes += t.minutes;

@@ -70,8 +70,8 @@ describe("saving the matrix", () => {
 });
 
 describe("accountant", () => {
-  it("defaults to reports, costs and billing, and billing can be given to other roles", () => {
-    expect(sorted(effectivePermissions("ACCOUNTANT", null))).toEqual(["billing.manage", "billing.view", "costs.view", "internal.view", "reports.view"]);
+  it("defaults to reports, costs, billing and preparation time, and billing can be given to other roles", () => {
+    expect(sorted(effectivePermissions("ACCOUNTANT", null))).toEqual(["billing.manage", "billing.view", "costs.view", "internal.view", "reports.view", "workOrders.prepTime"]);
     expect(effectivePermissions("MANAGER", { MANAGER: ["billing.manage"] }).has("billing.manage")).toBe(true);
   });
 

@@ -540,7 +540,8 @@
     "relatedNumber": "Work order number",
     "relatedRemove": "Remove the link",
     "linkNotFound": "There is no work order with that number.",
-    "linkSelf": "That is this work order."
+    "linkSelf": "That is this work order.",
+    "prepNotAllowed": "You can't change this work order's preparation time."
   },
   "woStatus": {
     "OPEN": "Open",
@@ -646,7 +647,11 @@
     "timeBilled": "Time billed",
     "urgent": "Urgent fee",
     "travel": "Trips",
-    "trips": "{count, plural, one {# trip} other {# trips}}"
+    "trips": "{count, plural, one {# trip} other {# trips}}",
+    "prep": "Preparation / Planning",
+    "prepMinutes": "Preparation / Planning (minutes)",
+    "prepEdit": "Change the preparation time",
+    "pricesFrozen": "At the prices in force when it was completed ({date})."
   },
   "files": {
     "title": "Photos & files",
@@ -1934,6 +1939,10 @@
       "sendReport": {
         "label": "Send service reports",
         "hint": "E-mail the PDF service report to the client and other recipients."
+      },
+      "prepTime": {
+        "label": "Change preparation time",
+        "hint": "Change the Preparation / Planning minutes of any work order, until it is invoiced. The technicians assigned to a job always can while it is open."
       }
     },
     "requests": {
@@ -2464,6 +2473,8 @@
       "updatedById": "Updated by",
       "onCallHours": "On-call hours",
       "defaultOfficeId": "Default office",
+      "prepMinutes": "Preparation / Planning (minutes)",
+      "prices": "Prices at completion",
       "require2fa": "Two-factor sign-in required"
     }
   },

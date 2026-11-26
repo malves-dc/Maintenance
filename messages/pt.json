@@ -540,7 +540,8 @@
     "relatedNumber": "Número da ordem de trabalho",
     "relatedRemove": "Remover a ligação",
     "linkNotFound": "Não existe nenhuma ordem de trabalho com esse número.",
-    "linkSelf": "Esse é o número desta ordem de trabalho."
+    "linkSelf": "Esse é o número desta ordem de trabalho.",
+    "prepNotAllowed": "Não pode alterar o tempo de preparação desta ordem de trabalho."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -646,7 +647,11 @@
     "timeBilled": "Tempo faturado",
     "urgent": "Taxa de urgência",
     "travel": "Deslocações",
-    "trips": "{count, plural, one {# deslocação} other {# deslocações}}"
+    "trips": "{count, plural, one {# deslocação} other {# deslocações}}",
+    "prep": "Preparação / Planeamento",
+    "prepMinutes": "Preparação / Planeamento (minutos)",
+    "prepEdit": "Alterar o tempo de preparação",
+    "pricesFrozen": "Aos preços em vigor quando foi concluída ({date})."
   },
   "files": {
     "title": "Fotografias e ficheiros",
@@ -1934,6 +1939,10 @@
       "sendReport": {
         "label": "Enviar relatórios de serviço",
         "hint": "Enviar por e-mail o relatório de serviço em PDF ao cliente e a outros destinatários."
+      },
+      "prepTime": {
+        "label": "Alterar o tempo de preparação",
+        "hint": "Alterar os minutos de Preparação / Planeamento de qualquer ordem de trabalho, até ser faturada. Os técnicos atribuídos a um trabalho podem sempre, enquanto está aberto."
       }
     },
     "requests": {
@@ -2464,6 +2473,8 @@
       "updatedById": "Atualizado por",
       "onCallHours": "Horário de prevenção",
       "defaultOfficeId": "Escritório por defeito",
+      "prepMinutes": "Preparação / Planeamento (minutos)",
+      "prices": "Preços à conclusão",
       "require2fa": "Autenticação de dois fatores obrigatória"
     }
   },
