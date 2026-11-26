@@ -34,9 +34,9 @@ export async function checkSecondFactor(user: TotpUser, code: string): Promise<"
 export async function twoFactorRequiredFor(userId: string) {
   const memberships = await prisma.membership.findMany({
     where: { userId, active: true },
-    select: { role: true, organization: { select: { require2fa: true, rolePermissions: true } }, jobRole: { select: { permissions: true } } },
+    select: { role: true, require2fa: true, organization: { select: { require2fa: true, rolePermissions: true } }, jobRole: { select: { permissions: true } } },
   });
-  return memberships.some((m) => needsTwoFactor(m.organization.require2fa, m.role, effectivePermissions(m.role, m.organization.rolePermissions, m.jobRole?.permissions)));
+  return memberships.some((m) => needsTwoFactor(m.organization.require2fa, m.role, effectivePermissions(m.role, m.organization.rolePermissions, m.jobRole?.permissions), m.require2fa));
 }
 
 /** The secret being set up (made on first visit to the setup page, kept until confirmed so a reload doesn't change it). */

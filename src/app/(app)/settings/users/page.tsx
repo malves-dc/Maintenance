@@ -110,7 +110,7 @@ export default async function UsersPage() {
                       {m.erasedAt || m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
                     </Badge>
                   </td>
-                  <td className="text-right">{!locked && <MemberControls id={m.id} role={m.jobRoleId ? `job:${m.jobRoleId}` : m.role} active={m.active} twoFactor={!!m.user.totpEnabledAt} roleOptions={roleOptions} />}</td>
+                  <td className="text-right">{!locked && <MemberControls id={m.id} role={m.jobRoleId ? `job:${m.jobRoleId}` : m.role} active={m.active} twoFactor={!!m.user.totpEnabledAt} require2fa={m.require2fa} roleOptions={roleOptions} />}</td>
                 </tr>
               );
             })}
