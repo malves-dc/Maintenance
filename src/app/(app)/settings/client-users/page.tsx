@@ -81,7 +81,7 @@ export default async function ClientUsersPage() {
                       {m.erasedAt || m.user.erasedAt ? t("erasure.erased") : m.active ? t("common.active") : t("common.inactive")}
                     </Badge>
                   </td>
-                  <td className="text-right">{!(m.erasedAt || m.user.erasedAt) && <MemberControls id={m.id} active={m.active} twoFactor={!!m.user.totpEnabledAt} />}</td>
+                  <td className="text-right">{!(m.erasedAt || m.user.erasedAt) && <MemberControls id={m.id} active={m.active} twoFactor={!!m.user.totpEnabledAt} require2fa={m.require2fa} />}</td>
                 </tr>
               ))}
             </tbody>

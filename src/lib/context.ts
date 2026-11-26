@@ -43,8 +43,9 @@ export const getContext = cache(async () => {
   await touchLastSeen(membership);
   // The company's permission settings (Settings → Roles) applied to this member's role / custom role.
   const permissions = effectivePermissions(membership.role, membership.organization.rolePermissions, membership.jobRole?.permissions);
-  // Admins and people who can open access codes must have two-factor sign-in on first (Settings → Organization).
-  if (!user.totpEnabledAt && needsTwoFactor(membership.organization.require2fa, membership.role, permissions)) redirect("/two-factor");
+  // Admins and people who can open access codes must have two-factor sign-in on first (Settings → Organization), and
+  // anyone the admins require it of (Settings → Staff / Clients).
+  if (!user.totpEnabledAt && needsTwoFactor(membership.organization.require2fa, membership.role, permissions, membership.require2fa)) redirect("/two-factor");
 
   return {
     user,

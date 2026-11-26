@@ -352,7 +352,15 @@
     "distanceKm": "Distância à empresa",
     "distanceHint": "Distância por estrada em km, só ida. Define o valor da deslocação no trabalho no local (Definições → Empresa).",
     "distanceValue": "{km, number} km",
-    "distanceUnset": "Não definida (valor fixo de deslocação)"
+    "distanceUnset": "Não definida (valor fixo de deslocação)",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blocked": "Bloqueada",
+    "blockConfirm": "Bloquear esta villa? Não será possível criar ordens de trabalho para ela — à mão, a partir de pedidos dos clientes ou por planos preventivos — até ser desbloqueada. Os clientes continuam a poder enviar pedidos.",
+    "unblockConfirm": "Desbloquear esta villa? Volta a ser possível criar ordens de trabalho para ela.",
+    "blockedTitle": "Esta villa está bloqueada",
+    "blockedBody": "Não é possível criar ordens de trabalho para ela (à mão, a partir de pedidos ou por planos preventivos); as ordens preventivas que ficam por criar são comunicadas por e-mail aos gestores. Bloqueada a {when} por {who}.",
+    "blockedHint": "Não é possível criar ordens de trabalho para esta villa"
   },
   "areas": {
     "title": "Pisos e divisões",
@@ -540,7 +548,9 @@
     "relatedNumber": "Número da ordem de trabalho",
     "relatedRemove": "Remover a ligação",
     "linkNotFound": "Não existe nenhuma ordem de trabalho com esse número.",
-    "linkSelf": "Esse é o número desta ordem de trabalho."
+    "linkSelf": "Esse é o número desta ordem de trabalho.",
+    "prepNotAllowed": "Não pode alterar o tempo de preparação desta ordem de trabalho.",
+    "villaBlocked": "Esta villa está bloqueada: não é possível criar ordens de trabalho para ela. Quem tem permissão para bloquear villas pode desbloqueá-la."
   },
   "woStatus": {
     "OPEN": "Aberta",
@@ -646,7 +656,11 @@
     "timeBilled": "Tempo faturado",
     "urgent": "Taxa de urgência",
     "travel": "Deslocações",
-    "trips": "{count, plural, one {# deslocação} other {# deslocações}}"
+    "trips": "{count, plural, one {# deslocação} other {# deslocações}}",
+    "prep": "Preparação / Planeamento",
+    "prepMinutes": "Preparação / Planeamento (minutos)",
+    "prepEdit": "Alterar o tempo de preparação",
+    "pricesFrozen": "Aos preços em vigor quando foi concluída ({date})."
   },
   "files": {
     "title": "Fotografias e ficheiros",
@@ -779,7 +793,8 @@
     "pause": "Pausar",
     "resume": "Retomar",
     "deleteConfirm": "Eliminar este plano? As ordens de trabalho já criadas são mantidas.",
-    "planned": "Planeada"
+    "planned": "Planeada",
+    "runBlocked": "{count, plural, one {# não criada (villa bloqueada)} other {# não criadas (villas bloqueadas)}}"
   },
   "meters": {
     "description": "Leituras como a carga da bateria da UPS, horas de disco ou horas da lâmpada do projetor. Valores fora dos limites podem abrir ordens de trabalho.",
@@ -844,7 +859,8 @@
     "moveVisit": "Alterar visita",
     "visitSaved": "Guardado. O cliente foi avisado.",
     "outsideWindow": "Fora da disponibilidade do cliente.",
-    "notSchedulable": "Já não é possível alterar a visita deste pedido."
+    "notSchedulable": "Já não é possível alterar a visita deste pedido.",
+    "villaBlocked": "{villa} está bloqueada: este pedido não pode passar a ordem de trabalho até a villa ser desbloqueada."
   },
   "portal": {
     "title": "Portal do cliente",
@@ -1166,6 +1182,10 @@
     "REQUEST_PHOTOS": {
       "title": "Novas fotografias no pedido {number}: {title}",
       "body": "{actor} adicionou {count, plural, one {# fotografia} other {# fotografias}}"
+    },
+    "PM_BLOCKED": {
+      "title": "Ordem preventiva não criada: {villa} está bloqueada",
+      "body": "{schedule}, prevista para {due}, não foi criada porque a villa está bloqueada."
     }
   },
   "email": {
@@ -1251,7 +1271,8 @@
       "PO_APPROVAL": "Notas de encomenda a aguardar aprovação",
       "PO_UPDATE": "Atualizações das minhas notas de encomenda",
       "REQUEST_MESSAGE": "Novas mensagens na conversa de um pedido",
-      "REQUEST_PHOTOS": "Um cliente adiciona fotografias a um pedido"
+      "REQUEST_PHOTOS": "Um cliente adiciona fotografias a um pedido",
+      "PM_BLOCKED": "Ordens preventivas não criadas (villa bloqueada)"
     },
     "appearance": "Idioma e aspeto",
     "language": "Idioma"
@@ -1800,7 +1821,7 @@
     "orgSettingHint": "Ser-lhes-á pedido que a configurem na próxima visita, com uma aplicação de autenticação (Microsoft Authenticator, Google Authenticator, 1Password…).",
     "on": "Ativa desde {date}.",
     "off": "Desativada. O início de sessão pede apenas a palavra-passe.",
-    "required": "A sua empresa exige-a para a sua função.",
+    "required": "A sua empresa exige-a para si.",
     "setUp": "Configurar",
     "turnOff": "Desativar",
     "turnOffConfirm": "Desativar a autenticação de dois fatores? O início de sessão passa a pedir apenas a palavra-passe.",
@@ -1811,7 +1832,7 @@
     "codeHint": "6 dígitos. Perdeu o telemóvel? Escreva um dos seus códigos de recuperação.",
     "invalidCode": "Código errado ou expirado.",
     "setupTitle": "Configurar a autenticação de dois fatores",
-    "setupIntro": "A sua empresa pede um segundo passo no início de sessão, porque a sua conta pode ver códigos de acesso das moradias ou gerir a empresa. Precisa de uma aplicação de autenticação no telemóvel.",
+    "setupIntro": "A sua empresa pede um segundo passo no início de sessão. Precisa de uma aplicação de autenticação no telemóvel.",
     "setupIntroOptional": "O início de sessão passa a pedir um código de uma aplicação de autenticação no telemóvel, além da palavra-passe.",
     "step1": "1. Na aplicação de autenticação, adicione uma conta e leia este código.",
     "manualKey": "Não consegue ler o código? Escreva esta chave:",
@@ -1826,7 +1847,14 @@
     "resetUnavailable": "Esta pessoa não ativou a autenticação de dois fatores, por isso não há nada a repor.",
     "resetConfirm": "Repor a autenticação de dois fatores desta pessoa? Passa a entrar só com a palavra-passe e, se a função o exigir, terá de a configurar de novo.",
     "notAllowed": "A sua empresa exige a autenticação de dois fatores para a sua função.",
-    "signOut": "Terminar sessão"
+    "signOut": "Terminar sessão",
+    "ruleLabel": "Autenticação de dois fatores",
+    "ruleHint": "Se esta pessoa tem de iniciar sessão com um segundo fator: uma regra própria, ou a da empresa (Definições → Organização).",
+    "rule": {
+      "company": "2FA: regra da empresa",
+      "required": "2FA: obrigatória",
+      "notRequired": "2FA: não obrigatória"
+    }
   },
   "erasure": {
     "formerUser": "Antigo utilizador",
@@ -1927,6 +1955,10 @@
       "sendReport": {
         "label": "Enviar relatórios de serviço",
         "hint": "Enviar por e-mail o relatório de serviço em PDF ao cliente e a outros destinatários."
+      },
+      "prepTime": {
+        "label": "Alterar o tempo de preparação",
+        "hint": "Alterar os minutos de Preparação / Planeamento de qualquer ordem de trabalho, até ser faturada. Os técnicos atribuídos a um trabalho podem sempre, enquanto está aberto."
       }
     },
     "requests": {
@@ -2059,6 +2091,12 @@
       "view": {
         "label": "Acesso à app de manutenção",
         "hint": "Abrir a app da equipa: ordens de trabalho, moradias, equipamentos e o resto. Sem esta permissão, a pessoa só vê as Horas (se as registar), o perfil e as notificações."
+      }
+    },
+    "villas": {
+      "block": {
+        "label": "Bloquear villas",
+        "hint": "Bloquear ou desbloquear uma villa: enquanto estiver bloqueada, não é possível criar ordens de trabalho para ela nem passar pedidos a ordem de trabalho."
       }
     }
   },
@@ -2465,7 +2503,12 @@
       "assets": "Equipamentos",
       "updatedById": "Atualizado por",
       "onCallHours": "Horário de prevenção",
-      "defaultOfficeId": "Escritório por defeito"
+      "defaultOfficeId": "Escritório por defeito",
+      "prepMinutes": "Preparação / Planeamento (minutos)",
+      "prices": "Preços à conclusão",
+      "require2fa": "Autenticação de dois fatores obrigatória",
+      "blockedAt": "Bloqueada",
+      "blockedById": "Bloqueada por"
     }
   },
   "van": {

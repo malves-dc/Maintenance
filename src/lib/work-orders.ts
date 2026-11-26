@@ -10,6 +10,9 @@ import { contractFor } from "@/lib/contracts";
 import { effectivePermissions } from "@/lib/rbac";
 import { parseRoleRates, workOrderRateFor } from "@/lib/roles";
 import { billedTime, type TimeEntryLike } from "@/lib/billing-time";
+import { prepCost, prepRateFor, prepRateOf } from "@/lib/prep-time";
+import { CONTRACT_PRICE_FIELDS, currentPrices } from "@/lib/work-order-prices";
+import { Prisma } from "@/generated/prisma/client";
 import { canLogTime, withoutTime } from "@/lib/wo-time";
 import { syncReportRevision } from "@/lib/report-revision";
 import { copyReportToAccountants } from "@/lib/accountant-copy";
@@ -23,7 +26,7 @@ export const ACTIVE_STATUSES: WorkOrderStatus[] = ["OPEN", "EN_ROUTE", "IN_PROGR
 export const notStarted = (status: WorkOrderStatus) => status === "OPEN" || status === "EN_ROUTE";
 
 export class WorkOrderError extends Error {
-  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned") {
+  constructor(public code: "requiredItems" | "invalidRef" | "invalidAssignee" | "locked" | "alreadySigned" | "signOffRequired" | "reportRequired" | "timeRequired" | "noTechnician" | "timeNotAssigned" | "villaBlocked") {
     super(code);
   }
 }
@@ -124,8 +127,16 @@ export async function validateCategories(ctx: WoCtx, ids: string[] = []) {
   return unique;
 }
 
+/** A blocked villa (Villa.blockedAt) takes no new work orders: by hand, from a request or from a schedule. */
+export async function assertVillaNotBlocked(ctx: Pick<WoCtx, "db">, villaId: string | null) {
+  if (!villaId) return;
+  const villa = await ctx.db.villa.findUnique({ where: { id: villaId }, select: { blockedAt: true } });
+  if (villa?.blockedAt) throw new WorkOrderError("villaBlocked");
+}
+
 export async function createWorkOrder(ctx: WoCtx, input: WorkOrderInput) {
   const refs = await resolveRefs(ctx, input);
+  await assertVillaNotBlocked(ctx, refs.villaId);
   const assigneeIds = await validateAssignees(ctx, input.assigneeIds);
   const categoryIds = await validateCategories(ctx, input.categoryIds);
 
@@ -223,6 +234,7 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       items: { select: { type: true, value: true, required: true } },
       assignees: { select: { userId: true } },
       timeEntries: { select: { userId: true, minutes: true, endedAt: true } },
+      contract: { select: CONTRACT_PRICE_FIELDS },
     },
   });
   if (!wo) throw new WorkOrderError("invalidRef");
@@ -248,6 +260,8 @@ export async function changeStatus(ctx: WoCtx, workOrderId: string, to: WorkOrde
       status: to,
       completedAt: to === "DONE" ? now : null,
       completedById: to === "DONE" ? ctx.user.id : null,
+      // Completed at today's prices: later changes to the settings leave it as it is (lib/work-order-prices.ts).
+      prices: to === "DONE" ? currentPrices(ctx.organization, wo.contract, (await livePrepRates(ctx, [workOrderId])).get(workOrderId) ?? 0) : Prisma.DbNull,
       firstResponseAt: wo.firstResponseAt ?? (to === "EN_ROUTE" || to === "IN_PROGRESS" || to === "DONE" ? now : null),
       statusLogs: { create: { fromStatus: wo.status, toStatus: to, userId: ctx.user.id, note: note || null } },
     },
@@ -324,11 +338,13 @@ export async function stopRunningTimers(ctx: WoCtx, workOrderId: string, at = ne
 
 /**
  * Labour + parts + other costs (+ urgent surcharge and trips) for a work order. Labour uses billed time: each technician's minutes per day rounded up
- * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged.
+ * to `block` (the company's billing period, see lib/billing-time.ts); `minutes` is the time actually logged. Labour also
+ * holds the preparation time (`prep`, lib/prep-time.ts), which isn't rounded and isn't part of the urgent surcharge.
  */
 export function workOrderCosts(
   wo: {
     priority?: string | null;
+    prepMinutes?: number | null;
     timeEntries: (TimeEntryLike & Partial<TripEntry>)[];
     otherCosts: { amount: unknown }[];
     parts?: { quantity: unknown; unitCost: unknown }[];
@@ -342,6 +358,8 @@ export function workOrderCosts(
   urgentRule: UrgentRule = NO_SURCHARGE,
   /** The company's trip charges (see lib/travel-charge.ts); none when omitted. */
   travel: TravelContext | null = null,
+  /** Cost per hour of the preparation time (prepRateOf); none when omitted. */
+  prepRate = 0,
 ) {
   const time = billedTime(wo.timeEntries, block, travel?.timeZone);
   const other = wo.otherCosts.reduce((s, c) => s + Number(c.amount), 0);
@@ -349,10 +367,13 @@ export function workOrderCosts(
   const urgent = urgentSurcharge(wo.priority, time.labor, urgentRule);
   const trips = travel ? travelCharge(wo.timeEntries, { villa: wo.villa, assignees: wo.assignees }, travel) : null;
   const travelCost = trips?.amount ?? 0;
+  const prep = prepCost(wo.prepMinutes, prepRate);
   return {
     minutes: time.minutes,
     billedMinutes: time.billed,
-    labor: time.labor,
+    labor: time.labor + prep,
+    prepMinutes: wo.prepMinutes ?? 0,
+    prep,
     parts,
     other,
     urgent,
@@ -360,11 +381,43 @@ export function workOrderCosts(
     trips: trips?.trips ?? 0,
     perTrip: trips?.perTrip ?? 0,
     tripLines: trips?.lines ?? [],
-    total: time.labor + parts + other + urgent + travelCost,
+    total: time.labor + prep + parts + other + urgent + travelCost,
   };
 }
 
 const ASSIGNEE_ROLE = { role: true, jobRole: { select: { access: true, hourlyRate: true } } } as const;
+
+/**
+ * Today's preparation rate of each work order (lib/prep-time.ts): the highest rate among its assigned technicians,
+ * else the company's Technician rate. Completed jobs use the rate saved on them instead (lib/work-order-prices.ts).
+ */
+export async function livePrepRates(ctx: Pick<WoCtx, "db" | "organization">, woIds: string[]) {
+  const rates = parseRoleRates(ctx.organization.roleRates);
+  const fallback = prepRateOf(ctx.organization);
+  const rows = woIds.length
+    ? await ctx.db.workOrderAssignee.findMany({
+        where: { workOrderId: { in: woIds } },
+        select: {
+          workOrderId: true,
+          ...ASSIGNEE_ROLE,
+          user: {
+            select: {
+              memberships: {
+                where: { organizationId: ctx.organization.id, active: true },
+                select: { role: true, hourlyRate: true, jobRole: { select: { hourlyRate: true } } },
+              },
+            },
+          },
+        },
+      })
+    : [];
+  const out = new Map<string, number>();
+  for (const id of woIds) {
+    const mine = rows.filter((r) => r.workOrderId === id).map((r) => ({ role: r.role, jobRole: r.jobRole, member: r.user.memberships[0] ?? null }));
+    out.set(id, prepRateFor(mine, rates, fallback));
+  }
+  return out;
+}
 
 /** My cost per hour on this job (the role I took on it, else my own): stamped on the time I log on it. */
 export async function myRateOn(ctx: AppContext, woId: string) {

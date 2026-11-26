@@ -13,6 +13,7 @@ import { consumePart, InventoryError, returnPart } from "@/lib/inventory";
 import { contractFor } from "@/lib/contracts";
 import {
   assertCanLogTime,
+  assertVillaNotBlocked,
   changeStatus,
   createWorkOrder,
   myRateOn,
@@ -30,6 +31,7 @@ import { emailConfigured } from "@/lib/email";
 import { reportRecipients, sendServiceReport } from "@/lib/report-email";
 import { WORK_ORDER_BUILT_IN_ROLE } from "@/lib/roles";
 import { MAX_EXTRA, parseEmailList } from "@/lib/report-recipients";
+import { canChangePrep, PREP_MAX_MINUTES } from "@/lib/prep-time";
 
 const path = (id: string) => `/work-orders/${id}`;
 
@@ -88,6 +90,8 @@ export async function saveWorkOrderAction(id: string | null, _: FormResult, form
     if (id) {
       const before = await editableWorkOrder(ctx, id);
       const refs = await resolveRefs(ctx, input);
+      // Moving a job to a blocked villa would be a way round the block.
+      if (refs.villaId !== before.villaId) await assertVillaNotBlocked(ctx, refs.villaId);
       const ids = await validateAssignees(ctx, assigneeIds);
       const cats = await validateCategories(ctx, categoryIds);
       const wo = await ctx.db.workOrder.update({
@@ -380,6 +384,30 @@ export async function deleteCostAction(woId: string, costId: string) {
   const { ctx } = await executableWorkOrder(woId);
   await ctx.db.workOrderCost.deleteMany({ where: { id: costId, workOrderId: woId } });
   revalidatePath(path(woId));
+}
+
+// ── Preparation time ("Preparação / Planeamento")
+
+const prepSchema = z.object({ minutes: z.coerce.number().int().min(0).max(PREP_MAX_MINUTES) });
+
+/** Assigned technicians on their open jobs, or anyone with workOrders.prepTime until the job is invoiced (lib/prep-time.ts). */
+export async function setPrepMinutesAction(woId: string, _: FormResult, form: FormData): Promise<FormResult> {
+  const ctx = await getContext();
+  const wo = await ctx.db.workOrder.findUnique({ where: { id: woId }, select: { status: true, invoicedAt: true, assignees: { where: { userId: ctx.user.id }, select: { userId: true } } } });
+  if (!wo) throw new Error("Not found");
+  const allowed = canChangePrep({
+    hasPermission: ctx.can("workOrders.prepTime"),
+    canExecute: ctx.can("workOrders.execute"),
+    assigned: wo.assignees.length > 0,
+    closed: wo.status === "DONE" || wo.status === "CANCELLED",
+    invoiced: !!wo.invoicedAt,
+  });
+  if (!allowed) return { error: "wo.prepNotAllowed" };
+  const parsed = parseForm(prepSchema, form);
+  if (parsed.error) return parsed.error;
+  await ctx.db.workOrder.update({ where: { id: woId }, data: { prepMinutes: parsed.data.minutes } });
+  revalidatePath(path(woId));
+  return { ok: true };
 }
 
 // ── Parts used

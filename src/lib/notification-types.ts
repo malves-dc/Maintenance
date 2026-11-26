@@ -12,6 +12,7 @@ export const NOTIFICATION_TYPES = [
   "REQUEST_MESSAGE",
   "REQUEST_PHOTOS",
   "METER_ALERT",
+  "PM_BLOCKED",
   "LOW_STOCK",
   "PO_APPROVAL",
   "PO_UPDATE",
@@ -32,6 +33,7 @@ export const NOTIFICATION_DEFAULTS: Record<NotificationType, Channels & { inApp:
   REQUEST_MESSAGE: { inApp: true, email: false, push: true },
   REQUEST_PHOTOS: { inApp: true, email: false, push: true },
   METER_ALERT: { inApp: true, email: true, push: true },
+  PM_BLOCKED: { inApp: true, email: true, push: false }, // a preventive work order wasn't created: its villa is blocked
   LOW_STOCK: { inApp: true, email: false, push: true },
   PO_APPROVAL: { inApp: true, email: true, push: true },
   PO_UPDATE: { inApp: true, email: false, push: true },

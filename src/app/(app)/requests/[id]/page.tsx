@@ -9,10 +9,9 @@ import { PriorityText, SystemBadge, WorkOrderStatusBadge } from "@/components/ba
 import { RequestStatusBadge } from "@/components/request-badge";
 import { getContext } from "@/lib/context";
 import { fileUrl } from "@/lib/storage";
-import { assignableUsers, workOrderCosts } from "@/lib/work-orders";
-import { timeRoundingOf } from "@/lib/billing-time";
-import { urgentRuleFor } from "@/lib/urgent-surcharge";
-import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelOf } from "@/lib/travel-charge";
+import { assignableUsers, livePrepRates, workOrderCosts } from "@/lib/work-orders";
+import { costArgs } from "@/lib/work-order-prices";
+import { TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT } from "@/lib/travel-charge";
 import { homeOffices } from "@/lib/offices";
 import { approveRequestAction, declineRequestAction, scheduleRequestAction } from "../actions";
 import { DateTimeField } from "@/components/datetime-field";
@@ -34,7 +33,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   const r = await ctx.db.request.findUnique({
     where: { id },
     include: {
-      villa: { select: { id: true, name: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
+      villa: { select: { id: true, name: true, blockedAt: true, client: { select: { id: true, name: true } }, manager: { select: { id: true, name: true } }, billTo: true } },
       area: { select: { name: true } },
       asset: { select: { id: true, name: true, status: true } },
       requester: { select: { name: true, email: true, phone: true } },
@@ -45,6 +44,8 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           year: true, number: true,
           status: true,
           priority: true,
+          prepMinutes: true,
+          prices: true,
           contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
           villa: { select: TRAVEL_VILLA_SELECT },
           assignees: { select: TRAVEL_ASSIGNEE_SELECT },
@@ -58,6 +59,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
   });
   if (!r) notFound();
   const homes = r.workOrder && ctx.can("costs.view") ? await homeOffices(ctx.db) : undefined;
+  const prep = r.workOrder && ctx.can("costs.view") ? ((await livePrepRates(ctx, [r.workOrder.id])).get(r.workOrder.id) ?? 0) : 0;
   // Approvers, and whoever was on call when it arrived.
   const isHandler = ctx.can("requests.approve") || r.onCallUsers.some((u) => u.id === ctx.user.id);
   const canApprove = isHandler && r.status === "PENDING";
@@ -131,7 +133,7 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           )}
           {r.status === "APPROVED" && r.workOrder && ctx.can("costs.view") && (() => {
             // What this request has cost so far: time (at each person's role rate), parts and other costs.
-            const c = workOrderCosts(r.workOrder, timeRoundingOf(ctx.organization.timeRounding), urgentRuleFor(ctx.organization, r.workOrder.contract), travelOf(ctx.organization, r.workOrder.contract, homes));
+            const c = workOrderCosts(r.workOrder, ...costArgs(ctx.organization, r.workOrder, homes, prep));
             const money = (n: number) => format.number(n, { style: "currency", currency: ctx.organization.currency });
             return (
               <Card className="p-5 text-sm">
@@ -193,6 +195,11 @@ export default async function RequestPage({ params }: PageProps<"/requests/[id]"
           {canApprove && (
             <Card className="p-5">
               <h2 className="mb-4 font-medium">{t("requests.approveTitle")}</h2>
+              {r.villa?.blockedAt && (
+                <p role="alert" className="mb-4 rounded-md border border-red-200 bg-red-50/60 p-3 text-sm text-red-900">
+                  {t("requests.villaBlocked", { villa: r.villa.name })}
+                </p>
+              )}
               <ActionForm action={approveRequestAction.bind(null, r.id)} submitLabel={t("requests.approve")}>
                 <ApproveFields
                   title={r.title}

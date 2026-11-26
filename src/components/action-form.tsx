@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { useActionForm } from "@/lib/use-action-form";
 import { useTranslations } from "next-intl";
 import { Button, FormError } from "@/components/ui";
@@ -12,7 +12,7 @@ const FieldErrorsContext = createContext<Record<string, string> | undefined>(und
 /**
  * Wraps a server action (`(prev, formData) => FormResult`) with pending state and error display.
  * Children can be server-rendered inputs; use <FieldError name> next to an input to show its error.
- * On success the action normally redirects; `onSuccessMessage` shows a note if it doesn't.
+ * On success the action normally redirects; `successMessage` shows a note if it doesn't, and `onSuccess` runs.
  */
 export function ActionForm({
   action,
@@ -21,6 +21,7 @@ export function ActionForm({
   className,
   successMessage,
   footer,
+  onSuccess,
 }: {
   action: (prev: FormResult, form: FormData) => Promise<FormResult>;
   children: ReactNode;
@@ -28,9 +29,13 @@ export function ActionForm({
   className?: string;
   successMessage?: string;
   footer?: ReactNode;
+  onSuccess?: () => void;
 }) {
   const t = useTranslations();
   const [state, formAction, pending] = useActionForm(action);
+  useEffect(() => {
+    if (state?.ok) onSuccess?.();
+  }, [state, onSuccess]);
   // Error codes are message keys: "somethingWrong" (under common) or namespaced like "wo.invalidRef".
   const errorText = (code: string) =>
     t.has(`common.${code}` as never) ? t(`common.${code}` as never) : t.has(code as never) ? t(code as never) : t("common.somethingWrong");

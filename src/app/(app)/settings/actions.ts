@@ -31,6 +31,7 @@ import { background, membersWith } from "@/lib/notify";
 import { audit, auditUser, changesOf } from "@/lib/audit";
 import { TIME_ROUNDING_OPTIONS } from "@/lib/billing-time";
 import { clearTwoFactor } from "@/lib/two-factor";
+import { TWO_FACTOR_SETTINGS, twoFactorOwnOf } from "@/lib/two-factor-rules";
 
 /** Settings → Staff and Settings → Clients list the same memberships and invitations. */
 function revalidateUsers() {
@@ -302,6 +303,20 @@ export async function resetTwoFactorAction(membershipId: string) {
   if (!m || m.userId === ctx.user.id || (m.role === "OWNER" && ctx.role !== "OWNER")) throw new Error("Forbidden");
   await clearTwoFactor(m.userId);
   await auditUser(m.userId, "auth.twoFactorReset", { by: ctx.user.name });
+  revalidateUsers();
+}
+
+/**
+ * A member's own two-factor rule (Super Admin and admins, users.manage): required, not required, or the company's.
+ * Not one's own, and only the Super Admin sets the Super Admin's. A person who must and hasn't set it up is sent to
+ * set it up on their next page; one no longer required can turn it off in their profile.
+ */
+export async function setMemberTwoFactorAction(membershipId: string, setting: string) {
+  const ctx = await requirePermission("users.manage");
+  const s = TWO_FACTOR_SETTINGS.find((x) => x === setting);
+  const m = await ctx.db.membership.findUnique({ where: { id: membershipId }, select: { userId: true, role: true } });
+  if (!s || !m || m.userId === ctx.user.id || (m.role === "OWNER" && ctx.role !== "OWNER")) throw new Error("Forbidden");
+  await ctx.db.membership.update({ where: { id: membershipId }, data: { require2fa: twoFactorOwnOf(s) } });
   revalidateUsers();
 }
 

@@ -226,6 +226,7 @@ model User {
   createdWOs         WorkOrder[]          @relation("WOCreatedBy")
   completedWOs       WorkOrder[]          @relation("WOCompletedBy")
   invoicedWOs        WorkOrder[]          @relation("WOInvoicedBy")
+  blockedVillas      Villa[]              @relation("VillaBlockedBy")
   reportSends        ReportSend[]         @relation("ReportSentBy")
   workOrderLinks     WorkOrderLink[]
   woComments         WorkOrderComment[]
@@ -365,6 +366,9 @@ model Membership {
   hourlyRate     Decimal? @db.Decimal(10, 2)
   // In the on-call team: can be given on-call weeks (OnCallWeek). Staff only (not clients or viewers).
   onCall         Boolean  @default(false)
+  // Two-factor sign-in for this person, set by the Super Admin / admins (users.manage): true = required, false = not
+  // required, null = the company's rule (Organization.require2fa, lib/two-factor-rules.ts).
+  require2fa     Boolean?
   active         Boolean  @default(true)
   // When it was last deactivated: ex-members are flagged for erasure after the retention period (lib/retention).
   deactivatedAt  DateTime?
@@ -558,10 +562,15 @@ model Villa {
   onlineAddress         String? // the IP the host resolved to
   onlineError           String? // connectivity.error.<code>: why it's offline, or "portClosed" (online, but that port refused)
   archivedAt     DateTime?
+  // Blocked (villas.block, e.g. unpaid bills): no work orders can be created for it — by hand, from a request or by a
+  // preventive schedule (managers get an e-mail instead, lib/villa-block.ts). Clients can still send requests.
+  blockedAt      DateTime?
+  blockedById    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  blockedBy    User?             @relation("VillaBlockedBy", fields: [blockedById], references: [id], onDelete: SetNull)
   client       Client?           @relation("VillaOwner", fields: [clientId], references: [id], onDelete: Restrict)
   manager      Client?           @relation("VillaManager", fields: [managerId], references: [id], onDelete: SetNull)
   areas        Area[]
@@ -861,6 +870,12 @@ model WorkOrder {
   firstResponseAt  DateTime? // SLA tracking
   completedAt      DateTime?
   estimatedMinutes Int?
+  // Office time on the job ("Preparação / Planeamento"), charged at the Technician rate (lib/prep-time.ts). Each new
+  // work order starts with the default; its assigned technicians, and those with workOrders.prepTime, can change it.
+  prepMinutes      Int             @default(15)
+  // The prices it is charged at, saved when it is completed (lib/work-order-prices.ts): billing period, urgent
+  // surcharge, trip charges and preparation rate. Null while open (current settings apply); reopening clears it.
+  prices           Json?
   // Client sign-off
   signatureUrl     String?
   signedByName     String?
