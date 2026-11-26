@@ -226,6 +226,7 @@ model User {
   createdWOs         WorkOrder[]          @relation("WOCreatedBy")
   completedWOs       WorkOrder[]          @relation("WOCompletedBy")
   invoicedWOs        WorkOrder[]          @relation("WOInvoicedBy")
+  reportSends        ReportSend[]         @relation("ReportSentBy")
   workOrderLinks     WorkOrderLink[]
   woComments         WorkOrderComment[]
   timeEntries        TimeEntry[]
@@ -1037,13 +1038,19 @@ model TimeEntry {
 
 /// One e-mail of the service report to one address (lib/report-email.ts): shown under each recipient as "sent on".
 /// Scoped through its work order, like TimeEntry.
+/// One address a service report was e-mailed to. The rows of one send share `sentAt` (lib/report-send-log.ts groups them).
 model ReportSend {
   id          String   @id @default(cuid())
   workOrderId String
   email       String
   sentAt      DateTime @default(now())
+  // Who sent it (for the accountants' automatic copy: whose action triggered it); null when unknown.
+  sentById    String?
+  auto        Boolean  @default(false) // the accountants' automatic copy (lib/accountant-copy.ts), not sent by hand
+  revision    Int? // the report's revision (0 = the first); null for sends from before it was kept
 
   workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  sentBy    User?     @relation("ReportSentBy", fields: [sentById], references: [id], onDelete: SetNull)
 
   @@index([workOrderId, email])
 }
