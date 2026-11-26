@@ -8,10 +8,11 @@ import { getObject } from "@/lib/storage";
 import { letterhead } from "@/lib/letterhead";
 import { INTL_LOCALE, type Locale } from "@/i18n/config";
 import { ServiceReport, type ReportData } from "@/app/(app)/work-orders/[id]/report/report-pdf";
-import { billedTime, timeRoundingOf } from "@/lib/billing-time";
-import { urgentApplies, urgentRuleFor } from "@/lib/urgent-surcharge";
+import { billedTime } from "@/lib/billing-time";
+import { urgentApplies } from "@/lib/urgent-surcharge";
 import { villaClient } from "@/lib/villa-client";
-import { chargesTravel, countTrips, dayKey, TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT, travelRuleFor } from "@/lib/travel-charge";
+import { chargesTravel, countTrips, dayKey, TRAVEL_ASSIGNEE_SELECT, TRAVEL_VILLA_SELECT } from "@/lib/travel-charge";
+import { CONTRACT_PRICE_FIELDS, pricesOf } from "@/lib/work-order-prices";
 import { homeOffices } from "@/lib/offices";
 import { REPORT_IMAGE_TYPES, syncReportRevision } from "@/lib/report-revision";
 import { docRef } from "@/lib/series";
@@ -45,7 +46,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
       parts: { include: { part: { select: { name: true, sku: true, unit: true } } }, orderBy: { id: "asc" } },
       linksFrom: { where: { to: { clientVisible: true } }, select: { to: { select: { year: true, number: true, title: true } } } },
       linksTo: { where: { from: { clientVisible: true } }, select: { from: { select: { year: true, number: true, title: true } } } },
-      contract: { select: { urgentFee: true, urgentPercent: true, travelIncluded: true, travelFee: true, travelKmRate: true } },
+      contract: { select: CONTRACT_PRICE_FIELDS },
     },
   });
   if (!wo) return null;
@@ -70,8 +71,10 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
   // Client-facing time is the billed time: one line per technician and day, their time that day rounded up to the
   // company's billing period (lib/billing-time.ts), with the notes of that day's entries.
   const timeZone = ctx.organization.timezone;
-  const billed = billedTime(wo.timeEntries, timeRoundingOf(ctx.organization.timeRounding), timeZone);
-  const rule = travelRuleFor(ctx.organization, wo.contract);
+  // A completed job keeps the prices it was completed at (lib/work-order-prices.ts).
+  const prices = pricesOf(ctx.organization, wo);
+  const billed = billedTime(wo.timeEntries, prices.block, timeZone);
+  const rule = prices.travel;
   const trips = chargesTravel(rule) ? countTrips(wo.timeEntries, timeZone, rule.perTechnician, { villa: wo.villa, assignees: wo.assignees, homes: rule.perTechnician ? undefined : await homeOffices(ctx.db) }) : 0;
   const day = (d: Date) => format.dateTime(d, { dateStyle: "short" });
   const timeRows = [...billed.days].sort((a, b) => a.day.localeCompare(b.day)).map((p) => {
@@ -98,7 +101,7 @@ export async function renderServiceReport(ctx: Pick<AppContext, "db" | "organiza
     [t("assets.system"), wo.system && t(`systems.${wo.system}`)],
     [t("wo.type"), t(`woType.${wo.type}`)],
     // Billed as urgent (the surcharge applies): the client sees it, without amounts.
-    [t("report.service"), urgentApplies(wo.priority, urgentRuleFor(ctx.organization, wo.contract)) ? t("report.urgentService") : null],
+    [t("report.service"), urgentApplies(wo.priority, prices.urgent) ? t("report.urgentService") : null],
     // Trips charged for on-site work: the client sees how many, without amounts.
     [t("report.trips"), trips > 0 ? String(trips) : null],
     [t("common.status"), t(`woStatus.${wo.status}`)],

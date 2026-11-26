@@ -549,6 +549,7 @@
     "relatedRemove": "Remove the link",
     "linkNotFound": "There is no work order with that number.",
     "linkSelf": "That is this work order.",
+    "prepNotAllowed": "You can't change this work order's preparation time.",
     "villaBlocked": "This villa is blocked: no work orders can be created for it. Someone with the permission to block villas can unblock it."
   },
   "woStatus": {
@@ -655,7 +656,11 @@
     "timeBilled": "Time billed",
     "urgent": "Urgent fee",
     "travel": "Trips",
-    "trips": "{count, plural, one {# trip} other {# trips}}"
+    "trips": "{count, plural, one {# trip} other {# trips}}",
+    "prep": "Preparation / Planning",
+    "prepMinutes": "Preparation / Planning (minutes)",
+    "prepEdit": "Change the preparation time",
+    "pricesFrozen": "At the prices in force when it was completed ({date})."
   },
   "files": {
     "title": "Photos & files",
@@ -1816,7 +1821,7 @@
     "orgSettingHint": "They'll be asked to set it up on their next visit, with an authenticator app (Microsoft Authenticator, Google Authenticator, 1Password…).",
     "on": "On since {date}.",
     "off": "Off. Each sign-in asks only for your password.",
-    "required": "Your company requires it for your role.",
+    "required": "Your company requires it for you.",
     "setUp": "Set up",
     "turnOff": "Turn off",
     "turnOffConfirm": "Turn off two-factor sign-in? Signing in will ask only for your password.",
@@ -1827,7 +1832,7 @@
     "codeHint": "6 digits. Lost your phone? Type one of your recovery codes.",
     "invalidCode": "Wrong or expired code.",
     "setupTitle": "Set up two-factor sign-in",
-    "setupIntro": "Your company asks for a second step when you sign in, because your account can see villa access codes or manage the company. You need an authenticator app on your phone.",
+    "setupIntro": "Your company asks for a second step when you sign in. You need an authenticator app on your phone.",
     "setupIntroOptional": "Signing in will ask for a code from an authenticator app on your phone, as well as your password.",
     "step1": "1. In the authenticator app, add an account and scan this code.",
     "manualKey": "Can't scan it? Type this key:",
@@ -1842,7 +1847,14 @@
     "resetUnavailable": "This person hasn't turned on two-factor sign-in, so there is nothing to reset.",
     "resetConfirm": "Reset this person's two-factor sign-in? They'll sign in with their password only and, if their role requires it, be asked to set it up again.",
     "notAllowed": "Your company requires two-factor sign-in for your role.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "ruleLabel": "Two-factor sign-in",
+    "ruleHint": "Whether this person must sign in with a second factor: their own rule, or the company's (Settings → Organization).",
+    "rule": {
+      "company": "2FA: company rule",
+      "required": "2FA: required",
+      "notRequired": "2FA: not required"
+    }
   },
   "erasure": {
     "formerUser": "Former user",
@@ -1943,6 +1955,10 @@
       "sendReport": {
         "label": "Send service reports",
         "hint": "E-mail the PDF service report to the client and other recipients."
+      },
+      "prepTime": {
+        "label": "Change preparation time",
+        "hint": "Change the Preparation / Planning minutes of any work order, until it is invoiced. The technicians assigned to a job always can while it is open."
       }
     },
     "requests": {
@@ -2479,6 +2495,9 @@
       "updatedById": "Updated by",
       "onCallHours": "On-call hours",
       "defaultOfficeId": "Default office",
+      "prepMinutes": "Preparation / Planning (minutes)",
+      "prices": "Prices at completion",
+      "require2fa": "Two-factor sign-in required",
       "blockedAt": "Blocked",
       "blockedById": "Blocked by"
     }
