@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import { useActionForm } from "@/lib/use-action-form";
 import { useTranslations } from "next-intl";
 import { Button, Field, FormError, Input, Select } from "@/components/ui";
-import { eraseMemberAction, inviteUserAction, resetTwoFactorAction, revokeInviteAction, updateMemberAction } from "../actions";
+import { eraseMemberAction, inviteUserAction, resetTwoFactorAction, revokeInviteAction, setMemberTwoFactorAction, updateMemberAction } from "../actions";
+import { TWO_FACTOR_SETTINGS, twoFactorSettingOf } from "@/lib/two-factor-rules";
 
 /** The company's roles, by name: built-in ones (value = the role) and created ones (value "job:<id>") alike. Labels come from the server. */
 export type RoleOptions = { value: string; label: string }[];
@@ -95,12 +96,43 @@ export function InviteForm({ clients = [], roleOptions }: { clients?: { id: stri
   );
 }
 
-/** Role (staff only: without `roleOptions` there is no role picker), deactivate / reactivate, reset two-factor and erase. */
-export function MemberControls({ id, role, active, twoFactor, roleOptions }: { id: string; role?: string; active: boolean; twoFactor?: boolean; roleOptions?: RoleOptions }) {
+/**
+ * Role (staff only: without `roleOptions` there is no role picker), two-factor rule (required / not required / the
+ * company's), deactivate / reactivate, reset two-factor and erase.
+ */
+export function MemberControls({
+  id,
+  role,
+  active,
+  twoFactor,
+  require2fa = null,
+  roleOptions,
+}: {
+  id: string;
+  role?: string;
+  active: boolean;
+  twoFactor?: boolean;
+  require2fa?: boolean | null;
+  roleOptions?: RoleOptions;
+}) {
   const t = useTranslations();
   const [pending, start] = useTransition();
   return (
     <div className="inline-flex items-center gap-2">
+      <Select
+        className="h-8 w-48"
+        aria-label={t("twoFactor.ruleLabel")}
+        title={t("twoFactor.ruleHint")}
+        defaultValue={twoFactorSettingOf(require2fa)}
+        disabled={pending}
+        onChange={(e) => start(() => setMemberTwoFactorAction(id, e.target.value))}
+      >
+        {TWO_FACTOR_SETTINGS.map((s) => (
+          <option key={s} value={s}>
+            {t(`twoFactor.rule.${s}`)}
+          </option>
+        ))}
+      </Select>
       {/* Always there, so admins know where to find it; greyed out until the person has two-factor on. */}
       <Button
         size="sm"

@@ -364,6 +364,9 @@ model Membership {
   hourlyRate     Decimal? @db.Decimal(10, 2)
   // In the on-call team: can be given on-call weeks (OnCallWeek). Staff only (not clients or viewers).
   onCall         Boolean  @default(false)
+  // Two-factor sign-in for this person, set by the Super Admin / admins (users.manage): true = required, false = not
+  // required, null = the company's rule (Organization.require2fa, lib/two-factor-rules.ts).
+  require2fa     Boolean?
   active         Boolean  @default(true)
   // When it was last deactivated: ex-members are flagged for erasure after the retention period (lib/retention).
   deactivatedAt  DateTime?
