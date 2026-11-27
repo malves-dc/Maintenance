@@ -4,20 +4,14 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { Button, Card } from "@/components/ui";
-import { prisma } from "@/lib/db/client";
 import { ACTIVE_ORG_COOKIE } from "@/lib/context";
+import { acceptInvitation, pendingInvitation } from "@/lib/invitations";
 import { signOutAction } from "../../actions";
-
-async function loadInvite(token: string) {
-  const invite = await prisma.invitation.findUnique({ where: { token }, include: { organization: true, jobRole: { select: { name: true } } } });
-  if (!invite || invite.acceptedAt || invite.expiresAt < new Date()) return null;
-  return invite;
-}
 
 export default async function InvitePage({ params }: PageProps<"/invite/[token]">) {
   const { token } = await params;
   const t = await getTranslations();
-  const invite = await loadInvite(token);
+  const invite = await pendingInvitation(token);
 
   if (!invite) {
     return (
@@ -33,20 +27,9 @@ export default async function InvitePage({ params }: PageProps<"/invite/[token]"
   async function accept() {
     "use server";
     const s = await auth();
-    const inv = await loadInvite(token);
-    if (!s?.user?.id || !inv) redirect(next);
-    const user = await prisma.user.findUnique({ where: { id: s.user.id } });
-    if (!user || user.email !== inv.email) redirect(next);
-
-    await prisma.$transaction([
-      prisma.membership.upsert({
-        where: { userId_organizationId: { userId: user.id, organizationId: inv.organizationId } },
-        create: { userId: user.id, organizationId: inv.organizationId, role: inv.role, jobRoleId: inv.jobRoleId, clientId: inv.clientId },
-        update: { role: inv.role, jobRoleId: inv.jobRoleId, clientId: inv.clientId, active: true },
-      }),
-      prisma.invitation.update({ where: { id: inv.id }, data: { acceptedAt: new Date() } }),
-    ]);
-    (await cookies()).set(ACTIVE_ORG_COOKIE, inv.organizationId, { path: "/", httpOnly: true, sameSite: "lax" });
+    const orgId = s?.user?.id ? await acceptInvitation(s.user.id, token) : null;
+    if (!orgId) redirect(next);
+    (await cookies()).set(ACTIVE_ORG_COOKIE, orgId, { path: "/", httpOnly: true, sameSite: "lax" });
     redirect("/dashboard");
   }
 
