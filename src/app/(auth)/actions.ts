@@ -17,7 +17,8 @@ import en from "../../../messages/en.json";
 import pt from "../../../messages/pt.json";
 import { appOrigin } from "@/lib/qr";
 import { getAppName } from "@/lib/server-settings";
-import { signupAllowed, signupOpen } from "@/lib/signup";
+import { inviteToken, signupAllowed, signupOpen } from "@/lib/signup";
+import { acceptInvitation } from "@/lib/invitations";
 import { emailLayout, sendEmail } from "@/lib/email";
 import { background } from "@/lib/notify";
 import { clearResetTokens, createResetToken, userForResetToken } from "@/lib/password-reset";
@@ -71,12 +72,22 @@ export async function signupAction(_: FormState, form: FormData): Promise<FormSt
   const user = await prisma.user.create({
     data: { name, email, passwordHash: await bcrypt.hash(password, 12), locale },
   });
+  let redirectTo = safeNext(form.get("next"));
   if (company) {
     const org = await createOrganization(user.id, company, locale);
     (await cookies()).set(ACTIVE_ORG_COOKIE, org.id, { path: "/", httpOnly: true, sameSite: "lax" });
+  } else {
+    // Signing up from an invitation accepts it at once: a second "Accept" click was easy to miss, and leaving
+    // the invite page then stranded the new user on "No organization yet".
+    const token = inviteToken(next);
+    const orgId = token ? await acceptInvitation(user.id, token) : null;
+    if (orgId) {
+      (await cookies()).set(ACTIVE_ORG_COOKIE, orgId, { path: "/", httpOnly: true, sameSite: "lax" });
+      redirectTo = "/dashboard";
+    }
   }
 
-  await signIn("credentials", { email, password, redirectTo: safeNext(form.get("next")) });
+  await signIn("credentials", { email, password, redirectTo });
 }
 
 export async function createOrgAction(_: FormState, form: FormData): Promise<FormState> {
