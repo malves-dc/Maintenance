@@ -2138,7 +2138,12 @@
     "body": "Please find attached the service report for work order {number}, \"{title}\".",
     "bodyVilla": "Please find attached the service report for work order {number}, \"{title}\", at {villa}.",
     "signature": "Kind regards,\n{company}",
-    "privacy": "Privacy notice"
+    "privacy": "Privacy notice",
+    "logTitle": "Report send history",
+    "logBy": "Sent by {name}",
+    "logByUnknown": "Sender not recorded",
+    "logAuto": "Sent automatically to the accountants",
+    "logAutoBy": "Sent automatically to the accountants (when {name} completed or changed the job)"
   },
   "backupCopies": {
     "title": "Backup copies",

@@ -30,6 +30,7 @@ import { RelatedPanel } from "./related-panel";
 import { Assignees } from "./assignees";
 import { AttachmentThumb } from "@/components/attachment-thumb";
 import { SendReportPanel } from "./send-report";
+import { groupSends, SEND_LOG_SELECT } from "@/lib/report-send-log";
 import { reportRecipients } from "@/lib/report-email";
 import { villaClient } from "@/lib/villa-client";
 import { roleName, WORK_ORDER_BUILT_IN_ROLE } from "@/lib/roles";
@@ -137,6 +138,11 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
   const dt = (d: Date) => format.dateTime(d, { dateStyle: "medium", timeStyle: "short" });
   const day = (d: Date) => format.dateTime(d, { day: "2-digit", month: "2-digit", year: "numeric" });
   const reportEmail = ctx.can("workOrders.sendReport") ? await reportRecipients(ctx, wo.id) : null;
+  // Every time the service report was e-mailed (lib/report-send-log.ts): for those who send it, and the accountants.
+  const sendLog =
+    ctx.can("workOrders.sendReport") || ctx.can("billing.view")
+      ? groupSends(await ctx.db.reportSend.findMany({ where: { workOrderId: wo.id }, select: SEND_LOG_SELECT }))
+      : [];
   const sla = wo.contract ? slaStates(wo, wo.contract, now, slaCalendar(ctx.organization)) : null;
   // The conversation with the client on the request this job came from (participants only).
   const chat = wo.request ? await openRequestChat(ctx, { requestId: wo.request.id }) : null;
@@ -516,6 +522,40 @@ export default async function WorkOrderPage({ params }: PageProps<"/work-orders/
                 recipients={reportEmail.recipients.map((r) => ({ ...r, sentOn: [...new Set((reportEmail.sentOn.get(r.email) ?? []).map(day))] }))}
                 lastSent={reportEmail.wo.reportSentAt ? { at: dt(reportEmail.wo.reportSentAt), count: reportEmail.wo.reportSentTo.length } : null}
               />
+            </Card>
+          )}
+
+          {sendLog.length > 0 && (
+            <Card className="p-5">
+              <h2 className="mb-3 font-medium">{t("reportEmail.logTitle")}</h2>
+              <ol className="space-y-3 text-sm">
+                {sendLog.map((s) => (
+                  <li key={`${s.at.toISOString()}-${s.by}-${s.auto}`} className="border-l-2 border-border pl-3">
+                    <div className="font-medium tabular-nums">{dt(s.at)}</div>
+                    <div className="text-xs text-muted">
+                      {[
+                        s.auto
+                          ? s.by
+                            ? t("reportEmail.logAutoBy", { name: s.by })
+                            : t("reportEmail.logAuto")
+                          : s.by
+                            ? t("reportEmail.logBy", { name: s.by })
+                            : t("reportEmail.logByUnknown"),
+                        s.revision ? t("report.revision", { revision: s.revision }) : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                    <ul className="mt-1 space-y-0.5">
+                      {s.to.map((email) => (
+                        <li key={email} className="break-all">
+                          {email}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ol>
             </Card>
           )}
         </div>

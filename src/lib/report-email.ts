@@ -114,7 +114,14 @@ export async function sendServiceReport(
       const now = new Date();
       await ctx.db.workOrder.update({
         where: { id: workOrderId },
-        data: { reportSentAt: now, reportSentTo: sent, reportSends: { create: sent.map((email) => ({ email: email.toLowerCase(), sentAt: now })) } },
+        data: {
+          reportSentAt: now,
+          reportSentTo: sent,
+          // The send history (lib/report-send-log.ts): who, to whom, when, which revision.
+          reportSends: {
+            create: sent.map((email) => ({ email: email.toLowerCase(), sentAt: now, sentById: ctx.user?.id ?? null, auto: !!opts.auto, revision: report.revision ?? 0 })),
+          },
+        },
       });
       await audit(ctx, "workOrder.reportSent", "WorkOrder", workOrderId, opts.auto ? { to: sent, auto: "accountants", revision: report.revision } : { to: sent });
     }
